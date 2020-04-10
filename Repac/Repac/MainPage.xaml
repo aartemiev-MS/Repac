@@ -14,9 +14,27 @@
         </Grid.RowDefinitions>
         <Image Source="RepacLogo_Transparent.jpg" 
                Grid.Row="0"/>
-        <Image Source="InviteIcon.png"
-               Grid.Row="0"
-               HorizontalOptions="End"/>
+        <StackLayout x:Name="InviteIcon"
+                Grid.Row="0"
+                HorizontalOptions="End"
+                IsVisible="False">
+            <Image Source="InviteIcon.png"/>
+        </StackLayout>
+        <Grid>
+            <!--<StackLayout x:Name="UserGreetings"
+                HorizontalOptions="End"
+                Grid.Column="0"
+                IsVisible="False">
+                <Label Text="Bonjour&#x0a;Philippe!"/>
+            </StackLayout>-->
+            <StackLayout x:Name="PhilippeAvatar"
+                HorizontalOptions="End"
+                Grid.Column="1"
+                IsVisible="False">
+                <Image Source="Agir_en_temps_que_Philippe_Adib_transparent.png"/>
+            </StackLayout>
+            <!--Grid.Row="0"-->
+        </Grid>
         <Grid  Grid.Row="1">
             <StackLayout x:Name="FirstScreen"
                          BackgroundColor="White"
@@ -100,6 +118,16 @@
 
                 </Grid>
             </Grid>
+            <StackLayout x:Name="FourthScreen"
+                         BackgroundColor="White"
+                         VerticalOptions="CenterAndExpand" 
+                         IsVisible="False">
+                <Image Source="Check_transparent.png"/>
+                <Label Text="Merci, Philippe!"
+                       HorizontalOptions="Center"
+                       FontSize="100"
+                       TextColor="Black"/>
+            </StackLayout>
         </Grid>
         <StackLayout x:Name="Footer" 
                      Orientation="Horizontal" 

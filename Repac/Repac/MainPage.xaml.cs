@@ -18,7 +18,8 @@ namespace Repac
         {
             First,
             Second,
-            Third
+            Third, 
+            Fourth
         }
 
         public MainPage()
@@ -32,13 +33,14 @@ namespace Repac
         {
             switch (CurrentSlide)
             {
-                case Slides.First:
-                    break;
                 case Slides.Second:
                     FirstSlideActivate();
                     break;
                 case Slides.Third:
                     SecondSlideActivate();
+                    break;
+                case Slides.Fourth:
+                    ThirdSlideActivate();
                     break;
             }
         }
@@ -53,6 +55,10 @@ namespace Repac
                     ThirdSlideActivate();
                     break;
                 case Slides.Third:
+                    FourthSlideActivate();
+                    break;
+                case Slides.Fourth:
+                    FirstSlideActivate();
                     break;
             }
         }
@@ -60,29 +66,54 @@ namespace Repac
         private void FirstSlideActivate()
         {
             CurrentSlide = Slides.First;
-
+            
             Footer.IsVisible = false;
+            InviteIcon.IsVisible = true;
+            PhilippeAvatar.IsVisible = false;
+         //   UserGreetings.IsVisible = false;
             FirstScreen.IsVisible = true;
             SecondScreen.IsVisible = false;
             ThirdScreen.IsVisible = false;
+            FourthScreen.IsVisible = false;
         }
         private void SecondSlideActivate()
         {
             CurrentSlide = Slides.Second;
 
             Footer.IsVisible = true;
+            InviteIcon.IsVisible = true;
+            PhilippeAvatar.IsVisible = false; 
+           // UserGreetings.IsVisible = false;
             FirstScreen.IsVisible = false;
             SecondScreen.IsVisible = true;
             ThirdScreen.IsVisible = false;
+            FourthScreen.IsVisible = false;
         }
         private void ThirdSlideActivate()
         {
             CurrentSlide = Slides.Third;
 
             Footer.IsVisible = false;
+            InviteIcon.IsVisible = false;
+          //  UserGreetings.IsVisible = true;
+            PhilippeAvatar.IsVisible = true;
             FirstScreen.IsVisible = false;
             SecondScreen.IsVisible = false;
             ThirdScreen.IsVisible = true;
+            FourthScreen.IsVisible = false;
+        }
+        private void FourthSlideActivate()
+        {
+            CurrentSlide = Slides.Fourth;
+
+            Footer.IsVisible = false;
+            InviteIcon.IsVisible = false;
+            PhilippeAvatar.IsVisible = true;
+           // UserGreetings.IsVisible = false;
+            FirstScreen.IsVisible = false;
+            SecondScreen.IsVisible = false;
+            ThirdScreen.IsVisible = false;
+            FourthScreen.IsVisible = true;
         }
     }
 }
