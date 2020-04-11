@@ -6,14 +6,18 @@
              mc:Ignorable="d"
              x:Class="Repac.MainPage">
 
-    <Grid>
+    <Grid BackgroundColor="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="100"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="70"/>
         </Grid.RowDefinitions>
         <Image Source="RepacLogo_Transparent.jpg" 
-               Grid.Row="0"/>
+               Grid.Row="0">
+            <Image.GestureRecognizers>
+                <TapGestureRecognizer Tapped="RepacLogo_Tapped"/>
+            </Image.GestureRecognizers>
+        </Image>
         <Image Source="InviteIcon.png"
                Grid.Row="0"
                HorizontalOptions="End"/>
@@ -22,6 +26,9 @@
                          BackgroundColor="White"
                          VerticalOptions="CenterAndExpand" 
                          IsVisible="False">
+                <StackLayout.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="FirstScreen_Tapped"/>
+                </StackLayout.GestureRecognizers>
                 <Label Text="Bienvenue!"
                        HorizontalOptions="Center"
                        FontSize="100"/>
@@ -33,45 +40,87 @@
                        FontSize="100"/>
             </StackLayout>
 
-            <StackLayout x:Name="SecondScreen"
-                         BackgroundColor="White"                         
-                         VerticalOptions="CenterAndExpand" 
-                         IsVisible="False">
-                <Label Text="Items scannés"
-                       HorizontalOptions="Center" 
-                       FontSize="100"
-                       TextDecorations="Underline"/>
-                <Grid HeightRequest="350"
-                      WidthRequest="350">
-                    <Image Source="BlueRoundedSquare.png"/>
-                    <Label x:Name="CounterLabel"
-                           Text="1" 
-                           HorizontalOptions="Center"
-                           FontSize="200" 
-                           VerticalOptions="CenterAndExpand"/>
+            <Grid x:Name="SecondScreen">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="150"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid x:Name="ItemsScannesGrid" 
+                      Grid.Row="0"
+                      VerticalOptions="End">
+                    <Label Text="Items scannés"
+                           HorizontalOptions="Center" 
+                           FontSize="80"
+                           TextDecorations="Underline"/>
                 </Grid>
-            </StackLayout> 
-            
+
+                <StackLayout x:Name="ItemsAdjustmentStack" 
+                             Opacity="0"
+                             Grid.Row="0"
+                             VerticalOptions="End">
+                    <Label Text="Items comptés aujourd'hui:"
+                               HorizontalOptions="Center" 
+                               FontSize="80"
+                               TextDecorations="Underline"/>
+                    <Button Text="-"
+                            x:Name="ButtonSubstract"
+                            Font="25"
+                            HorizontalOptions="Center"
+                            VerticalOptions="End"
+                            Clicked="ButtonSub_Clicked"/>
+                </StackLayout>
+
+                <StackLayout VerticalOptions="CenterAndExpand" 
+                             IsVisible="true"
+                             Grid.Row="1"
+                             Spacing="0">                
+                    <Grid HeightRequest="370"
+                          WidthRequest="370"
+                          Margin="15">
+                        <Image Source="BlueRoundedSquare.png"/>
+                        <Label x:Name="CounterLabel"
+                               Text="0" 
+                               HorizontalOptions="Center"
+                               FontSize="200" 
+                               VerticalOptions="CenterAndExpand"/>
+                    </Grid>
+                    <Grid Margin="0">
+                        <Button Text="+"
+                            x:Name="ButtonAdd"
+                            Font="25"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Start"
+                            Clicked="ButtonAdd_Clicked"
+                            Opacity="0"/>
+
+                    </Grid>
+                </StackLayout>
+            </Grid>
             <Grid x:Name="ThirdScreen"
-                  VerticalOptions="CenterAndExpand">
-                <Grid BackgroundColor="Black"                       
-                      ColumnSpacing="3">
+                  VerticalOptions="CenterAndExpand"
+                  IsVisible="False">
+                <Grid ColumnSpacing="3">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="1.3*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="100"/>
                     </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0" 
+                          Grid.ColumnSpan="2" 
+                          BackgroundColor="Black"/>
+                    
                     <StackLayout BackgroundColor="White"
                                  VerticalOptions="CenterAndExpand" 
                                  Grid.Column="0">
                         <Label Text="Items scannés" 
                                HorizontalOptions="Center"
-                               FontSize="60" 
+                               FontSize="50" 
                                TextDecorations="Underline"/>
                         <Grid HeightRequest="350"
                               WidthRequest="350">
                             <Image Source="BlueRoundedSquare.png"/>
                             <Label x:Name="CounterLabelLeft" 
-                                   Text="1" 
+                                   Text="0" 
                                    HorizontalOptions="Center"
                                    FontSize="200" 
                                    VerticalOptions="CenterAndExpand"/>
@@ -80,24 +129,47 @@
 
                     <StackLayout BackgroundColor="White" 
                                  VerticalOptions="CenterAndExpand"
-                                 Grid.Column="1">
+                                 Grid.Column="1"
+                                 Grid.ColumnSpan="1">
                         <Label Text="Crédits au compte" 
                                HorizontalOptions="Center" 
-                               FontSize="60" 
+                               FontSize="50" 
                                TextDecorations="Underline"/>
                         <Grid HeightRequest="350" 
                               WidthRequest="350">
                             <Image Source="BlueRoundedSquare.png"/>
                             <Label x:Name="CounterLabelRight" 
-                                   Text="1" 
+                                   Text="0" 
                                    HorizontalOptions="Center"
                                    FontSize="200"
-                                   VerticalOptions="CenterAndExpand" 
-                                   TextColor="DarkRed"/>
+                                   VerticalOptions="CenterAndExpand"/>
                         </Grid>
 
                     </StackLayout>
-
+                    <Button x:Name="AddCreditButton"
+                            Grid.Column="1"
+                            Grid.ColumnSpan="2"
+                            HorizontalOptions="End"
+                            VerticalOptions="Center"
+                            WidthRequest="150"
+                            HeightRequest="100"
+                            BackgroundColor="#00ff00"
+                            CornerRadius="25"
+                            FontSize="15"
+                            Text="Augmentez vos crédits"
+                            BorderColor="Black"
+                            BorderWidth="1"
+                            Margin="20"
+                            Clicked="AddProductCredit">
+                    </Button>
+                    <Label x:Name="CreditsErrorLabel"
+                           Text="CRÉDITS INSUFFISANTS"
+                           TextColor="DarkRed"
+                           FontSize="25"
+                           Grid.Column="1"
+                           HorizontalOptions="Center"
+                           VerticalOptions="End"
+                           IsVisible="False"/>
                 </Grid>
             </Grid>
         </Grid>
@@ -105,14 +177,25 @@
                      Orientation="Horizontal" 
                      HorizontalOptions="Center"
                      Grid.Row="2">
-            <Label Text="TAPER CARTE/TEL. POUR VOUS IDENTIFIER." 
-                   FontSize="30"/>
-            <Image Source="NFC_PhoneClipart_Transparent.jpg"/>
-            <Image Source="NFC_CreditCard_Transparent.jpg"/>
+            <Label x:Name="FooterTextLabel"
+                   Text="TAPER CARTE/TEL. POUR VOUS IDENTIFIER." 
+                   FontSize="25"/>
+            <Image Source="NFC_PhoneClipart_Transparent.jpg">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="FooterIcon_Tapped"/>
+                </Image.GestureRecognizers>
+            </Image>
+            <Image Source="NFC_CreditCard_Transparent.jpg">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="FooterIcon_Tapped"/>
+                </Image.GestureRecognizers>
+            </Image>
         </StackLayout>
-        <StackLayout Grid.Row="2"
+        <StackLayout Grid.Row="2" 
                      Orientation="Horizontal"
-                     VerticalOptions="CenterAndExpand">
+                     VerticalOptions="CenterAndExpand"
+                     HorizontalOptions="Start"
+                     IsVisible="false">
             <Button Text="◄"
                     Font="30"                
                     HorizontalOptions="Start"
