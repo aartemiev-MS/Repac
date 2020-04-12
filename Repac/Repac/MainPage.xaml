@@ -22,12 +22,31 @@
             <Image x:Name="InviteIcon"
                    Source="InviteIcon.png"
                    HeightRequest="80"
-                   IsVisible="False"
+                   IsVisible="True"
+                   WidthRequest="130"
+                   Margin="0,0,20,0"
                    HorizontalOptions="End"/>
-            <Image x:Name="PhilippeAvatar" 
-                   Source="PhilippesIcon_transparent.png"
-                   HorizontalOptions="End"
-                   IsVisible="False"/>
+            <StackLayout x:Name="UserInfo"
+                         Orientation="Horizontal"
+                         HorizontalOptions="End"
+                         Margin="0,0,20,0"
+                         IsVisible="True">
+                <StackLayout Margin="0,0,15,0">
+                    <Label Text="Bonjour"
+                           TextDecorations="Underline"
+                           FontSize="40"
+                           TextColor="Black"/>
+                    <Label Text="Philippe!"
+                           TextDecorations="Underline"
+                           FontSize="40"
+                           TextColor="Black"
+                           Margin="0,-10,0,0"/>
+                </StackLayout>
+                <Image x:Name="PhilippeAvatar" 
+                       Source="PhilippesIcon_transparent.png"
+                       HorizontalOptions="EndAndExpand"
+                       WidthRequest="80"/>
+            </StackLayout>
         </Grid>
 
         <Grid  Grid.Row="1">

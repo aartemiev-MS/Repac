@@ -140,7 +140,7 @@ namespace Repac
             Footer.IsVisible = false;
 
             InviteIcon.IsVisible = true;
-            PhilippeAvatar.IsVisible = false;
+            UserInfo.IsVisible = false;
 
             FirstScreen.IsVisible = true;
             SecondScreen.IsVisible = false;
@@ -159,8 +159,9 @@ namespace Repac
             ItemsScannesLabel.Opacity = 100;
 
             Footer.IsVisible = true;
+
             InviteIcon.IsVisible = true;
-            PhilippeAvatar.IsVisible = false;
+            UserInfo.IsVisible = false;
 
             FirstScreen.IsVisible = false;
             SecondScreen.IsVisible = true;
@@ -175,8 +176,9 @@ namespace Repac
             CounterLabelRight.Text = this.ProductsCredit.ToString();
 
             Footer.IsVisible = false;
+
             InviteIcon.IsVisible = false;
-            PhilippeAvatar.IsVisible = true;
+            UserInfo.IsVisible = true;
 
             FirstScreen.IsVisible = false;
             SecondScreen.IsVisible = false;
@@ -192,13 +194,16 @@ namespace Repac
             CurrentSlide = Slides.Fourth;
 
             Footer.IsVisible = false;
+
             InviteIcon.IsVisible = false;
-            PhilippeAvatar.IsVisible = true;
+            UserInfo.IsVisible = true;
 
             FirstScreen.IsVisible = false;
             SecondScreen.IsVisible = false;
             ThirdScreen.IsVisible = false;
             FourthScreen.IsVisible = true;
+
+            NullifyTimerSet();
         }
 
         private void NullifyCycle()
@@ -213,6 +218,31 @@ namespace Repac
         private void MerciTapped(object sender, EventArgs e)
         {
             NullifyCycle();
+        }
+
+        private void NullifyTimerSet()
+        {
+            int counter = 0;           // timer will work for 6 seconds (12 * 0.5sec)
+            Device.StartTimer(TimeSpan.FromSeconds(0.5), () =>
+             {
+                 if (counter < 4)     // we check each 0.5 seconds
+                 {
+                     if (CurrentSlide == Slides.Fourth)
+                     {
+                         counter += 1;
+                         return true;  // user has't tapped on screen yet. we understand it because the fourth slide is still active
+                     }
+                     else
+                     {
+                         return false; // user has tapped on screen and cycle has already been nullified. we dont need this timer anymore
+                     }
+                 }
+                 else
+                 {
+                     NullifyCycle();   // 6 seconds of timer has passed so we nullify the cycle
+                     return false;
+                 }
+             });
         }
 
         #endregion
