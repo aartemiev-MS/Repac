@@ -113,15 +113,15 @@ namespace Repac
 
                 if (EditingItemsQuantityMode)
                 {
-                    ButtonAdd.Opacity = 100;
-                    ButtonSubstract.Opacity = 100;
+                    ImageAdd.Opacity = 100;
+                    ImageSubstract.Opacity = 100;
                     ItemsAdjustmentLabel.Opacity = 100;
                     ItemsScannesLabel.Opacity = 0;
                 }
                 else
                 {
-                    ButtonAdd.Opacity = 0;
-                    ButtonSubstract.Opacity = 0;
+                    ImageAdd.Opacity = 0;
+                    ImageSubstract.Opacity = 0;
                     ItemsAdjustmentLabel.Opacity = 0;
                     ItemsScannesLabel.Opacity = 100;
                 }
@@ -152,9 +152,9 @@ namespace Repac
             CurrentSlide = Slides.Second;
 
             CounterLabel.Text = this.ScannedProducts.ToString();
-            
-            ButtonAdd.Opacity = 0;
-            ButtonSubstract.Opacity = 0;
+
+            ImageAdd.Opacity = 0;
+            ImageSubstract.Opacity = 0;
             ItemsAdjustmentLabel.Opacity = 0;
             ItemsScannesLabel.Opacity = 100;
 

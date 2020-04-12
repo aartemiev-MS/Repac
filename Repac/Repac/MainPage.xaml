@@ -21,8 +21,9 @@
             </Image>
             <Image x:Name="InviteIcon"
                    Source="InviteIcon.png"
-                   HorizontalOptions="End"
-                   IsVisible="False"/>
+                   HeightRequest="80"
+                   IsVisible="False"
+                   HorizontalOptions="End"/>
             <Image x:Name="PhilippeAvatar" 
                    Source="PhilippesIcon_transparent.png"
                    HorizontalOptions="End"
@@ -52,7 +53,7 @@
             </StackLayout>
 
             <Grid x:Name="SecondScreen"
-                      IsVisible="false">
+                      IsVisible="True">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="90"/>
                     <RowDefinition Height="50"/>
@@ -66,7 +67,7 @@
                                TextColor="Black"
                                Grid.Row="0"
                                Grid.RowSpan="2"
-                               VerticalOptions="End"/>
+                               VerticalOptions="End"/>                
 
                 <Label x:Name="ItemsAdjustmentLabel"    
                                Opacity="100"
@@ -82,13 +83,14 @@
                                  IsVisible="true"
                                  Grid.Row="1"
                                  Grid.RowSpan="2"
-                                 Spacing="0">
-                    <Button x:Name="ButtonSubstract"
-                                Text="-"
-                                Font="25"
-                                HorizontalOptions="Center"  
-                                VerticalOptions="End"
-                                Clicked="ButtonSub_Clicked"/>
+                                 Spacing="0">                    
+                    <Image x:Name="ImageSubstract"
+                           Source="BlueRoundedSquare.png"
+                           HeightRequest="60">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="ButtonSub_Clicked"/>
+                        </Image.GestureRecognizers>
+                    </Image>
                     <Grid HeightRequest="350"  
                               WidthRequest="350"
                               Margin="0">
@@ -100,18 +102,19 @@
                                    VerticalOptions="CenterAndExpand"
                                    TextColor="Black"/>
                     </Grid>
-                    <Button Text="+"
-                                x:Name="ButtonAdd"
-                                Font="25"
-                                HorizontalOptions="Center"
-                                Clicked="ButtonAdd_Clicked"
-                                Opacity="100"/>
+                    <Image x:Name="ImageAdd"
+                           Source="BlueRoundedSquare.png"
+                           HeightRequest="60">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="ButtonAdd_Clicked"/>
+                        </Image.GestureRecognizers>
+                    </Image>
                 </StackLayout>
             </Grid>
 
-            <Grid x:Name="ThirdScreen">
-                <Grid VerticalOptions="CenterAndExpand"
-                          IsVisible="True">
+            <Grid x:Name="ThirdScreen"
+                  IsVisible="False">
+                <Grid VerticalOptions="CenterAndExpand">
                     <Grid ColumnSpacing="3">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -178,8 +181,7 @@
                                             BorderColor="Black"
                                             BorderWidth="1"
                                             Margin="20"
-                                            Clicked="AddProductCredit">
-                        </Button>
+                                            Clicked="AddProductCredit"/>
                     </Grid>
                 </Grid>
                 <Grid x:Name="CreditsError"
