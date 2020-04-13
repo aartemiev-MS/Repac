@@ -127,7 +127,13 @@
                     <Grid HeightRequest="350"  
                               WidthRequest="350"
                               Margin="0">
-                        <Image x:Name="ItemsCounterBackground" Opacity="1" Source="BlueRoundedSquare.png"/>
+                            <Image x:Name="ItemsCounterBackground"
+                                   Opacity="1" 
+                                   Source="BlueRoundedSquare.png">
+                                <Image.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="ItemsCounter_Tapped"/>
+                                </Image.GestureRecognizers>
+                            </Image>
                         <Label x:Name="CounterLabel"
                                    Text="0" 
                                    HorizontalOptions="Center"

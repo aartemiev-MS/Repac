@@ -73,51 +73,16 @@ namespace Repac
         {
             if (EditingItemsQuantityMode)
             {
-                await ImageAdd.FadeTo(0, 100);
-                await ImageAdd.FadeTo(1, 100);
-            }
-            await Fade(ItemsCounter, 200);
-            ScannedProducts += 1;
-            CounterLabel.Text = this.ScannedProducts.ToString();
-            CounterLabelLeft.Text = this.ScannedProducts.ToString();
-            await Appear(ItemsCounter, 200);
-
-            if (ScannedProducts > ProductsCredit)
-            {
-                CounterLabelRight.TextColor = Color.DarkRed;
-                CreditsError.Opacity = 100;
-            }
-            else
-            {
-                CounterLabelRight.TextColor = Color.Black;
-                CreditsError.Opacity = 0;
+                AddScannedItem();
             }
         }
 
         private async void ButtonSub_Clicked(object sender, EventArgs e)
         {
-            if (ScannedProducts > 0)
-            { 
-                if (EditingItemsQuantityMode)
-                {
-                    await ImageSubstract.FadeTo(0, 100);
-                    await ImageSubstract.FadeTo(1, 100);
-                }
-                await Fade(ItemsCounter, 200);
-                ScannedProducts -= 1;
-                CounterLabel.Text = this.ScannedProducts.ToString();
-                CounterLabelLeft.Text = this.ScannedProducts.ToString();
-                await Appear(ItemsCounter, 200);
-                if (ScannedProducts > ProductsCredit)
-                {
-                    CounterLabelRight.TextColor = Color.DarkRed;
-                    CreditsError.Opacity = 100;
-                }
-                else
-                {
-                    CounterLabelRight.TextColor = Color.Black;
-                    CreditsError.Opacity = 0;
-                }
+            if (EditingItemsQuantityMode)
+            {
+
+                SubScannedItem();
             }
         }
 
@@ -158,6 +123,12 @@ namespace Repac
         {
             await element.FadeTo(0, time);
         }
+
+        private void ItemsCounter_Tapped(object sender, EventArgs e)
+        {
+            AddScannedItem();
+        }
+
         #endregion
 
         #region "Functions"
@@ -276,6 +247,58 @@ namespace Repac
              });
         }
 
+        private async void AddScannedItem()
+        {
+            if (EditingItemsQuantityMode)
+            {
+                await ImageAdd.FadeTo(0, 100);
+                await ImageAdd.FadeTo(1, 100);
+            }
+            await Fade(ItemsCounter, 200);
+            ScannedProducts += 1;
+            CounterLabel.Text = this.ScannedProducts.ToString();
+            CounterLabelLeft.Text = this.ScannedProducts.ToString();
+            await Appear(ItemsCounter, 200);
+
+            if (ScannedProducts > ProductsCredit)
+            {
+                CounterLabelRight.TextColor = Color.DarkRed;
+                CreditsError.Opacity = 100;
+            }
+            else
+            {
+                CounterLabelRight.TextColor = Color.Black;
+                CreditsError.Opacity = 0;
+            }
+        }
+
+        private async void SubScannedItem()
+        {
+            if (ScannedProducts > 0)
+            {
+                if (EditingItemsQuantityMode)
+                {
+                    await ImageSubstract.FadeTo(0, 100);
+                    await ImageSubstract.FadeTo(1, 100);
+                }
+                await Fade(ItemsCounter, 200);
+                ScannedProducts -= 1;
+                CounterLabel.Text = this.ScannedProducts.ToString();
+                CounterLabelLeft.Text = this.ScannedProducts.ToString();
+                await Appear(ItemsCounter, 200);
+                if (ScannedProducts > ProductsCredit)
+                {
+                    CounterLabelRight.TextColor = Color.DarkRed;
+                    CreditsError.Opacity = 100;
+                }
+                else
+                {
+                    CounterLabelRight.TextColor = Color.Black;
+                    CreditsError.Opacity = 0;
+                }
+            }
+
+        }
         #endregion
     }
-}
+    }
