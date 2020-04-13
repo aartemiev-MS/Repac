@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 
@@ -66,11 +67,18 @@ namespace Repac
             }
         }
 
-        private void ButtonAdd_Clicked(object sender, EventArgs e)
+        private async void ButtonAdd_Clicked(object sender, EventArgs e)
         {
+            if (EditingItemsQuantityMode)
+            {
+                await ImageAdd.FadeTo(0, 200);
+                await ImageAdd.FadeTo(1, 200);
+            }
+            await Fade(ItemsCounter);
             ScannedProducts += 1;
             CounterLabel.Text = this.ScannedProducts.ToString();
             CounterLabelLeft.Text = this.ScannedProducts.ToString();
+            await Appear(ItemsCounter);
 
             if (ScannedProducts > ProductsCredit)
             {
@@ -84,14 +92,20 @@ namespace Repac
             }
         }
 
-        private void ButtonSub_Clicked(object sender, EventArgs e)
+        private async void ButtonSub_Clicked(object sender, EventArgs e)
         {
             if (ScannedProducts > 0)
-            {
+            { 
+                if (EditingItemsQuantityMode)
+                {
+                    await ImageSubstract.FadeTo(0, 200);
+                    await ImageSubstract.FadeTo(1, 200);
+                }
+                await Fade(ItemsCounter);
                 ScannedProducts -= 1;
                 CounterLabel.Text = this.ScannedProducts.ToString();
                 CounterLabelLeft.Text = this.ScannedProducts.ToString();
-
+                await Appear(ItemsCounter);
                 if (ScannedProducts > ProductsCredit)
                 {
                     CounterLabelRight.TextColor = Color.DarkRed;
@@ -105,7 +119,7 @@ namespace Repac
             }
         }
 
-        private void RepacLogo_Tapped(object sender, EventArgs e)
+        private async void RepacLogo_Tapped(object sender, EventArgs e)
         {
             if (CurrentSlide == Slides.Second)
             {
@@ -113,21 +127,34 @@ namespace Repac
 
                 if (EditingItemsQuantityMode)
                 {
-                    ImageAdd.Opacity = 100;
-                    ImageSubstract.Opacity = 100;
+                    await Appear(ImageSubstract);
+                    await Appear(ImageAdd);
+                    //ImageAdd.Opacity = 100;
+                    //ImageSubstract.Opacity = 100;
                     ItemsAdjustmentLabel.Opacity = 100;
                     ItemsScannesLabel.Opacity = 0;
                 }
                 else
                 {
-                    ImageAdd.Opacity = 0;
-                    ImageSubstract.Opacity = 0;
+                    await Fade(ImageSubstract);
+                    await Fade(ImageAdd);
+                    //ImageAdd.Opacity = 0;
+                    //ImageSubstract.Opacity = 0;
                     ItemsAdjustmentLabel.Opacity = 0;
                     ItemsScannesLabel.Opacity = 100;
                 }
             }
         }
 
+        async Task Appear(View element)
+        {
+            await element.FadeTo(1, 500);
+        }
+
+        async Task Fade(View element)
+        {
+            await element.FadeTo(0, 500);
+        }
         #endregion
 
         #region "Functions"
@@ -147,7 +174,7 @@ namespace Repac
             ThirdScreen.IsVisible = false;
             FourthScreen.IsVisible = false;
         }
-        private void SecondSlideActivate()
+        private async void SecondSlideActivate()
         {
             CurrentSlide = Slides.Second;
 
@@ -167,6 +194,7 @@ namespace Repac
             SecondScreen.IsVisible = true;
             ThirdScreen.IsVisible = false;
             FourthScreen.IsVisible = false;
+            await Appear(ItemsCounterBackground);
         }
         private void ThirdSlideActivate()
         {

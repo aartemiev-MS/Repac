@@ -102,32 +102,63 @@
                                  IsVisible="true"
                                  Grid.Row="1"
                                  Grid.RowSpan="2"
-                                 Spacing="0">                    
-                    <Image x:Name="ImageSubstract"
+                                 Spacing="0">
+                    <StackLayout x:Name="ImageSubstract">
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="ButtonSub_Clicked"/>
+                        </StackLayout.GestureRecognizers>
+                    <Grid>
+                        <Image 
                            Source="BlueRoundedSquare.png"
                            HeightRequest="60">
-                        <Image.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="ButtonSub_Clicked"/>
-                        </Image.GestureRecognizers>
-                    </Image>
+                            <!--<Image.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="ButtonSub_Clicked"/>
+                            </Image.GestureRecognizers>-->
+                        </Image>
+                        <Label Text="-" 
+                           Grid.Row="0"
+                           Grid.Column="0"
+                           FontSize="40"
+                           HorizontalOptions="CenterAndExpand"
+                           TextColor="Black"/>
+                        </Grid>
+                    </StackLayout>
+                    <StackLayout x:Name="ItemsCounter">
                     <Grid HeightRequest="350"  
                               WidthRequest="350"
                               Margin="0">
-                        <Image Source="BlueRoundedSquare.png"/>
+                        <Image x:Name="ItemsCounterBackground" Opacity="1" Source="BlueRoundedSquare.png"/>
                         <Label x:Name="CounterLabel"
                                    Text="0" 
                                    HorizontalOptions="Center"
                                    FontSize="200" 
                                    VerticalOptions="CenterAndExpand"
                                    TextColor="Black"/>
-                    </Grid>
-                    <Image x:Name="ImageAdd"
+                        </Grid>
+                    </StackLayout>
+                    <StackLayout x:Name="ImageAdd">
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="ButtonAdd_Clicked"/>
+                        </StackLayout.GestureRecognizers>
+                        <Grid>
+                            <Image 
+                           Grid.Row="0"
+                           Grid.Column="0"
+                           HorizontalOptions="CenterAndExpand"
                            Source="BlueRoundedSquare.png"
                            HeightRequest="60">
-                        <Image.GestureRecognizers>
+                        <!--<Image.GestureRecognizers>
                             <TapGestureRecognizer Tapped="ButtonAdd_Clicked"/>
-                        </Image.GestureRecognizers>
+                        </Image.GestureRecognizers>-->
                     </Image>
+                        <Label Text="+" 
+                           Grid.Row="0"
+                           Grid.Column="0"
+                           FontSize="40"
+                           HorizontalOptions="CenterAndExpand"
+                           TextColor="Black"/>
+                        </Grid>
+                    </StackLayout>
                 </StackLayout>
             </Grid>
 
