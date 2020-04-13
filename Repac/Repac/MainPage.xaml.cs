@@ -34,10 +34,12 @@ namespace Repac
         }
 
         #region "Events"
-        private void AddProductCredit(object sender, EventArgs e)
+        private async void AddProductCredit(object sender, EventArgs e)
         {
+            await Fade(CounterGridRight, 200);
             ProductsCredit += 1;
             CounterLabelRight.Text = this.ProductsCredit.ToString();
+            await Appear(CounterGridRight, 200);
 
             if (ScannedProducts <= ProductsCredit)
             {
@@ -71,14 +73,14 @@ namespace Repac
         {
             if (EditingItemsQuantityMode)
             {
-                await ImageAdd.FadeTo(0, 200);
-                await ImageAdd.FadeTo(1, 200);
+                await ImageAdd.FadeTo(0, 100);
+                await ImageAdd.FadeTo(1, 100);
             }
-            await Fade(ItemsCounter);
+            await Fade(ItemsCounter, 200);
             ScannedProducts += 1;
             CounterLabel.Text = this.ScannedProducts.ToString();
             CounterLabelLeft.Text = this.ScannedProducts.ToString();
-            await Appear(ItemsCounter);
+            await Appear(ItemsCounter, 200);
 
             if (ScannedProducts > ProductsCredit)
             {
@@ -98,14 +100,14 @@ namespace Repac
             { 
                 if (EditingItemsQuantityMode)
                 {
-                    await ImageSubstract.FadeTo(0, 200);
-                    await ImageSubstract.FadeTo(1, 200);
+                    await ImageSubstract.FadeTo(0, 100);
+                    await ImageSubstract.FadeTo(1, 100);
                 }
-                await Fade(ItemsCounter);
+                await Fade(ItemsCounter, 200);
                 ScannedProducts -= 1;
                 CounterLabel.Text = this.ScannedProducts.ToString();
                 CounterLabelLeft.Text = this.ScannedProducts.ToString();
-                await Appear(ItemsCounter);
+                await Appear(ItemsCounter, 200);
                 if (ScannedProducts > ProductsCredit)
                 {
                     CounterLabelRight.TextColor = Color.DarkRed;
@@ -127,17 +129,18 @@ namespace Repac
 
                 if (EditingItemsQuantityMode)
                 {
-                    await Appear(ImageSubstract);
-                    await Appear(ImageAdd);
-                    //ImageAdd.Opacity = 100;
-                    //ImageSubstract.Opacity = 100;
                     ItemsAdjustmentLabel.Opacity = 100;
                     ItemsScannesLabel.Opacity = 0;
+
+                    await Appear(ImageSubstract, 300);
+                    await Appear(ImageAdd, 300);
+                    //ImageAdd.Opacity = 100;
+                    //ImageSubstract.Opacity = 100;
                 }
                 else
                 {
-                    await Fade(ImageSubstract);
-                    await Fade(ImageAdd);
+                    await Fade(ImageSubstract, 300);
+                    await Fade(ImageAdd, 300);
                     //ImageAdd.Opacity = 0;
                     //ImageSubstract.Opacity = 0;
                     ItemsAdjustmentLabel.Opacity = 0;
@@ -146,14 +149,14 @@ namespace Repac
             }
         }
 
-        async Task Appear(View element)
+        async Task Appear(View element, UInt32 time)
         {
-            await element.FadeTo(1, 500);
+            await element.FadeTo(1, time);
         }
 
-        async Task Fade(View element)
+        async Task Fade(View element, UInt32 time)
         {
-            await element.FadeTo(0, 500);
+            await element.FadeTo(0, time);
         }
         #endregion
 
@@ -194,7 +197,7 @@ namespace Repac
             SecondScreen.IsVisible = true;
             ThirdScreen.IsVisible = false;
             FourthScreen.IsVisible = false;
-            await Appear(ItemsCounterBackground);
+            await Appear(ItemsCounterBackground, 300);
         }
         private void ThirdSlideActivate()
         {
@@ -253,7 +256,7 @@ namespace Repac
             int counter = 0;           // timer will work for 6 seconds (12 * 0.5sec)
             Device.StartTimer(TimeSpan.FromSeconds(0.5), () =>
              {
-                 if (counter < 4)     // we check each 0.5 seconds
+                 if (counter < 12)     // we check each 0.5 seconds
                  {
                      if (CurrentSlide == Slides.Fourth)
                      {

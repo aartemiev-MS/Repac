@@ -205,8 +205,9 @@
                                                FontSize="50" 
                                                TextDecorations="Underline"
                                                TextColor="Black"/>
-                            <Grid HeightRequest="300" 
-                                              WidthRequest="300">
+                            <Grid x:Name="CounterGridRight"
+                                  HeightRequest="300" 
+                                  WidthRequest="300">
                                 <Image Source="BlueRoundedSquare.png"/>
                                 <Label x:Name="CounterLabelRight" 
                                                    Text="0" 
