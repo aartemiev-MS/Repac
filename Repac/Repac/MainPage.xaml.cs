@@ -132,14 +132,14 @@ namespace Repac
                     ItemsAdjustmentLabel.Opacity = 100;
                     ItemsScannesLabel.Opacity = 0;
 
-                    await Appear(ImageSubstract, 300);
-                    await Appear(ImageAdd, 300);
+                    Appear(ImageSubstract, 300);
+                    Appear(ImageAdd, 300);
                     //ImageAdd.Opacity = 100;
                     //ImageSubstract.Opacity = 100;
                 }
                 else
                 {
-                    await Fade(ImageSubstract, 300);
+                    Fade(ImageSubstract, 300);
                     await Fade(ImageAdd, 300);
                     //ImageAdd.Opacity = 0;
                     //ImageSubstract.Opacity = 0;
