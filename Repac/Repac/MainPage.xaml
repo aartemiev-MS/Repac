@@ -5,16 +5,16 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              x:Class="Repac.MainPage">
-
+    <Grid>
     <Grid BackgroundColor="White">
         <Grid.RowDefinitions>
-            <RowDefinition Height="100"/>
+            <RowDefinition Height="0.16*"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="70"/>
+            <RowDefinition Height="0.12*"/>
         </Grid.RowDefinitions>
         <Grid x:Name="Header">
             <Image Source="RepacLogo_Transparent.jpg" 
-               Grid.Row="0">
+                   Grid.Row="0">
                 <Image.GestureRecognizers>
                     <TapGestureRecognizer Tapped="RepacLogo_Tapped"/>
                 </Image.GestureRecognizers>
@@ -72,10 +72,10 @@
             </StackLayout>
 
             <Grid x:Name="SecondScreen"
-                      IsVisible="True">
+                  IsVisible="False">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="90"/>
-                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="0.2*"/>
+                    <RowDefinition Height="0.11*"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Label x:Name="ItemsScannesLabel" 
@@ -97,75 +97,76 @@
                                TextDecorations="Underline"
                                TextColor="Black"
                                VerticalOptions="End"/>
+                    <Grid Grid.Row="1"  
+                      Grid.RowSpan="2"
+                      RowSpacing="5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="5*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <StackLayout x:Name="ImageSubstract">
+                                <StackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="ButtonSub_Clicked"/>
+                                </StackLayout.GestureRecognizers>
+                                <Grid>
+                                    <Image Source="BlueRoundedSquare.png"/>
+                                    <Label Text="-" 
+                                           Grid.Row="0"
+                                           Grid.Column="0"
+                                           FontSize="40"
+                                           HorizontalOptions="CenterAndExpand"
+                                           TextColor="Black"/>
+                                </Grid>
+                            </StackLayout>
 
-                <StackLayout VerticalOptions="CenterAndExpand" 
-                                 IsVisible="true"
-                                 Grid.Row="1"
-                                 Grid.RowSpan="2"
-                                 Spacing="0">
-                    <StackLayout x:Name="ImageSubstract">
-                        <StackLayout.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="ButtonSub_Clicked"/>
-                        </StackLayout.GestureRecognizers>
-                    <Grid>
-                        <Image 
-                           Source="BlueRoundedSquare.png"
-                           HeightRequest="60">
-                            <!--<Image.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="ButtonSub_Clicked"/>
-                            </Image.GestureRecognizers>-->
-                        </Image>
-                        <Label Text="-" 
-                           Grid.Row="0"
-                           Grid.Column="0"
-                           FontSize="40"
-                           HorizontalOptions="CenterAndExpand"
-                           TextColor="Black"/>
                         </Grid>
-                    </StackLayout>
-                    <StackLayout x:Name="ItemsCounter">
-                    <Grid HeightRequest="350"  
+                        <Grid Grid.Row="1">
+                            <Grid x:Name="ItemsCounter">
+                                <Grid HeightRequest="350"  
                               WidthRequest="350"
                               Margin="0">
-                            <Image x:Name="ItemsCounterBackground"
-                                   Opacity="1" 
-                                   Source="BlueRoundedSquare.png">
-                                <Image.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="ItemsCounter_Tapped"/>
-                                </Image.GestureRecognizers>
-                            </Image>
-                        <Label x:Name="CounterLabel"
-                                   Text="0" 
-                                   HorizontalOptions="Center"
-                                   FontSize="200" 
-                                   VerticalOptions="CenterAndExpand"
-                                   TextColor="Black"/>
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="ItemsCounter_Tapped"/>
+                                    </Grid.GestureRecognizers>
+
+                                    <Image x:Name="ItemsCounterBackground"
+                               Opacity="1" 
+                               Source="BlueRoundedSquare.png">
+                                    </Image>
+                                    <Label x:Name="CounterLabel"
+                                           Text="0" 
+                                           HorizontalOptions="Center"
+                                           FontSize="200" 
+                                           VerticalOptions="CenterAndExpand"
+                                           TextColor="Black"/>
+                                </Grid>
+                            </Grid>
+
                         </Grid>
-                    </StackLayout>
-                    <StackLayout x:Name="ImageAdd">
-                        <StackLayout.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="ButtonAdd_Clicked"/>
-                        </StackLayout.GestureRecognizers>
-                        <Grid>
-                            <Image 
-                           Grid.Row="0"
-                           Grid.Column="0"
-                           HorizontalOptions="CenterAndExpand"
-                           Source="BlueRoundedSquare.png"
-                           HeightRequest="60">
-                        <!--<Image.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="ButtonAdd_Clicked"/>
-                        </Image.GestureRecognizers>-->
-                    </Image>
-                        <Label Text="+" 
-                           Grid.Row="0"
-                           Grid.Column="0"
-                           FontSize="40"
-                           HorizontalOptions="CenterAndExpand"
-                           TextColor="Black"/>
+                        <Grid Grid.Row="2">
+                            <StackLayout x:Name="ImageAdd"
+                                         VerticalOptions="CenterAndExpand">
+                                <StackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="ButtonAdd_Clicked"/>
+                                </StackLayout.GestureRecognizers>
+                                <Grid>
+                                    <Image Grid.Row="0"
+                                           Grid.Column="0"
+                                           HorizontalOptions="CenterAndExpand"
+                                           Source="BlueRoundedSquare.png"/>
+                                    <Label Text="+" 
+                                           Grid.Row="0"
+                                           Grid.Column="0"
+                                           FontSize="40"
+                                           HorizontalOptions="CenterAndExpand"
+                                           TextColor="Black"/>
+                                </Grid>
+                            </StackLayout>
+
                         </Grid>
-                    </StackLayout>
-                </StackLayout>
+                    </Grid>
             </Grid>
 
             <Grid x:Name="ThirdScreen"
@@ -175,74 +176,79 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="0.22*"/>
                         </Grid.ColumnDefinitions>
-                        
-                        <Grid Grid.Column="0" 
-                                          Grid.ColumnSpan="2" 
-                                          BackgroundColor="Black"/>
 
-                        <StackLayout BackgroundColor="White"
-                                                 VerticalOptions="CenterAndExpand" 
-                                                 Grid.Column="0">
-                            <Label Text="Items scannés" 
-                                               HorizontalOptions="Center"
-                                               FontSize="50" 
-                                               TextDecorations="Underline"
-                                               TextColor="Black"/>
-                            <Grid HeightRequest="300"
-                                              WidthRequest="300">
+                        <Grid Grid.Column="0" 
+                              Grid.ColumnSpan="2" 
+                              BackgroundColor="Black"
+                              Margin="0,0,0,60"/>
+                            <StackLayout BackgroundColor="White"
+                                     Grid.Column="0">
+                                <Label Text="Items scannés" 
+                                   HorizontalOptions="Center"
+                                   FontSize="50" 
+                                   TextDecorations="Underline"
+                                   TextColor="Black"
+                                   LineBreakMode="NoWrap"/>
+                            <Grid Margin="60,0,60,60">
                                 <Image Source="BlueRoundedSquare.png"/>
                                 <Label x:Name="CounterLabelLeft" 
-                                                   Text="0" 
-                                                   HorizontalOptions="Center"
-                                                   FontSize="200" 
-                                                   VerticalOptions="CenterAndExpand"
-                                                   TextColor="Black"/>
+                                       Text="0" 
+                                       HorizontalOptions="Center"
+                                       FontSize="200" 
+                                       VerticalOptions="CenterAndExpand"
+                                       TextColor="Black"/>
                             </Grid>
                         </StackLayout>
 
-                        <StackLayout BackgroundColor="White" 
-                                                 VerticalOptions="CenterAndExpand"
-                                                 Grid.Column="1"
-                                                 Grid.ColumnSpan="1">
-                            <Label Text="Crédits au compte" 
-                                               HorizontalOptions="Center" 
-                                               FontSize="50" 
-                                               TextDecorations="Underline"
-                                               TextColor="Black"/>
+                            <StackLayout BackgroundColor="White" 
+                                     Grid.Column="1"
+                                     Grid.ColumnSpan="1">
+                                <Label Text="Crédits au compte"
+                                       LineBreakMode="NoWrap"
+                                       HorizontalOptions="Center" 
+                                       FontSize="50" 
+                                       TextDecorations="Underline"
+                                       TextColor="Black"/>
                             <Grid x:Name="CounterGridRight"
-                                  HeightRequest="300" 
-                                  WidthRequest="300">
+                                  Margin="60,0,60,60">
                                 <Image Source="BlueRoundedSquare.png"/>
                                 <Label x:Name="CounterLabelRight" 
-                                                   Text="0" 
-                                                   HorizontalOptions="Center"
-                                                   FontSize="200"
-                                                   VerticalOptions="CenterAndExpand"
-                                                   TextColor="Black"/>
+                                       Text="0" 
+                                       HorizontalOptions="Center"
+                                       FontSize="200"
+                                       VerticalOptions="CenterAndExpand"
+                                       TextColor="Black"/>
                             </Grid>
                         </StackLayout>
-
-                        <Button x:Name="AddCreditButton"
-                                            Grid.Column="1"
-                                            Grid.ColumnSpan="2"
-                                            HorizontalOptions="End"
-                                            VerticalOptions="Center"
-                                            WidthRequest="125"
-                                            HeightRequest="100"
-                                            BackgroundColor="#00ff00"
-                                            CornerRadius="25"
-                                            FontSize="15"
-                                            Text="Augmentez vos crédits"
-                                            BorderColor="Black"
-                                            BorderWidth="1"
-                                            Margin="20"
-                                            Clicked="AddProductCredit"/>
                     </Grid>
                 </Grid>
-                <Grid x:Name="CreditsError"
-                      Opacity="0"
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1.5*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="1.5*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="4*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid Grid.Row="1" Grid.Column="2">
+                            <Button x:Name="AddCreditButton" 
+                                BackgroundColor="#00ff00"
+                                CornerRadius="25"
+                                FontSize="15"
+                                Text="Augmentez vos crédits"
+                                BorderColor="Black"
+                                BorderWidth="1"
+                                Margin="20"
+                                Clicked="AddProductCredit"/>
+                        </Grid>
+                    </Grid>
+
+                    <Grid x:Name="CreditsError"
+                      Opacity="100"
                       VerticalOptions="End">
                     <Grid ColumnSpacing="3">
                         <Grid.ColumnDefinitions>
@@ -258,33 +264,40 @@
                                HorizontalOptions="Center"
                                VerticalOptions="End"
                                FontAttributes="Bold"
-                               Margin="20"/>
+                               Margin="20"
+                               LineBreakMode="NoWrap"/>
                     </Grid>
                 </Grid>
             </Grid>
 
             <Grid x:Name="FourthScreen" 
-                      IsVisible="False">
+                      IsVisible="True">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="8*"/>
+                    <RowDefinition Height="5*"/>
+                </Grid.RowDefinitions>
                 <Grid.GestureRecognizers>
                     <TapGestureRecognizer Tapped="MerciTapped"/>
                 </Grid.GestureRecognizers>
-                <StackLayout VerticalOptions="Center">
-                    <Image Source="Check_transparent.png"/>
-                    <Label Text="Merci, Philippe!"
-                               HorizontalOptions="Center"
-                               FontSize="100"
-                               TextColor="Black"/>
-                </StackLayout>
+                
+                <Image Source="Check_transparent.png"
+                       Grid.Row="1"/>
+                <Label Text="Merci, Philippe!"
+                       Grid.Row="2"
+                       HorizontalOptions="Center"
+                       FontSize="100"
+                       TextColor="Black"/>
             </Grid>
         </Grid>
-        <StackLayout x:Name="Footer" 
-                         Orientation="Horizontal" 
-                         HorizontalOptions="Center"
-                         Grid.Row="2">
+            <StackLayout x:Name="Footer" 
+                     Orientation="Horizontal" 
+                     HorizontalOptions="Center"
+                     Grid.Row="2">
             <Label x:Name="FooterTextLabel"
-                       Text="TAPER CARTE/TEL. POUR VOUS IDENTIFIER." 
-                       FontSize="25"
-                       TextColor="Black"/>
+                   Text="TAPER CARTE/TEL. POUR VOUS IDENTIFIER." 
+                   FontSize="25"
+                   TextColor="Black"/>
             <Image Source="NFC_PhoneClipart_Transparent.jpg">
                 <Image.GestureRecognizers>
                     <TapGestureRecognizer Tapped="FooterIcon_Tapped"/>
@@ -297,5 +310,5 @@
             </Image>
         </StackLayout>
     </Grid>
-
+    </Grid>
 </ContentPage>
