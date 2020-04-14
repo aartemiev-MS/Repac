@@ -72,12 +72,13 @@
             </StackLayout>
 
             <Grid x:Name="SecondScreen"
-                  IsVisible="False">
+                  IsVisible="True">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="0.2*"/>
                     <RowDefinition Height="0.11*"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
+                
                 <Label x:Name="ItemsScannesLabel" 
                                Text="Items scannés"
                                HorizontalOptions="Center" 
@@ -86,8 +87,7 @@
                                TextColor="Black"
                                Grid.Row="0"
                                Grid.RowSpan="2"
-                               VerticalOptions="End"/>                
-
+                               VerticalOptions="End"/>
                 <Label x:Name="ItemsAdjustmentLabel"    
                                Opacity="100"
                                Grid.Row="0"
@@ -97,7 +97,8 @@
                                TextDecorations="Underline"
                                TextColor="Black"
                                VerticalOptions="End"/>
-                    <Grid Grid.Row="1"  
+                
+                <Grid Grid.Row="1"  
                       Grid.RowSpan="2"
                       RowSpacing="5">
                         <Grid.RowDefinitions>
@@ -105,12 +106,14 @@
                             <RowDefinition Height="5*"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
+                    
                         <Grid Grid.Row="0">
-                            <StackLayout x:Name="ImageSubstract">
-                                <StackLayout.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="ButtonSub_Clicked"/>
-                                </StackLayout.GestureRecognizers>
-                                <Grid>
+                                <Grid x:Name="ImageSubstract" 
+                                      HorizontalOptions="Center">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="ButtonSub_Clicked"/>
+                                    </Grid.GestureRecognizers>
+
                                     <Image Source="BlueRoundedSquare.png"/>
                                     <Label Text="-" 
                                            Grid.Row="0"
@@ -119,14 +122,14 @@
                                            HorizontalOptions="CenterAndExpand"
                                            TextColor="Black"/>
                                 </Grid>
-                            </StackLayout>
 
                         </Grid>
                         <Grid Grid.Row="1">
                             <Grid x:Name="ItemsCounter">
                                 <Grid HeightRequest="350"  
-                              WidthRequest="350"
-                              Margin="0">
+                                      WidthRequest="350"
+                                      Margin="0"
+                                      HorizontalOptions="Center">
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="ItemsCounter_Tapped"/>
                                     </Grid.GestureRecognizers>
@@ -146,12 +149,11 @@
 
                         </Grid>
                         <Grid Grid.Row="2">
-                            <StackLayout x:Name="ImageAdd"
-                                         VerticalOptions="CenterAndExpand">
-                                <StackLayout.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="ButtonAdd_Clicked"/>
-                                </StackLayout.GestureRecognizers>
-                                <Grid>
+                                <Grid x:Name="ImageAdd"
+                                      HorizontalOptions="Center">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="ButtonAdd_Clicked"/>
+                                    </Grid.GestureRecognizers>
                                     <Image Grid.Row="0"
                                            Grid.Column="0"
                                            HorizontalOptions="CenterAndExpand"
@@ -163,8 +165,6 @@
                                            HorizontalOptions="CenterAndExpand"
                                            TextColor="Black"/>
                                 </Grid>
-                            </StackLayout>
-
                         </Grid>
                     </Grid>
             </Grid>
@@ -271,7 +271,7 @@
             </Grid>
 
             <Grid x:Name="FourthScreen" 
-                      IsVisible="True">
+                      IsVisible="False">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="3*"/>
                     <RowDefinition Height="8*"/>
@@ -297,7 +297,8 @@
             <Label x:Name="FooterTextLabel"
                    Text="TAPER CARTE/TEL. POUR VOUS IDENTIFIER." 
                    FontSize="25"
-                   TextColor="Black"/>
+                   TextColor="Black"
+                   LineBreakMode="NoWrap"/>
             <Image Source="NFC_PhoneClipart_Transparent.jpg">
                 <Image.GestureRecognizers>
                     <TapGestureRecognizer Tapped="FooterIcon_Tapped"/>
