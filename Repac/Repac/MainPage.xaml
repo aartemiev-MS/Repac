@@ -34,11 +34,11 @@
                 <StackLayout Margin="0,0,15,0">
                     <Label Text="Bonjour"
                            TextDecorations="Underline"
-                           FontSize="40"
+                           FontSize="20"
                            TextColor="Black"/>
                     <Label Text="Philippe!"
                            TextDecorations="Underline"
-                           FontSize="40"
+                           FontSize="20"
                            TextColor="Black"
                            Margin="0,-10,0,0"/>
                 </StackLayout>
@@ -59,15 +59,15 @@
                 </StackLayout.GestureRecognizers>
                 <Label Text="Bienvenue!"
                            HorizontalOptions="Center"
-                           FontSize="90"
+                           FontSize="40"
                            TextColor="Black"/>
                 <Label Text="..."
                            HorizontalOptions="Center"
-                           FontSize="90"
+                           FontSize="40"
                            TextColor="Black"/>
                 <Label Text="Scanning" 
                            HorizontalOptions="Center"
-                           FontSize="90"
+                           FontSize="40"
                            TextColor="Black"/>
             </StackLayout>
 
@@ -78,11 +78,10 @@
                     <RowDefinition Height="0.11*"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                
                 <Label x:Name="ItemsScannesLabel" 
                                Text="Items scannés"
                                HorizontalOptions="Center" 
-                               FontSize="70"
+                               FontSize="30"
                                TextDecorations="Underline"
                                TextColor="Black"
                                Grid.Row="0"
@@ -93,7 +92,7 @@
                                Grid.Row="0"
                                Text="Items comptés aujourd'hui:"  
                                HorizontalOptions="Center" 
-                               FontSize="70"
+                               FontSize="30"
                                TextDecorations="Underline"
                                TextColor="Black"
                                VerticalOptions="End"/>
@@ -113,12 +112,11 @@
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="ButtonSub_Clicked"/>
                                     </Grid.GestureRecognizers>
-
                                     <Image Source="BlueRoundedSquare.png"/>
                                     <Label Text="-" 
                                            Grid.Row="0"
                                            Grid.Column="0"
-                                           FontSize="40"
+                                           FontSize="20"
                                            HorizontalOptions="CenterAndExpand"
                                            TextColor="Black"/>
                                 </Grid>
@@ -126,22 +124,19 @@
                         </Grid>
                         <Grid Grid.Row="1">
                             <Grid x:Name="ItemsCounter">
-                                <Grid HeightRequest="350"  
-                                      WidthRequest="350"
-                                      Margin="0"
+                                <Grid Margin="0"
                                       HorizontalOptions="Center">
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="ItemsCounter_Tapped"/>
                                     </Grid.GestureRecognizers>
 
                                     <Image x:Name="ItemsCounterBackground"
-                               Opacity="1" 
-                               Source="BlueRoundedSquare.png">
-                                    </Image>
+                                           Opacity="1" 
+                                           Source="BlueRoundedSquare.png"/>
                                     <Label x:Name="CounterLabel"
                                            Text="0" 
                                            HorizontalOptions="Center"
-                                           FontSize="200" 
+                                           FontSize="80" 
                                            VerticalOptions="CenterAndExpand"
                                            TextColor="Black"/>
                                 </Grid>
@@ -161,7 +156,7 @@
                                     <Label Text="+" 
                                            Grid.Row="0"
                                            Grid.Column="0"
-                                           FontSize="40"
+                                           FontSize="20"
                                            HorizontalOptions="CenterAndExpand"
                                            TextColor="Black"/>
                                 </Grid>
@@ -187,28 +182,27 @@
                                      Grid.Column="0">
                                 <Label Text="Items scannés" 
                                    HorizontalOptions="Center"
-                                   FontSize="50" 
+                                   FontSize="30" 
                                    TextDecorations="Underline"
                                    TextColor="Black"
                                    LineBreakMode="NoWrap"/>
                             <Grid Margin="60,0,60,60">
-                                <Image Source="BlueRoundedSquare.png"/>
-                                <Label x:Name="CounterLabelLeft" 
+                                    <Image Source="BlueRoundedSquare.png"/>
+                                    <Label x:Name="CounterLabelLeft" 
                                        Text="0" 
                                        HorizontalOptions="Center"
-                                       FontSize="200" 
+                                       FontSize="80" 
                                        VerticalOptions="CenterAndExpand"
                                        TextColor="Black"/>
                             </Grid>
                         </StackLayout>
-
                             <StackLayout BackgroundColor="White" 
                                      Grid.Column="1"
                                      Grid.ColumnSpan="1">
                                 <Label Text="Crédits au compte"
                                        LineBreakMode="NoWrap"
                                        HorizontalOptions="Center" 
-                                       FontSize="50" 
+                                       FontSize="30" 
                                        TextDecorations="Underline"
                                        TextColor="Black"/>
                             <Grid x:Name="CounterGridRight"
@@ -217,7 +211,7 @@
                                 <Label x:Name="CounterLabelRight" 
                                        Text="0" 
                                        HorizontalOptions="Center"
-                                       FontSize="200"
+                                       FontSize="80"
                                        VerticalOptions="CenterAndExpand"
                                        TextColor="Black"/>
                             </Grid>
@@ -227,7 +221,7 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1.5*"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="2.5*"/>
                             <RowDefinition Height="1.5*"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
@@ -238,7 +232,7 @@
                             <Button x:Name="AddCreditButton" 
                                 BackgroundColor="#00ff00"
                                 CornerRadius="25"
-                                FontSize="15"
+                                FontSize="10"
                                 Text="Augmentez vos crédits"
                                 BorderColor="Black"
                                 BorderWidth="1"
@@ -256,10 +250,9 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="100"/>
                         </Grid.ColumnDefinitions>
-
                         <Label Text="CRÉDITS INSUFFISANTS"
                                TextColor="DarkRed"
-                               FontSize="25"
+                               FontSize="20"
                                Grid.Column="1"
                                HorizontalOptions="Center"
                                VerticalOptions="End"
@@ -280,13 +273,12 @@
                 <Grid.GestureRecognizers>
                     <TapGestureRecognizer Tapped="MerciTapped"/>
                 </Grid.GestureRecognizers>
-                
                 <Image Source="Check_transparent.png"
                        Grid.Row="1"/>
                 <Label Text="Merci, Philippe!"
                        Grid.Row="2"
                        HorizontalOptions="Center"
-                       FontSize="100"
+                       FontSize="50"
                        TextColor="Black"/>
             </Grid>
         </Grid>
@@ -296,7 +288,7 @@
                      Grid.Row="2">
             <Label x:Name="FooterTextLabel"
                    Text="TAPER CARTE/TEL. POUR VOUS IDENTIFIER." 
-                   FontSize="25"
+                   FontSize="20"
                    TextColor="Black"
                    LineBreakMode="NoWrap"/>
             <Image Source="NFC_PhoneClipart_Transparent.jpg">
