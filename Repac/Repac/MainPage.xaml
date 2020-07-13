@@ -281,7 +281,11 @@
                        FontSize="50"
                        TextColor="Black"/>
             </Grid>
-        </Grid>
+
+                <Grid x:Name="TestScreen" 
+                      BackgroundColor="LightGreen"
+                      IsVisible="True"/>
+            </Grid>
             <StackLayout x:Name="Footer" 
                      Orientation="Horizontal" 
                      HorizontalOptions="Center"
