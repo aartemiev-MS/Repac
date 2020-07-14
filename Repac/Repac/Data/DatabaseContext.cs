@@ -8,9 +8,11 @@ namespace Repac.Data
 {
     class DatabaseContext : DbContext
     {
+        public static DatabaseContext DBInstance;
         private string _databasePath;
 
         public DbSet<CashRegisterScan> CashRegisterScans { get; set; }
+        public DbSet<User> Users { get; set; }
 
         public DatabaseContext(string databasePath)
         {

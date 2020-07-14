@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Repac.Data;
+using Repac.Data.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 
@@ -18,6 +19,10 @@ namespace Repac
         int ScannedProducts { get; set; } = 0;
         int ProductsCredit { get; set; } = 0;
         bool EditingItemsQuantityMode { get; set; } = false;
+        DatabaseContext DBInstance { get; set; }
+
+        string DbPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "RepacCashRegister1.db");
+
 
         enum Slides
         {
@@ -31,6 +36,10 @@ namespace Repac
         {
             InitializeComponent();
             FirstSlideActivate();
+
+            List<CashRegisterScan> itemSource;
+
+            DisplayReport();
         }
 
         #region "Events"
@@ -300,5 +309,80 @@ namespace Repac
 
         }
         #endregion
+
+        #region Test stuff
+        private void DeleteButton_Clicked(object sender, EventArgs e)
+        {
+            using (var db = new DatabaseContext(DbPath))
+            {
+                db.CashRegisterScans.RemoveRange(db.CashRegisterScans.ToList());
+
+                List<User> usersSource = db.Users.ToList();
+                for (int i = 0; i < usersSource.Count; i++)
+                {
+                    usersSource[i].Credits = 0;
+                }
+
+                db.SaveChanges();
+                DisplayReport();
+            }
+        }
+        private void ScanInButton_Clicked(object sender, EventArgs e) => AddScan(true);
+
+        private void ScanOutButton_Clicked(object sender, EventArgs e) => AddScan(false);
+
+        private void AddScan(bool scanDirection)
+        {
+            using (var db = new DatabaseContext(DbPath))
+            {
+                User user = db.Users.Where(u => u.UserId == Guid.Parse("666b55ac-96e7-47b0-96d1-38622d0b176e")).FirstOrDefault();
+
+                user.Scan(scanDirection);
+
+                db.Add(new CashRegisterScan()
+                {
+                    ScanId = Guid.NewGuid(),
+                    TagId = Guid.NewGuid(),
+                    UserId = user.UserId,
+                    ScanDirection = scanDirection,
+                    Timestamp = DateTime.Now,
+                    ResultCreditValue = user.Credits
+                });
+
+                db.SaveChanges();
+                DisplayReport();
+            }
+        }
+
+        private void DisplayReport()
+        {
+            ReportScansLabel.Text = String.Empty;
+            ReportUsersLabel.Text = String.Empty;
+
+            using (var db = new DatabaseContext(DbPath))
+            {
+                db.Database.EnsureCreated();
+                List<CashRegisterScan> scansSource = db.CashRegisterScans.ToList();
+                List<User> usersSource = db.Users.ToList();
+
+                for (int i = 0; i < scansSource.Count; i++)
+                {
+                    CashRegisterScan scan = scansSource[i];
+
+                    ReportScansLabel.Text += $"{i}) {scan.ScanId}     -     {scan.Timestamp.ToShortTimeString()}     -     {scan.ScanDirection} \r\n";
+                }
+
+                for (int i = 0; i < usersSource.Count; i++)
+                {
+                    User user = usersSource[i];
+                    int scansCount = db.CashRegisterScans.Where(s => s.UserId == user.UserId).ToList().Count();
+
+                    ReportUsersLabel.Text += $"{i}) {user.FirstName} {user.LastName}    -     Credits:{user.Credits}     -     Scans Count:{scansCount} \r\n";
+                }
+            }
+        }
+        #endregion
     }
-    }
+}
+
+//20450257662951 TNN

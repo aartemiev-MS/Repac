@@ -284,7 +284,54 @@
 
                 <Grid x:Name="TestScreen" 
                       BackgroundColor="LightGreen"
-                      IsVisible="True"/>
+                      IsVisible="True">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="3*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                        <Label 
+                            x:Name="ReportScansLabel" 
+                            BackgroundColor="White"
+                            FontSize="22"
+                            Grid.Column="0"
+                            Grid.Row="0"
+                            Margin="20, 20, 0, 20"/>
+                        <Label 
+                            x:Name="ReportUsersLabel" 
+                            BackgroundColor="White"
+                            FontSize="22"
+                            Grid.Column="0"
+                            Grid.Row="1"
+                            Margin="20, 0, 0, 20"/>
+                    <StackLayout Grid.Column="1">
+                        <Button
+                            x:Name="ScanInButton" 
+                            Text="Scan In" 
+                            Clicked="ScanInButton_Clicked"
+                            HeightRequest="50"
+                            WidthRequest="150" 
+                            Margin="0, 20, 0, 0"
+                            HorizontalOptions="Center"/>
+                        <Button 
+                            x:Name="ScanOutButton" 
+                            Text="Scan Out" 
+                            Clicked="ScanOutButton_Clicked"
+                            HeightRequest="50"
+                            WidthRequest="150" 
+                            HorizontalOptions="Center"/>
+                        <Button 
+                            x:Name="DeleteButton" 
+                            Text="Delete Scans" 
+                            Clicked="DeleteButton_Clicked"
+                            HeightRequest="50"
+                            WidthRequest="150" 
+                            HorizontalOptions="Center"/>
+                    </StackLayout>
+                </Grid>
             </Grid>
             <StackLayout x:Name="Footer" 
                      Orientation="Horizontal" 

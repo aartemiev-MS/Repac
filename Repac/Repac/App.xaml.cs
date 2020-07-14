@@ -14,22 +14,24 @@ namespace Repac
         {
             InitializeComponent();
 
-            List<CashRegisterScan> itemSource;
+            //List<CashRegisterScan> itemSource;
 
-            string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "RepacCashRegister.db");
-            using (var db = new DatabaseContext(dbPath))
-            {
-                // Ensure database is created
-                db.Database.EnsureCreated();
-                if (db.CashRegisterScans.Count() == 0)
-                {
-                    db.Add(new CashRegisterScan() { ScanId = Guid.NewGuid(), TagId = Guid.NewGuid(), ScanDirection = true, Timestamp = DateTime.Now });
-                    db.Add(new CashRegisterScan() { ScanId = Guid.NewGuid(), TagId = Guid.NewGuid(), ScanDirection = false, Timestamp = DateTime.Now });
-                    db.Add(new CashRegisterScan() { ScanId = Guid.NewGuid(), TagId = Guid.NewGuid(), ScanDirection = true, Timestamp = DateTime.Now });
-                    db.SaveChanges();
-                  }
-                itemSource = db.CashRegisterScans.ToList();
-            }
+            //string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "RepacCashRegister.db");
+            //using (var db = new DatabaseContext(dbPath))
+            //{
+            //    // Ensure database is created
+            //    db.Database.EnsureCreated();
+            //    if (db.CashRegisterScans.Count() == 0)
+            //    {
+            //        db.Add(new CashRegisterScan() { ScanId = Guid.NewGuid(), TagId = Guid.NewGuid(), ScanDirection = true, Timestamp = DateTime.Now });
+            //        db.Add(new CashRegisterScan() { ScanId = Guid.NewGuid(), TagId = Guid.NewGuid(), ScanDirection = false, Timestamp = DateTime.Now });
+            //        db.Add(new CashRegisterScan() { ScanId = Guid.NewGuid(), TagId = Guid.NewGuid(), ScanDirection = true, Timestamp = DateTime.Now });
+            //        db.SaveChanges();
+            //      }
+            //    itemSource = db.CashRegisterScans.ToList();
+
+            //    DatabaseContext.DBInstance = db;
+            //}
 
             MainPage = new MainPage();
         }
