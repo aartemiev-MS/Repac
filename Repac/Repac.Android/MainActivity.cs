@@ -1,18 +1,18 @@
-﻿using System;
-
+﻿
 using Android.App;
-using Android.Content.PM;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using Android.OS;
-using Android.Nfc;
 using Android.Content;
+using Android.Content.PM;
+using Android.Nfc;
+using Android.OS;
+using Android.Runtime;
 using System.Text;
 
 namespace Repac.Droid
 {
     [Activity(Label = "Repac", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, ScreenOrientation = ScreenOrientation.Landscape)]
+    [IntentFilter(new[] { "android.nfc.action.NDEF_DISCOVERED" },
+    Categories = new[] { "android.intent.category.DEFAULT" },
+    DataScheme = "http", DataHost = "myapp.com")]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         private NfcAdapter _nfcAdapter;
@@ -41,18 +41,13 @@ namespace Repac.Droid
         {
             base.OnResume();
 
-            if (_nfcAdapter!=null)
+            if (_nfcAdapter != null)
             {
-                var tagDetected = new IntentFilter(NfcAdapter.ActionNdefDiscovered);
+                var tagDetected = new IntentFilter(NfcAdapter.ActionTagDiscovered);
                 var filters = new[] { tagDetected };
-
-                var intent = new Intent(this, this.GetType()).AddFlags(ActivityFlags.SingleTop);
-
+                var intent = new Intent(this, GetType()).AddFlags(ActivityFlags.SingleTop);
                 var pendingIntent = PendingIntent.GetActivity(this, 0, intent, 0);
-
                 _nfcAdapter.EnableForegroundDispatch(this, pendingIntent, filters, null);
-
-                var a = 1;
             }
         }
 
