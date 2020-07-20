@@ -14,24 +14,23 @@ namespace Repac
         {
             InitializeComponent();
 
-            //List<CashRegisterScan> itemSource;
-
-            //string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "RepacCashRegister.db");
-            //using (var db = new DatabaseContext(dbPath))
-            //{
-            //    // Ensure database is created
-            //    db.Database.EnsureCreated();
-            //    if (db.CashRegisterScans.Count() == 0)
-            //    {
-            //        db.Add(new CashRegisterScan() { ScanId = Guid.NewGuid(), TagId = Guid.NewGuid(), ScanDirection = true, Timestamp = DateTime.Now });
-            //        db.Add(new CashRegisterScan() { ScanId = Guid.NewGuid(), TagId = Guid.NewGuid(), ScanDirection = false, Timestamp = DateTime.Now });
-            //        db.Add(new CashRegisterScan() { ScanId = Guid.NewGuid(), TagId = Guid.NewGuid(), ScanDirection = true, Timestamp = DateTime.Now });
-            //        db.SaveChanges();
-            //      }
-            //    itemSource = db.CashRegisterScans.ToList();
-
-            //    DatabaseContext.DBInstance = db;
-            //}
+            using (var db = new DatabaseContext(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "RepacCashRegister1.db")))
+            {
+                db.Database.EnsureCreated();
+                User user = db.Users.Where(u => u.UserId == Guid.Parse("666b55ac-96e7-47b0-96d1-38622d0b176e")).FirstOrDefault();
+                if (user == null)
+                {
+                    db.Add(new User()
+                    {
+                        UserId = Guid.Parse("666b55ac-96e7-47b0-96d1-38622d0b176e"),
+                        FirstName = "Sasha",
+                        LastName = "Artemiev",
+                        RegistryDate = DateTime.Now,
+                        Credits = 0
+                    });
+                    db.SaveChanges();
+                }
+            }
 
             MainPage = new MainPage();
         }

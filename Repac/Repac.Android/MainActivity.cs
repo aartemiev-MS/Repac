@@ -6,13 +6,11 @@ using Android.Nfc;
 using Android.OS;
 using Android.Runtime;
 using System.Text;
+using Xamarin.Forms;
 
 namespace Repac.Droid
 {
     [Activity(Label = "Repac", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, ScreenOrientation = ScreenOrientation.Landscape)]
-    [IntentFilter(new[] { "android.nfc.action.NDEF_DISCOVERED" },
-    Categories = new[] { "android.intent.category.DEFAULT" },
-    DataScheme = "http", DataHost = "myapp.com")]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         private NfcAdapter _nfcAdapter;
@@ -72,6 +70,8 @@ namespace Repac.Droid
                             {
                                 // Get the transfered data
                                 var data = Encoding.ASCII.GetString(record.GetPayload());
+
+                                MessagingCenter.Send(data.Substring(3), "TagScanned");
                             }
                         }
                     }

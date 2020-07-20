@@ -296,14 +296,14 @@
                         <Label 
                             x:Name="ReportScansLabel" 
                             BackgroundColor="White"
-                            FontSize="22"
+                            FontSize="14"
                             Grid.Column="0"
                             Grid.Row="0"
                             Margin="20, 20, 0, 20"/>
                         <Label 
                             x:Name="ReportUsersLabel" 
                             BackgroundColor="White"
-                            FontSize="22"
+                            FontSize="17"
                             Grid.Column="0"
                             Grid.Row="1"
                             Margin="20, 0, 0, 20"/>

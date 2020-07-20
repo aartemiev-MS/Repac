@@ -23,7 +23,6 @@ namespace Repac
 
         string DbPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "RepacCashRegister1.db");
 
-
         enum Slides
         {
             First,
@@ -40,6 +39,8 @@ namespace Repac
             List<CashRegisterScan> itemSource;
 
             DisplayReport();
+
+            MessagingCenter.Subscribe<string>(this, "TagScanned", (tag) => { TagScanned(tag); });
         }
 
         #region "Events"
@@ -336,7 +337,7 @@ namespace Repac
             using (var db = new DatabaseContext(DbPath))
             {
                 User user = db.Users.Where(u => u.UserId == Guid.Parse("666b55ac-96e7-47b0-96d1-38622d0b176e")).FirstOrDefault();
-
+                
                 user.Scan(scanDirection);
 
                 db.Add(new CashRegisterScan()
@@ -361,7 +362,6 @@ namespace Repac
 
             using (var db = new DatabaseContext(DbPath))
             {
-                db.Database.EnsureCreated();
                 List<CashRegisterScan> scansSource = db.CashRegisterScans.ToList();
                 List<User> usersSource = db.Users.ToList();
 
@@ -369,7 +369,7 @@ namespace Repac
                 {
                     CashRegisterScan scan = scansSource[i];
 
-                    ReportScansLabel.Text += $"{i}) {scan.ScanId}     -     {scan.Timestamp.ToShortTimeString()}     -     {scan.ScanDirection} \r\n";
+                    ReportScansLabel.Text += $"{i}) {scan.TagId}     -     {scan.Timestamp.ToShortTimeString()}     -     {scan.ScanDirection} \r\n";
                 }
 
                 for (int i = 0; i < usersSource.Count; i++)
@@ -380,6 +380,31 @@ namespace Repac
                     ReportUsersLabel.Text += $"{i}) {user.FirstName} {user.LastName}    -     Credits:{user.Credits}     -     Scans Count:{scansCount} \r\n";
                 }
             }
+        }
+
+        private void TagScanned(string tagMessage)
+        {
+            using (var db = new DatabaseContext(DbPath))
+            {
+                User user = db.Users.Where(u => u.UserId == Guid.Parse("666b55ac-96e7-47b0-96d1-38622d0b176e")).FirstOrDefault();
+
+                user.Scan(true);
+
+
+                db.Add(new CashRegisterScan()
+                {
+                    ScanId = Guid.NewGuid(),
+                    TagId = Guid.Parse(tagMessage),
+                    UserId = user.UserId,
+                    ScanDirection = true,
+                    Timestamp = DateTime.Now,
+                    ResultCreditValue = user.Credits
+                });
+
+                db.SaveChanges();
+                DisplayReport();
+            }
+           if(CurrentSlide==Slides.Second) AddScannedItem();
         }
         #endregion
     }
