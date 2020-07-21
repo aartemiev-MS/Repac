@@ -1,4 +1,5 @@
-﻿using Repac.Data;
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using Repac.Data;
 using Repac.Data.Models;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,9 @@ namespace Repac
         bool EditingItemsQuantityMode { get; set; } = false;
         DatabaseContext DBInstance { get; set; }
 
-        string DbPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "RepacCashRegister1.db");
+        private string dbPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "RepacCashRegister1.db");
+
+        private HubConnection hubConnection;
 
         enum Slides
         {
@@ -41,6 +44,17 @@ namespace Repac
             DisplayReport();
 
             MessagingCenter.Subscribe<string>(this, "TagScanned", (tag) => { TagScanned(tag); });
+
+            hubConnection = new HubConnectionBuilder()
+                 .WithUrl("https://repaccore.conveyor.cloud/chatHub")
+                 .Build();
+
+            hubConnection.StartAsync();
+
+            hubConnection.On<string>("ReceiveMessage", (message) =>
+           {
+               ReceiveMessage(message);
+           });
         }
 
         #region "Events"
@@ -314,7 +328,7 @@ namespace Repac
         #region Test stuff
         private void DeleteButton_Clicked(object sender, EventArgs e)
         {
-            using (var db = new DatabaseContext(DbPath))
+            using (var db = new DatabaseContext(dbPath))
             {
                 db.CashRegisterScans.RemoveRange(db.CashRegisterScans.ToList());
 
@@ -334,10 +348,10 @@ namespace Repac
 
         private void AddScan(bool scanDirection)
         {
-            using (var db = new DatabaseContext(DbPath))
+            using (var db = new DatabaseContext(dbPath))
             {
                 User user = db.Users.Where(u => u.UserId == Guid.Parse("666b55ac-96e7-47b0-96d1-38622d0b176e")).FirstOrDefault();
-                
+
                 user.Scan(scanDirection);
 
                 db.Add(new CashRegisterScan()
@@ -360,7 +374,7 @@ namespace Repac
             ReportScansLabel.Text = String.Empty;
             ReportUsersLabel.Text = String.Empty;
 
-            using (var db = new DatabaseContext(DbPath))
+            using (var db = new DatabaseContext(dbPath))
             {
                 List<CashRegisterScan> scansSource = db.CashRegisterScans.ToList();
                 List<User> usersSource = db.Users.ToList();
@@ -384,7 +398,7 @@ namespace Repac
 
         private void TagScanned(string tagMessage)
         {
-            using (var db = new DatabaseContext(DbPath))
+            using (var db = new DatabaseContext(dbPath))
             {
                 User user = db.Users.Where(u => u.UserId == Guid.Parse("666b55ac-96e7-47b0-96d1-38622d0b176e")).FirstOrDefault();
 
@@ -404,7 +418,34 @@ namespace Repac
                 db.SaveChanges();
                 DisplayReport();
             }
-           if(CurrentSlide==Slides.Second) AddScannedItem();
+            if (CurrentSlide == Slides.Second) AddScannedItem();
+        }
+
+        private void SendMessageButton_Clicked(object sender, EventArgs e)
+        {
+            CashRegisterScan scan = new CashRegisterScan()
+            {
+                ScanId = Guid.NewGuid(),
+                UserId = Guid.NewGuid(),
+                TagId = Guid.NewGuid(),
+                ScanDirection = true,
+                ResultCreditValue = 1
+            };
+            ScanHappened(scan);
+        }
+        #endregion
+
+        #region SignalR
+        // https://localhost:44367/chatHub
+
+        async Task ScanHappened(CashRegisterScan scan)
+        {
+            await hubConnection.InvokeAsync("ScanHappened", scan);
+        }
+
+        private void ReceiveMessage(string message)
+        {
+            int a = 0;
         }
         #endregion
     }

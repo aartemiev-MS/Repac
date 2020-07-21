@@ -312,7 +312,7 @@
                             x:Name="ScanInButton" 
                             Text="Scan In" 
                             Clicked="ScanInButton_Clicked"
-                            HeightRequest="50"
+                            HeightRequest="40"
                             WidthRequest="150" 
                             Margin="0, 20, 0, 0"
                             HorizontalOptions="Center"/>
@@ -320,14 +320,21 @@
                             x:Name="ScanOutButton" 
                             Text="Scan Out" 
                             Clicked="ScanOutButton_Clicked"
-                            HeightRequest="50"
+                            HeightRequest="40"
                             WidthRequest="150" 
                             HorizontalOptions="Center"/>
                         <Button 
                             x:Name="DeleteButton" 
                             Text="Delete Scans" 
                             Clicked="DeleteButton_Clicked"
-                            HeightRequest="50"
+                            HeightRequest="40"
+                            WidthRequest="150" 
+                            HorizontalOptions="Center"/>
+                        <Button 
+                            x:Name="SendMessageButton" 
+                            Text="Send Message" 
+                            Clicked="SendMessageButton_Clicked"
+                            HeightRequest="40"
                             WidthRequest="150" 
                             HorizontalOptions="Center"/>
                     </StackLayout>
