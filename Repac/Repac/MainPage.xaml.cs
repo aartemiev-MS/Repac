@@ -1,12 +1,16 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using Repac.Data;
 using Repac.Data.Models;
+using Repac.Rfid_Weird_stuff;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
+using TechnologySolutions.Rfid;
+using TechnologySolutions.Rfid.AsciiProtocol.Transports;
 using Xamarin.Forms;
 
 namespace Repac
@@ -55,6 +59,21 @@ namespace Repac
            {
                ReceiveMessage(message);
            });
+
+            this.ReadTagCommand = new RelayCommand(this.ExecuteReadTag, () => { return this.isIdle; });
+
+            this.HexIdentifier = string.Empty;
+            this.SelectedMemoryBank = TechnologySolutions.Rfid.MemoryBank.Epc; // 1;
+            this.WordAddress = 2;
+            this.WordCount = 2;
+            //this.MinimumPower = 10;
+            //this.OutputPower = this.MaximumPower = 30;
+
+            this.IsIdle = true;
+
+           // this.addNewEnumerator = this.transportsManager.Enumerators.Where(enumerator => enumerator.CanShowAddNew).FirstOrDefault();
+            this.AddNewCommand = new RelayCommand(() => { this.addNewEnumerator?.ShowAddNew(); }, () => { return this.addNewEnumerator != null; });
+
         }
 
         #region "Events"
@@ -344,7 +363,20 @@ namespace Repac
         }
         private void ScanInButton_Clicked(object sender, EventArgs e) => AddScan(true);
 
-        private void ScanOutButton_Clicked(object sender, EventArgs e) => AddScan(false);
+        private void ScanRfidButton1_Clicked(object sender, EventArgs e)
+        {
+            ICommand ReadTagCommand = new RelayCommand(this.ExecuteReadTag, () => { return this.isIdle; });
+        }
+
+        private void ScanRfidButton2_Clicked(object sender, EventArgs e)
+        {
+            ExecuteReadTag();
+        }
+
+        private void ConnectRfidButton_Clicked(object sender, EventArgs e)
+        {
+
+        }
 
         private void AddScan(bool scanDirection)
         {
@@ -433,6 +465,7 @@ namespace Repac
             };
             ScanHappened(scan);
         }
+
         #endregion
 
         #region SignalR
@@ -447,6 +480,232 @@ namespace Repac
         {
             int a = 0;
         }
+        #endregion
+
+        #region Rfid Read
+        #region IsIdle
+        /// <summary>
+        /// Gets or sets a value indicating whether a long running task is not executing
+        /// </summary>
+        public bool IsIdle
+        {
+            get
+            {
+                return this.isIdle;
+            }
+
+            set
+            {
+                // this.Set(ref this.isIdle, value);
+                this.isIdle = value;
+            }
+        }
+
+        /// <summary>
+        /// Backing store for IsBusy property
+        /// </summary>
+        private bool isIdle;
+        #endregion
+        #region HexIdentifier
+        /// <summary>
+        /// Gets or sets the new EPC filter
+        /// </summary>
+        public string HexIdentifier
+        {
+            get
+            {
+                return this.hexIdentifier;
+            }
+
+            set
+            {
+                //this.Set(ref this.hexIdentifier, value);
+                hexIdentifier = value;
+            }
+        }
+
+        /// <summary>
+        /// Backing store for the HexIdentifier property
+        /// </summary>
+        private string hexIdentifier;
+        #endregion
+        #region MemoryBank
+        /// <summary>
+        /// Gets or sets the memoryBank
+        /// </summary>
+        public int MemoryBankIndex
+        {
+            get
+            {
+                return this.memoryBankIndex;
+            }
+
+            set
+            {
+                //if (this.Set(ref this.memoryBankIndex, value))
+                //{
+                //    this.RaisePropertyChanged("SelectedMemoryBank");
+                //}
+                memoryBankIndex = value;
+            }
+        }
+
+        /// <summary>
+        /// Backing store for the MemoryBank property
+        /// </summary>
+        private int memoryBankIndex;
+
+        public MemoryBank SelectedMemoryBank
+        {
+            get
+            {
+                return (MemoryBank)this.MemoryBankIndex;
+            }
+
+            set
+            {
+                this.MemoryBankIndex = (int)value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the names of the memory banks sorted by enumeration order
+        /// </summary>
+        public List<string> MemeoryBanks
+        {
+            get
+            {
+                return Enum.GetValues(typeof(MemoryBank))
+                    .Cast<MemoryBank>()
+                    .OrderBy(x => (int)x)
+                    .Select(x => x.ToString())
+                    .ToList();
+            }
+        }
+        #endregion
+        #region WordAddress
+        /// <summary>
+        /// Gets or sets the wordAddress
+        /// </summary>
+        public int WordAddress
+        {
+            get
+            {
+                return this.wordAddress;
+            }
+
+            set
+            {
+                // this.Set(ref this.wordAddress, (int)value);
+                wordAddress = (int)value;
+            }
+        }
+
+        /// <summary>
+        /// Backing store for the WordAddress property
+        /// </summary>
+        private int wordAddress;
+        #endregion
+        #region WordCount
+        /// <summary>
+        /// Gets or sets the wordCount
+        /// </summary>
+        public int WordCount
+        {
+            get
+            {
+                return this.wordCount;
+            }
+
+            set
+            {
+                // this.Set(ref this.wordCount, (int)value);
+                wordCount = (int)value;
+            }
+        }
+
+        /// <summary>
+        /// Backing store for the WordCount property
+        /// </summary>
+        private int wordCount;
+        #endregion
+        #region OutputPower
+        /// <summary>
+        /// Gets or sets the outputPower
+        /// </summary>
+        public int OutputPower
+        {
+            get
+            {
+                return this.outputPower;
+            }
+
+            set
+            {
+                // this.Set(ref this.outputPower, value);
+                outputPower = value;
+            }
+        }
+
+        /// <summary>
+        /// Backing store for the OutputPower property
+        /// </summary>
+        private int outputPower;
+        #endregion
+
+        /// <summary>
+        /// The instance used to read tag
+        /// </summary>
+        private readonly ITagReader tagReader;
+
+
+        /// <summary>
+        /// Gets the command to read the tag
+        /// </summary>
+        public ICommand ReadTagCommand { get; private set; }
+        public ICommand WriteTagCommand { get; private set; }
+
+        private async void ExecuteReadTag()
+        {
+            this.IsIdle = false;
+            this.ReadTagCommand.RefreshCanExecute();
+        //    this.WriteTagCommand.RefreshCanExecute();
+
+            try
+            {
+                // Execute the potentially long running task off the UI thread
+                int count = await this.tagReader.ReadTagsAsync(this.HexIdentifier, this.SelectedMemoryBank, this.WordAddress, this.WordCount, this.OutputPower);
+            }
+            catch (Exception ex)
+            {
+            }
+
+
+            //await Task.Run(() =>
+            //{
+            //    try
+            //    {
+            //        if (this.tagReader.ReadTags(this.HexIdentifier.ToLower(), this.SelectedMemoryBank, this.WordAddress, this.WordCount, this.OutputPower))
+            //        {
+            //            this.AppendMessage("Done.");
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        this.AppendMessage(ex.Message);
+            //    }
+            //});
+
+            this.IsIdle = true;
+            this.ReadTagCommand.RefreshCanExecute();
+            //this.WriteTagCommand.RefreshCanExecute();
+        }
+        #endregion
+
+        #region Rfid Connect
+        public ICommand AddNewCommand { get; private set; }
+        private IAsciiTransportEnumerator addNewEnumerator;
+
         #endregion
     }
 }

@@ -308,25 +308,24 @@
                             Grid.Row="1"
                             Margin="20, 0, 0, 20"/>
                     <StackLayout Grid.Column="1">
-                        <Button
-                            x:Name="ScanInButton" 
-                            Text="Scan In" 
-                            Clicked="ScanInButton_Clicked"
-                            HeightRequest="40"
-                            WidthRequest="150" 
-                            Margin="0, 20, 0, 0"
-                            HorizontalOptions="Center"/>
                         <Button 
-                            x:Name="ScanOutButton" 
-                            Text="Scan Out" 
-                            Clicked="ScanOutButton_Clicked"
+                            x:Name="ScanRfidButton1" 
+                            Text="Scan Rfid 1" 
+                            Clicked="ScanRfidButton1_Clicked"
                             HeightRequest="40"
                             WidthRequest="150" 
                             HorizontalOptions="Center"/>
                         <Button 
-                            x:Name="DeleteButton" 
-                            Text="Delete Scans" 
-                            Clicked="DeleteButton_Clicked"
+                            x:Name="ScanRfidButton2" 
+                            Text="Scan Rfid 2" 
+                            Clicked="ScanRfidButton2_Clicked"
+                            HeightRequest="40"
+                            WidthRequest="150" 
+                            HorizontalOptions="Center"/>
+                        <Button 
+                            x:Name="ConnectRfidButton" 
+                            Text="Connect Rfid" 
+                            Clicked="ConnectRfidButton_Clicked"
                             HeightRequest="40"
                             WidthRequest="150" 
                             HorizontalOptions="Center"/>
@@ -334,6 +333,13 @@
                             x:Name="SendMessageButton" 
                             Text="Send Message" 
                             Clicked="SendMessageButton_Clicked"
+                            HeightRequest="40"
+                            WidthRequest="150" 
+                            HorizontalOptions="Center"/>
+                        <Button 
+                            x:Name="DeleteButton" 
+                            Text="Delete Scans" 
+                            Clicked="DeleteButton_Clicked"
                             HeightRequest="40"
                             WidthRequest="150" 
                             HorizontalOptions="Center"/>
