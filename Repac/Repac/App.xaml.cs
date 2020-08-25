@@ -14,7 +14,7 @@ namespace Repac
         {
             InitializeComponent();
 
-            using (var db = new DatabaseContext(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "RepacCashRegister1.db")))
+            using (var db = new DatabaseContext(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "RepacCashRegister3.db")))
             {
                 db.Database.EnsureCreated();
                 User user = db.Users.Where(u => u.UserId == Guid.Parse("666b55ac-96e7-47b0-96d1-38622d0b176e")).FirstOrDefault();
@@ -26,7 +26,6 @@ namespace Repac
                         FirstName = "Sasha",
                         LastName = "Artemiev",
                         RegistryDate = DateTime.Now,
-                        Credits = 0
                     });
                     db.SaveChanges();
                 }

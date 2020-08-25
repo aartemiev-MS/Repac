@@ -24,9 +24,13 @@ namespace Repac
         int ScannedProducts { get; set; } = 0;
         int ProductsCredit { get; set; } = 0;
         bool EditingItemsQuantityMode { get; set; } = false;
-        DatabaseContext DBInstance { get; set; }
 
-        private string dbPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "RepacCashRegister1.db");
+        ScanSession ScanSession { get; set; }
+        List<Scan> SessionScans { get; set; } = new List<Scan>();
+        User CurrentUser { get; set; }
+
+        private string dbPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "RepacCashRegister3.db");
+        private readonly Guid userSashaGuid = Guid.Parse("666b55ac-96e7-47b0-96d1-38622d0b176e");
 
         private HubConnection hubConnection;
 
@@ -43,22 +47,51 @@ namespace Repac
             InitializeComponent();
             FirstSlideActivate();
 
-            List<CashRegisterScan> itemSource;
+            List<Scan> itemSource;
 
-            DisplayReport();
+            //DisplayReport();
 
             MessagingCenter.Subscribe<string>(this, "TagScanned", (tag) => { TagScanned(tag); });
 
             hubConnection = new HubConnectionBuilder()
                  .WithUrl("https://repaccore.conveyor.cloud/chatHub")
+                // .WithAutomaticReconnect()
                  .Build();
 
             hubConnection.StartAsync();
 
-            hubConnection.On<string>("ReceiveMessage", (message) =>
-           {
-               ReceiveMessage(message);
-           });
+            hubConnection.On<User>("Authorized", (user) => { Authorized(user); });
+            hubConnection.On<string>("NotAuthorized", (reason) => { NotAuthorized(reason); });
+
+            hubConnection.On<string>("ReceiveMessage", (message) => { ReceiveMessage(message); });
+            hubConnection.On<string, string>("TestEvent1", (arg1, arg2) => { TestEvent1(arg1, arg2); });
+
+            hubConnection.On<Guid>("ScanVerified", (scanId) => { ScanVerified(scanId); });
+            hubConnection.On<Guid, string>("ScanNotVerified", (scanId, reason) => { ScanNotVerified(scanId, reason); });
+
+            hubConnection.On<int>("CreditsWereBought", (currentCredits) => { CreditsWereBought(currentCredits); });
+            hubConnection.On<string>("CreditsWereNotBought", (reason) => { CreditsWereNotBought(reason); });
+
+            hubConnection.InvokeAsync("TestEvent", "nothing");
+
+            hubConnection.Reconnecting += async (error) =>
+            {
+                ReportArea1Label.Text += $"Hub Connection is Reconnecting \r\n";
+                await Task.Delay(1000);
+                await hubConnection.StartAsync();
+            };
+            hubConnection.Closed += async (error) =>
+            {
+                ReportArea1Label.Text += $"Hub Connection was Closed \r\n";
+                await Task.Delay(1000);
+                await hubConnection.StartAsync();
+            };
+            hubConnection.Reconnected += async (error) =>
+            {
+                ReportArea1Label.Text += $"Hub Connection was Reconnected \r\n";
+                await Task.Delay(1000);
+                await hubConnection.StartAsync();
+            };
 
             this.ReadTagCommand = new RelayCommand(this.ExecuteReadTag, () => { return this.isIdle; });
 
@@ -71,9 +104,10 @@ namespace Repac
 
             this.IsIdle = true;
 
-           // this.addNewEnumerator = this.transportsManager.Enumerators.Where(enumerator => enumerator.CanShowAddNew).FirstOrDefault();
+            // this.addNewEnumerator = this.transportsManager.Enumerators.Where(enumerator => enumerator.CanShowAddNew).FirstOrDefault();
             this.AddNewCommand = new RelayCommand(() => { this.addNewEnumerator?.ShowAddNew(); }, () => { return this.addNewEnumerator != null; });
 
+            ReportScannedTags();
         }
 
         #region "Events"
@@ -345,38 +379,257 @@ namespace Repac
         #endregion
 
         #region Test stuff
-        private void DeleteButton_Clicked(object sender, EventArgs e)
-        {
-            using (var db = new DatabaseContext(dbPath))
-            {
-                db.CashRegisterScans.RemoveRange(db.CashRegisterScans.ToList());
 
-                List<User> usersSource = db.Users.ToList();
-                for (int i = 0; i < usersSource.Count; i++)
-                {
-                    usersSource[i].Credits = 0;
-                }
-
-                db.SaveChanges();
-                DisplayReport();
-            }
-        }
-        private void ScanInButton_Clicked(object sender, EventArgs e) => AddScan(true);
-
-        private void ScanRfidButton1_Clicked(object sender, EventArgs e)
-        {
-            ICommand ReadTagCommand = new RelayCommand(this.ExecuteReadTag, () => { return this.isIdle; });
-        }
-
+        #region Buttons
         private void ScanRfidButton2_Clicked(object sender, EventArgs e)
         {
             ExecuteReadTag();
+            //ICommand ReadTagCommand = new RelayCommand(this.ExecuteReadTag, () => { return this.isIdle; });
         }
 
-        private void ConnectRfidButton_Clicked(object sender, EventArgs e)
+        private void TestButtonButton1_Clicked(object sender, EventArgs e)
+        {
+            hubConnection.InvokeAsync("TestEvent", Guid.NewGuid().ToString());
+        }
+
+        private async void TestButtonButton2_Clicked(object sender, EventArgs e)
+        {
+            System.Diagnostics.Debugger.Log(1, "test", "Successfully connected");
+        }
+
+        private void ScanButton_Clicked(object sender, EventArgs e)
+        {
+            CheckIfSessionExists();
+
+            Scan scan = new Scan()
+            {
+                ScanId = Guid.NewGuid(),
+                ContainerTagId = Guid.NewGuid(),
+                ScanSessionId = ScanSession.ScanSessionId,
+                Timestamp = DateTime.Now
+            };
+
+            SessionScans.Add(scan);
+            ReportScannedTags();
+
+            if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
+            {
+                ReportArea1Label.Text += $"Scan №{SessionScans.Count - 1} Happened. Count:{SessionScans.Count} \r\n";
+                hubConnection.InvokeAsync("ScanHappened", scan);
+            }
+        }
+        private void CancelScanButton_Clicked(object sender, EventArgs e)
+        {
+            if (SessionScans.Count > 0)
+            {
+                Scan lastScan = SessionScans[SessionScans.Count - 1];
+
+                SessionScans.Remove(lastScan);
+                ReportScannedTags();
+
+                if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
+                {
+                    ReportArea1Label.Text += $"Last Scan (№{SessionScans.Count}) Deleted. Count:{SessionScans.Count} \r\n";
+                    hubConnection.InvokeAsync("CancelScan", lastScan.ScanId);
+                }
+            }
+        }
+        private void CancelSessionButton_Clicked(object sender, EventArgs e)
         {
 
+            if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
+            {
+                ReportArea1Label.Text = $"Session Deleted. \r\n";
+                hubConnection.InvokeAsync("CancelSession", ScanSession.ScanSessionId);
+            }
+
+            ScanSession = null;
+            CurrentUser = null;
+            SessionScans.Clear();
+            ReportScannedTags();
         }
+        private void BuyCreditButton_Clicked(object sender, EventArgs e)
+        {
+            if (CurrentUser != null)
+            {
+                int amount = 1;
+
+                if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
+                {
+                    ReportArea1Label.Text += $"{amount} Credits requested to buy.  \r\n";
+                    hubConnection.InvokeAsync("BuyCredits", CurrentUser.UserId, amount);
+                }
+            }
+            else
+            {
+                ReportArea1Label.Text += $"Credits can't be bought unless user is authorized \r\n";
+            }
+        }
+        private void FinishSessionButton_Clicked(object sender, EventArgs e)
+        {
+            if (SessionScans.Count > 0)
+            {
+                if (CurrentUser != null)
+                {
+                    ScanSession.ScanSessionEndTimestamp = DateTime.Now;
+                    ScanSession.UserId = CurrentUser.UserId;
+
+                    if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
+                    {
+                        ReportArea1Label.Text = $"Session Finished.  \r\n";
+                        hubConnection.InvokeAsync("FinishSession", ScanSession);
+                    }
+
+                    ScanSession = null;
+                    CurrentUser = null;
+                    SessionScans.Clear();
+                    ReportScannedTags();
+                }
+                else
+                {
+                    ReportArea1Label.Text += $"Session can't be finished unless user is authorized \r\n";
+                }
+            }
+            else
+            {
+                ReportArea1Label.Text += $"Empty session can't be finished \r\n";
+            }
+        }
+        private void AuthorizeButton_Clicked(object sender, EventArgs e)
+        {
+            if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
+            {
+                hubConnection.InvokeAsync("Authorization", userSashaGuid);
+            }
+        }
+        private async void ReconnectButton_Clicked(object sender, EventArgs e)
+        {
+            if (hubConnection.State == HubConnectionState.Connected )
+            {
+                ReportArea1Label.Text += $"Connection is already established \r\n";
+            }
+            else
+            {
+                while (true)
+                {
+                    if (hubConnection.State == HubConnectionState.Connecting)
+                    {
+                        ReportArea1Label.Text += $"Connecting.. \r\n";
+                        await Task.Delay(2000);
+                    }
+
+                    try
+                    {
+                        await hubConnection.StartAsync();
+                        System.Diagnostics.Debugger.Log(1, "test", "Successfully connected");
+                        ReportArea1Label.Text += $"Successfully connected \r\n";
+                        break;
+                    }
+                    catch
+                    {
+                        // Failed to connect, trying again in 5000 ms.
+                        ReportArea1Label.Text += $"Failed to connect. Next attempt in 2 sec \r\n";
+                        await Task.Delay(2000);
+                    }
+                }
+            }
+
+        }
+
+        private Guid tag1Guid = Guid.NewGuid();
+        private Guid tag2Guid = Guid.NewGuid();
+        private void ScanTag1_Clicked(object sender, EventArgs e)
+        {
+            bool item1WasAlreadyScanned = SessionScans.Where(scan => scan.ScanId == tag1Guid).Any();
+            if (item1WasAlreadyScanned)
+            {
+                ReportArea1Label.Text += $"Denied:Tag №1 has already been scanned. \r\n";
+            }
+            else
+            {
+                CheckIfSessionExists();
+
+                Scan scan = new Scan()
+                {
+                    ScanId = Guid.NewGuid(),
+                    ContainerTagId = tag1Guid,
+                    ScanSessionId = ScanSession.ScanSessionId,
+                    Timestamp = DateTime.Now
+                };
+
+                SessionScans.Add(scan);
+                ReportScannedTags();
+
+                if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
+                {
+                    ReportArea1Label.Text += $"Scan №{SessionScans.Count - 1}(Tag №1) Happened. Count:{SessionScans.Count} \r\n";
+                    hubConnection.InvokeAsync("ScanHappened", scan);
+                }
+            }
+        }
+        private void ScanTag2_Clicked(object sender, EventArgs e)
+        {
+            bool item2WasAlreadyScanned = SessionScans.Where(scan => scan.ContainerTagId == tag2Guid).Any();
+            if (item2WasAlreadyScanned)
+            {
+                ReportArea1Label.Text += $"Denied:Tag №2 has already been scanned. \r\n";
+            }
+            else
+            {
+                CheckIfSessionExists();
+
+                Scan scan = new Scan()
+                {
+                    ScanId = Guid.NewGuid(),
+                    ContainerTagId = tag2Guid,
+                    ScanSessionId = ScanSession.ScanSessionId,
+                    Timestamp = DateTime.Now
+                };
+
+                SessionScans.Add(scan);
+                ReportScannedTags();
+
+                if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
+                {
+                    ReportArea1Label.Text += $"Scan №{SessionScans.Count - 1}(Tag №2) Happened. Count:{SessionScans.Count} \r\n";
+                    hubConnection.InvokeAsync("ScanHappened", scan);
+                }
+            }
+        }
+        private void CancelTag1_Clicked(object sender, EventArgs e)
+        {
+            Scan tag1Scan = SessionScans.Where(scan => scan.ContainerTagId == tag1Guid).FirstOrDefault();
+
+            if (tag1Scan!=null)
+            {
+                SessionScans.Remove(tag1Scan);
+                ReportScannedTags();
+
+                if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
+                {
+                    ReportArea1Label.Text += $" Scan of Tag №1 was canceled. Count:{SessionScans.Count} \r\n";
+                    hubConnection.InvokeAsync("CancelScan", tag1Scan.ScanId);
+                }
+            }
+        }
+        private void CancelTag2_Clicked(object sender, EventArgs e)
+        {
+            Scan tag2Scan = SessionScans.Where(scan => scan.ContainerTagId == tag2Guid).FirstOrDefault();
+
+            if (tag2Scan != null)
+            {
+                SessionScans.Remove(tag2Scan);
+                ReportScannedTags();
+
+                if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
+                {
+                    ReportArea1Label.Text += $" Scan of Tag №2 was canceled. Count:{SessionScans.Count} \r\n";
+                    hubConnection.InvokeAsync("CancelScan", tag2Scan.ScanId);
+                }
+            }
+        }
+
+        #endregion
 
         private void AddScan(bool scanDirection)
         {
@@ -384,16 +637,11 @@ namespace Repac
             {
                 User user = db.Users.Where(u => u.UserId == Guid.Parse("666b55ac-96e7-47b0-96d1-38622d0b176e")).FirstOrDefault();
 
-                user.Scan(scanDirection);
-
-                db.Add(new CashRegisterScan()
+                db.Add(new Scan()
                 {
                     ScanId = Guid.NewGuid(),
-                    TagId = Guid.NewGuid(),
-                    UserId = user.UserId,
-                    ScanDirection = scanDirection,
+                    ContainerTagId = Guid.NewGuid(),
                     Timestamp = DateTime.Now,
-                    ResultCreditValue = user.Credits
                 });
 
                 db.SaveChanges();
@@ -403,27 +651,27 @@ namespace Repac
 
         private void DisplayReport()
         {
-            ReportScansLabel.Text = String.Empty;
-            ReportUsersLabel.Text = String.Empty;
+            ReportArea1Label.Text = String.Empty;
+            ReportArea2Label.Text = String.Empty;
 
             using (var db = new DatabaseContext(dbPath))
             {
-                List<CashRegisterScan> scansSource = db.CashRegisterScans.ToList();
+                List<Scan> scansSource = db.CashRegisterScans.ToList();
                 List<User> usersSource = db.Users.ToList();
 
                 for (int i = 0; i < scansSource.Count; i++)
                 {
-                    CashRegisterScan scan = scansSource[i];
+                    Scan scan = scansSource[i];
 
-                    ReportScansLabel.Text += $"{i}) {scan.TagId}     -     {scan.Timestamp.ToShortTimeString()}     -     {scan.ScanDirection} \r\n";
+                    ReportArea1Label.Text += $"{i}) {scan.ContainerTagId}     -     {scan.Timestamp.ToShortTimeString()}  \r\n";
                 }
 
                 for (int i = 0; i < usersSource.Count; i++)
                 {
                     User user = usersSource[i];
-                    int scansCount = db.CashRegisterScans.Where(s => s.UserId == user.UserId).ToList().Count();
+                    // int scansCount = db.CashRegisterScans.Where(s => s.UserId == user.UserId).ToList().Count();
 
-                    ReportUsersLabel.Text += $"{i}) {user.FirstName} {user.LastName}    -     Credits:{user.Credits}     -     Scans Count:{scansCount} \r\n";
+                    //  ReportArea2Label.Text += $"{i}) {user.FirstName} {user.LastName}    -     Scans Count:{scansCount} \r\n";
                 }
             }
         }
@@ -434,17 +682,14 @@ namespace Repac
             {
                 User user = db.Users.Where(u => u.UserId == Guid.Parse("666b55ac-96e7-47b0-96d1-38622d0b176e")).FirstOrDefault();
 
-                user.Scan(true);
+                // user.Scan(true);
 
 
-                db.Add(new CashRegisterScan()
+                db.Add(new Scan()
                 {
                     ScanId = Guid.NewGuid(),
-                    TagId = Guid.Parse(tagMessage),
-                    UserId = user.UserId,
-                    ScanDirection = true,
+                    ContainerTagId = Guid.Parse(tagMessage),
                     Timestamp = DateTime.Now,
-                    ResultCreditValue = user.Credits
                 });
 
                 db.SaveChanges();
@@ -453,32 +698,105 @@ namespace Repac
             if (CurrentSlide == Slides.Second) AddScannedItem();
         }
 
-        private void SendMessageButton_Clicked(object sender, EventArgs e)
+        private void CheckIfSessionExists()
         {
-            CashRegisterScan scan = new CashRegisterScan()
+            if (ScanSession == null)
             {
-                ScanId = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
-                TagId = Guid.NewGuid(),
-                ScanDirection = true,
-                ResultCreditValue = 1
-            };
-            ScanHappened(scan);
+                ScanSession = new ScanSession()
+                {
+                    ScanSessionId = Guid.NewGuid(),
+                    ScanSessionStartTimestamp = DateTime.Now
+                };
+
+                ReportArea1Label.Text += $"New Session Started. Count:{SessionScans.Count} \r\n";
+            }
         }
 
+        private void ReportScannedTags()
+        {
+            ReportArea2Label.Text = $"Scanned Tags Count: {SessionScans.Count}.       Ids: \r\n";
+
+            foreach (Scan scan in SessionScans)
+            {
+                if (scan.ContainerTagId == tag1Guid)
+                {
+                    ReportArea2Label.Text += $"{scan.ContainerTagId} (Tag №1) \r\n";
+                }
+                else if (scan.ContainerTagId == tag2Guid)
+                {
+                    ReportArea2Label.Text += $"{scan.ContainerTagId} (Tag №2) \r\n";
+                }
+                else
+                {
+                    ReportArea2Label.Text += $"{scan.ContainerTagId} \r\n";
+                }
+            }
+
+        }
         #endregion
 
-        #region SignalR
+        #region SignalR invoked events
         // https://localhost:44367/chatHub
 
-        async Task ScanHappened(CashRegisterScan scan)
+        private void TestEvent1(string arg1, string arg2)
         {
-            await hubConnection.InvokeAsync("ScanHappened", scan);
+            ReportArea1Label.Text += $"TestEvent1. arg1:{arg1} arg2:{arg2} \r\n";
         }
-
         private void ReceiveMessage(string message)
         {
             int a = 0;
+        }
+
+        private void Authorized(User user)
+        {
+            CurrentUser = user;
+
+            ReportArea1Label.Text += $"User {user.FirstName} {user.LastName} was authorized. Owned Cr:{user.OwnedCredits} Used Cr:{user.UsedCredits} \r\n";
+        }
+        private void NotAuthorized(string reason)
+        {
+            ReportArea1Label.Text += $"User hasn't been authorized: {reason} \r\n";
+        }
+
+
+        private void ScanVerified(Guid scanId)
+        {
+            bool scanWasFound = SessionScans.Where(scan => scan.ScanId == scanId).Any();
+
+            if (scanWasFound)
+            {
+                Scan verifiedScan = SessionScans.Where(scan => scan.ScanId == scanId).FirstOrDefault();
+
+                ReportArea1Label.Text += $"Scan №{SessionScans.IndexOf(verifiedScan)} Verified. \r\n";
+            }
+            else
+            {
+                ReportArea1Label.Text += $"Scan would be verified but it was already deleted. Nothing changed \r\n";
+            }
+        }
+        private void ScanNotVerified(Guid scanId, string reason)
+        {
+            Scan notVerifiedScan = SessionScans.Where(scan => scan.ScanId == scanId).FirstOrDefault();
+
+            ReportArea1Label.Text += $"Scan №{SessionScans.IndexOf(notVerifiedScan)} Hasn't been verified and will be removed: {reason} \r\n";
+
+            SessionScans.Remove(notVerifiedScan);
+        }
+
+        private void CreditsWereBought(int currentCredits)
+        {
+            CurrentUser.OwnedCredits = currentCredits;
+
+            ReportArea1Label.Text += $"Credits were bought. Owned Cr:{CurrentUser.OwnedCredits} Used Cr:{CurrentUser.UsedCredits} \r\n";
+        }
+        private void CreditsWereNotBought(string reason)
+        {
+            ReportArea1Label.Text += $"Credits were not bought: {reason} \r\n";
+        }
+
+        private void SashaTest()
+        {
+            var a = 1;
         }
         #endregion
 
@@ -669,7 +987,7 @@ namespace Repac
         {
             this.IsIdle = false;
             this.ReadTagCommand.RefreshCanExecute();
-        //    this.WriteTagCommand.RefreshCanExecute();
+            //    this.WriteTagCommand.RefreshCanExecute();
 
             try
             {
@@ -706,7 +1024,10 @@ namespace Repac
         public ICommand AddNewCommand { get; private set; }
         private IAsciiTransportEnumerator addNewEnumerator;
 
+
+
         #endregion
+
     }
 }
 

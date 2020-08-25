@@ -5,15 +5,13 @@ using System.Text;
 
 namespace Repac.Data.Models
 {
-    class CashRegisterScan
+    public class Scan
     {
         [Key]
         public Guid ScanId { get; set; }
-        public Guid TagId { get; set; }
-        public Guid UserId { get; set; }
-        public bool ScanDirection { get; set; }
-        public int ResultCreditValue { get; set; }
+        public Guid ContainerTagId { get; set; }
+        public Guid ScanSessionId { get; set; }
         public DateTime Timestamp { get; set; }
-        
+
     }
 }
