@@ -110,7 +110,7 @@ namespace Repac.Droid
                                 // Get the transfered data
                                 var data = Encoding.ASCII.GetString(record.GetPayload());
 
-                                MessagingCenter.Send(data.Substring(3), "TagScanned");
+                                MessagingCenter.Send(data.Substring(3), "NewTagDataReceived");
                             }
                         }
                     }

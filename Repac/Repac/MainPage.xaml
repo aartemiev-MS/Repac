@@ -6,7 +6,7 @@
              mc:Ignorable="d"
              x:Class="Repac.MainPage">
     <Grid>
-    <Grid BackgroundColor="White" IsVisible="false">
+    <Grid BackgroundColor="White" IsVisible="true">
         <Grid.RowDefinitions>
             <RowDefinition Height="0.16*"/>
             <RowDefinition Height="*"/>
@@ -14,7 +14,11 @@
         </Grid.RowDefinitions>
         
         <Grid x:Name="Header">
-            <Image Source="RepacLogo_Transparent.jpg" 
+                <Label
+                    x:Name="SmallConsole"
+                    Grid.Row="0"
+                    FontSize="Micro"/>
+                <Image Source="RepacLogo_Transparent.jpg" 
                    Grid.Row="0">
                 <Image.GestureRecognizers>
                     <TapGestureRecognizer Tapped="RepacLogo_Tapped"/>
@@ -194,8 +198,8 @@
                                        FontSize="80" 
                                        VerticalOptions="CenterAndExpand"
                                        TextColor="Black"/>
-                            </Grid>
-                        </StackLayout>
+                                </Grid>
+                            </StackLayout>
                             <StackLayout BackgroundColor="White" 
                                      Grid.Column="1"
                                      Grid.ColumnSpan="1">
@@ -206,7 +210,10 @@
                                        TextDecorations="Underline"
                                        TextColor="Black"/>
                             <Grid x:Name="CounterGridRight"
-                                  Margin="60,0,60,60">
+                                  Margin="60,0,60,60" >
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                                    </Grid.GestureRecognizers>
                                 <Image Source="BlueRoundedSquare.png"/>
                                 <Label x:Name="CounterLabelRight" 
                                        Text="0" 
@@ -229,15 +236,26 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid Grid.Row="1" Grid.Column="2">
-                            <Button x:Name="AddCreditButton" 
+                            <StackLayout>
+                                <Button x:Name="AddCreditsButton" 
                                 BackgroundColor="#00ff00"
                                 CornerRadius="25"
                                 FontSize="10"
-                                Text="Augmentez vos crédits"
+                                Text="Add credits"
                                 BorderColor="Black"
                                 BorderWidth="1"
-                                Margin="20"
+                                Margin="0"
                                 Clicked="AddProductCredit"/>
+                                <Button x:Name="BuyCreditsButton" 
+                                BackgroundColor="#00ff00"
+                                CornerRadius="25"
+                                FontSize="10"
+                                Text="Buy credits"
+                                BorderColor="Black"
+                                BorderWidth="1"
+                                Margin="0"
+                                Clicked="BuyCreditsButton_Clicked"/>
+                            </StackLayout>
                         </Grid>
                     </Grid>
 
@@ -306,7 +324,7 @@
     </Grid>
         <Grid x:Name="TestScreen" 
                       BackgroundColor="LightGreen"
-                      IsVisible="True">
+                      IsVisible="False">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="*"/>
@@ -437,6 +455,14 @@
                             Text="Cancel Tag 2" 
                             BackgroundColor="Pink"
                             Clicked="CancelTag2_Clicked"
+                            HeightRequest="40"
+                            WidthRequest="150" 
+                            HorizontalOptions="Center"/>
+                <Button 
+                            x:Name="WrongTagButton" 
+                            Text="Wrong Tag" 
+                            BackgroundColor="Pink"
+                            Clicked="WrongTagButton_Clicked"
                             HeightRequest="40"
                             WidthRequest="150" 
                             HorizontalOptions="Center"/>
