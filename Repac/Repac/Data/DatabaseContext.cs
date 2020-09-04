@@ -11,8 +11,8 @@ namespace Repac.Data
         public static DatabaseContext DBInstance;
         private string _databasePath;
 
-        public DbSet<Scan> CashRegisterScans { get; set; }
-        public DbSet<User> Users { get; set; }
+        public DbSet<ScanDTO> CashRegisterScans { get; set; }
+        public DbSet<UserDTO> Users { get; set; }
         public DbSet<ScanSession> CashRegisterScanSessions { get; set; }
 
         public DatabaseContext(string databasePath)

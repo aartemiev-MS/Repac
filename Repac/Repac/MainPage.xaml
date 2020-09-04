@@ -18,7 +18,7 @@
                     x:Name="SmallConsole"
                     Grid.Row="0"
                     FontSize="Micro"/>
-                <Image Source="RepacLogo_Transparent.jpg" 
+                <Image Source="RepacLogo_Transparent.jpg"  IsVisible="false"
                    Grid.Row="0">
                 <Image.GestureRecognizers>
                     <TapGestureRecognizer Tapped="RepacLogo_Tapped"/>
@@ -324,7 +324,7 @@
     </Grid>
         <Grid x:Name="TestScreen" 
                       BackgroundColor="LightGreen"
-                      IsVisible="False">
+                      IsVisible="false">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="*"/>
