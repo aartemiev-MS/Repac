@@ -151,7 +151,7 @@ namespace Repac
                     //ThirdSlideActivate();
                     break;
                 case Slides.Third:
-                   // FourthSlideActivate();
+                    // FourthSlideActivate();
                     break;
             }
         }
@@ -277,6 +277,8 @@ namespace Repac
             FooterTextLabel.Text = "TAPER CARTE/TEL. POUR COMPLÉTER LA TRANSACTION.";
             FooterTextLabel.TextColor = BuyCreditsButton.BackgroundColor;
             Footer.IsVisible = SessionScans.Count <= ProductsCredit ? true : false;
+
+            ThirdSlideUpdateLabels();
         }
         private void FourthSlideActivate()
         {
@@ -446,11 +448,7 @@ namespace Repac
             {
                 int amount = 1;
 
-                if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
-                {
-                    ReportArea1Label.Text += $"{amount} Credits requested to buy.  \r\n";
-                    hubConnection.InvokeAsync("BuyCredits", CurrentUser.UserId, amount);
-                }
+                RequestCreditsBuying(amount);
             }
             else
             {
@@ -484,7 +482,7 @@ namespace Repac
         }
         private async void AuthorizeButton_Clicked(object sender, EventArgs e)
         {
-         //   await hubConnection.StartAsync();
+            //   await hubConnection.StartAsync();
             NewScanOrAuthenticationHappend(keyChainSashaGuid);
         }
         private async void ReconnectButton_Clicked(object sender, EventArgs e)
@@ -568,7 +566,7 @@ namespace Repac
 
         private void NewTagDataReceived(string tagMessage)
         {
-            if (CurrentSlide == Slides.Second) NewScanOrAuthenticationHappend(Guid.Parse(tagMessage));
+            NewScanOrAuthenticationHappend(Guid.Parse(tagMessage));
         }
 
         private void CheckIfSessionExists()
@@ -627,36 +625,36 @@ namespace Repac
         {
             CurrentUser = user;
 
-            ReportArea1Label.Text += $"User {user.FirstName} {user.LastName} was authorized. Availible Credits:{CurrentUser.RemainingCredits} \r\n";
-            SmallConsoleMessage($"User {user.FirstName} {user.LastName} was authorized. Av Cr:{CurrentUser.RemainingCredits} \r\n");
-            ThirdSlideActivate();
+            if (CurrentSlide == Slides.First || CurrentSlide == Slides.Second || CurrentSlide == Slides.Fourth)
+            {
+                ReportArea1Label.Text += $"User {user.FirstName} {user.LastName} was authorized. Availible Credits:{CurrentUser.RemainingCredits} \r\n";
+                SmallConsoleMessage($"User {user.FirstName} {user.LastName} was authorized. Av Cr:{CurrentUser.RemainingCredits} \r\n");
+                ThirdSlideActivate();
+            }
+            else
+            {
+                if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
+                {
+                    ReportArea1Label.Text = $"Session Finished.  \r\n";
+                    SmallConsoleMessage($"Session Finished.  \r\n");
+                    hubConnection.InvokeAsync("FinishSession", ScanSession);
+
+                    NullifySession();
+                    FourthSlideActivate();
+                }
+            }
+
         }
         private void NotAuthorized(string reason)
         {
             ReportArea1Label.Text += $"User hasn't been authorized: {reason} \r\n";
-        }
-        private void ScanVerified_Old(Guid scanId)
-        {
-            bool scanWasFound = SessionScans.Where(scan => scan.ScanId == scanId).Any();
-
-            if (scanWasFound)
-            {
-                ScanDTO verifiedScan = SessionScans.Where(scan => scan.ScanId == scanId).FirstOrDefault();
-                SessionScans.Add(verifiedScan);
-                ReportScannedTags();
-
-                ReportArea1Label.Text += $"Scan №{SessionScans.IndexOf(verifiedScan)} Verified. \r\n";
-            }
-            else
-            {
-                ReportArea1Label.Text += $"Scan would be verified but it was already deleted. Nothing changed \r\n";
-            }
         }
         private void ScanVerified(ScanDTO verifiedScan)
         {
             SessionScans.Add(verifiedScan);
             ReportScannedTags();
             AddScannedItem();
+            ThirdSlideUpdateLabels();
 
             ReportArea1Label.Text += $"Scan was verified. TagId:{verifiedScan.ContainerTagId}\r\n";
             SmallConsoleMessage($"Scan was verified. TagId:{verifiedScan.ContainerTagId} \r\n");
@@ -664,9 +662,6 @@ namespace Repac
 
         private void ScanNotVerified(Guid scanId, string reason)
         {
-            //  Scan notVerifiedScan = SessionScans.Where(scan => scan.ScanId == scanId).FirstOrDefault();
-
-            // ReportArea1Label.Text += $"Scan №{SessionScans.IndexOf(notVerifiedScan)} Hasn't been verified and will be removed: {reason}. Count:{SessionScans.Count - 1} \r\n";
             ReportArea1Label.Text += $"Scan hasn't been verified: {reason} \r\n";
 
             //SessionScans.Remove(notVerifiedScan);
@@ -720,7 +715,11 @@ namespace Repac
 
         private void NewScanOrAuthenticationHappend(Guid tagId)
         {
-            if (TagWasScanned(tagId))
+            if (CurrentUser.KeyChainId == tagId)
+            {
+                SubmitFinishOperation();
+            }
+            else if (TagWasScanned(tagId))
             {
                 ReportArea1Label.Text += $"Denied:This tag has already been scanned. \r\n";
                 SmallConsoleMessage($"Denied:The tag has already been scanned. TagId {tagId}\r\n");
@@ -734,8 +733,9 @@ namespace Repac
                     ScanId = Guid.NewGuid(),
                     TagId = tagId,
                     ScanSessionId = ScanSession.ScanSessionId,
-                    ScannerId= scannerId,
-                    Timestamp = DateTime.Now
+                    ScannerId = scannerId,
+                    Timestamp = DateTime.Now,
+                    UserId = CurrentUser == null ? null : (Guid?)CurrentUser.UserId
                 };
 
                 //SessionScans.Add(scan);
@@ -1028,8 +1028,60 @@ namespace Repac
             SmallConsole.Text = "";
 
             if (smallConsoleLog.Count > 2) SmallConsole.Text += $" {smallConsoleLog.Count - 3}) " + smallConsoleLog[smallConsoleLog.Count - 3];
-            if (smallConsoleLog.Count > 1)  SmallConsole.Text += $" {smallConsoleLog.Count - 2}) " + smallConsoleLog[smallConsoleLog.Count - 2]; 
-             SmallConsole.Text += $" {smallConsoleLog.Count - 1}) " + smallConsoleLog[smallConsoleLog.Count - 1]; 
+            if (smallConsoleLog.Count > 1) SmallConsole.Text += $" {smallConsoleLog.Count - 2}) " + smallConsoleLog[smallConsoleLog.Count - 2];
+            SmallConsole.Text += $" {smallConsoleLog.Count - 1}) " + smallConsoleLog[smallConsoleLog.Count - 1];
+        }
+
+        private void ThirdSlideUpdateLabels()
+        {
+            int creditsAvailible = CurrentUser.RemainingCredits;
+            int creditsRequired = SessionScans.Count;
+
+            if (creditsRequired == 0)
+            {
+                FirstLabel.Text = $"Scan your containers.";
+                SecondLabel.Text = $"";
+                ThirdLabel.Text = $"";
+                FourthLabel.Text = $"";
+            }
+            else if (creditsAvailible < creditsRequired)
+            {
+                FirstLabel.Text = $"Currently you have {creditsAvailible} availible credits.";
+                SecondLabel.Text = $"To finish session you need {creditsRequired - creditsAvailible} more credits.";
+                ThirdLabel.Text = $"It will cost {creditsRequired * 4}$.";
+                FourthLabel.Text = $"Scan you Key Chain to submit the purchase and finish session.";
+            }
+            else
+            {
+                FirstLabel.Text = $"Currently you have {creditsAvailible} availible credits.";
+                SecondLabel.Text = $"To finish session it will take {creditsRequired} credits.";
+                ThirdLabel.Text = $"Scan you Key Chain to submit and finish session.";
+                FourthLabel.Text = $"";
+            }
+        }
+
+        private void SubmitFinishOperation()
+        {
+            int creditsAvailible = CurrentUser.RemainingCredits;
+            int creditsRequired = SessionScans.Count;
+
+            if (creditsAvailible < creditsRequired)
+            {
+                RequestCreditsBuying(creditsRequired - creditsAvailible);
+            }
+            else
+            {
+                FinishSession();
+            }
+        }
+
+        private void RequestCreditsBuying(int amount)
+        {
+            if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
+            {
+                ReportArea1Label.Text += $"{amount} Credits requested to buy.  \r\n";
+                hubConnection.InvokeAsync("BuyCredits", CurrentUser.UserId, amount);
+            }
         }
     }
 }

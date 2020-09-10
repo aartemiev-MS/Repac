@@ -168,7 +168,7 @@
                     </Grid>
             </Grid>
 
-            <Grid x:Name="ThirdScreen"
+            <Grid x:Name="ThirdScreen_Old"
                   IsVisible="False">
                 <Grid VerticalOptions="CenterAndExpand">
                     <Grid ColumnSpacing="3">
@@ -192,7 +192,7 @@
                                    LineBreakMode="NoWrap"/>
                             <Grid Margin="60,0,60,60">
                                     <Image Source="BlueRoundedSquare.png"/>
-                                    <Label x:Name="CounterLabelLeft" 
+                                    <Label x:Name="CounterLabelLeft_Old" 
                                        Text="0" 
                                        HorizontalOptions="Center"
                                        FontSize="80" 
@@ -280,7 +280,50 @@
                     </Grid>
                 </Grid>
             </Grid>
+                <Grid x:Name="ThirdScreen"
+                  IsVisible="False">
+                    <Grid VerticalOptions="CenterAndExpand">
+                        <Grid ColumnSpacing="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="0.22*"/>
+                            </Grid.ColumnDefinitions>
 
+                            <Grid Grid.Column="0" 
+                              Grid.ColumnSpan="2" 
+                              BackgroundColor="Black"
+                              Margin="0,0,0,60"/>
+                            <StackLayout BackgroundColor="White"
+                                     Grid.Column="0">
+                                <Label Text="Items scannés" 
+                                   HorizontalOptions="Center"
+                                   FontSize="30" 
+                                   TextDecorations="Underline"
+                                   TextColor="Black"
+                                   LineBreakMode="NoWrap"/>
+                                <Grid Margin="60,0,60,60">
+                                    <Image Source="BlueRoundedSquare.png"/>
+                                    <Label x:Name="CounterLabelLeft" 
+                                       Text="0" 
+                                       HorizontalOptions="Center"
+                                       FontSize="80" 
+                                       VerticalOptions="CenterAndExpand"
+                                       TextColor="Black"/>
+                                </Grid>
+                            </StackLayout>
+                            <StackLayout BackgroundColor="White" 
+                                     Grid.Column="1"
+                                     Grid.ColumnSpan="1">
+                                <Label x:Name="FirstLabel"/> 
+                                <Label x:Name="SecondLabel"/>
+                                <Label x:Name="ThirdLabel"/>
+                                <Label x:Name="FourthLabel"/>
+                            </StackLayout>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                
             <Grid x:Name="FourthScreen" 
                       IsVisible="False">
                 <Grid.RowDefinitions>

@@ -10,7 +10,7 @@ namespace Repac.Data.Models.DTOs
         public Guid ScanId { get; set; }
         public Guid ScanSessionId { get; set; }
         public Guid ScannerId { get; set; }
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
         public DateTime Timestamp { get; set; }
     }
 }

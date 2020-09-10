@@ -6,6 +6,7 @@ using Android.Nfc;
 using Android.OS;
 using Android.Runtime;
 using Repac.Rfid_Weird_stuff;
+using System;
 using System.Text;
 using TechnologySolutions.Rfid.AsciiProtocol.Extensions;
 using TechnologySolutions.Rfid.AsciiProtocol.Platform;
@@ -109,8 +110,16 @@ namespace Repac.Droid
                             {
                                 // Get the transfered data
                                 var data = Encoding.ASCII.GetString(record.GetPayload());
+                                var aaa = data.Substring(3);
+                                try
+                                {
 
                                 MessagingCenter.Send(data.Substring(3), "NewTagDataReceived");
+                                }
+                                catch(Exception e)
+                                {
+
+                                }
                             }
                         }
                     }
