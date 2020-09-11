@@ -110,16 +110,8 @@ namespace Repac.Droid
                             {
                                 // Get the transfered data
                                 var data = Encoding.ASCII.GetString(record.GetPayload());
-                                var aaa = data.Substring(3);
-                                try
-                                {
 
                                 MessagingCenter.Send(data.Substring(3), "NewTagDataReceived");
-                                }
-                                catch(Exception e)
-                                {
-
-                                }
                             }
                         }
                     }

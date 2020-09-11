@@ -343,6 +343,11 @@
                        TextColor="Black"/>
             </Grid>
 
+                <StackLayout x:Name="AdminScreen">
+                    <Label Text="Admin Mode" FontSize="25"/>
+                    <Label x:Name="AdminItemsCounter" FontSize="20"/>
+                </StackLayout>
+
             </Grid>
         <StackLayout x:Name="Footer" 
                      Orientation="Horizontal" 

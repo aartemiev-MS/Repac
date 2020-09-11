@@ -48,7 +48,8 @@ namespace Repac
             First,
             Second,
             Third,
-            Fourth
+            Fourth,
+            Admin
         }
 
         public MainPage()
@@ -77,6 +78,7 @@ namespace Repac
 
             hubConnection.On<ScanDTO>("ScanVerified", (scan) => { ScanVerified(scan); });
             hubConnection.On<Guid, string>("ScanNotVerified", (scanId, reason) => { ScanNotVerified(scanId, reason); });
+            hubConnection.On<Guid>("SessionFinished", (scanSessionId) => { SessionFinished(scanSessionId); });
 
             hubConnection.On<int>("CreditsWereBought", (currentCredits) => { CreditsWereBought(currentCredits); });
             hubConnection.On<string>("CreditsWereNotBought", (reason) => { CreditsWereNotBought(reason); });
@@ -234,6 +236,7 @@ namespace Repac
             SecondScreen.IsVisible = false;
             ThirdScreen.IsVisible = false;
             FourthScreen.IsVisible = false;
+            AdminScreen.IsVisible = false;
         }
         private async void SecondSlideActivate()
         {
@@ -255,6 +258,8 @@ namespace Repac
             SecondScreen.IsVisible = true;
             ThirdScreen.IsVisible = false;
             FourthScreen.IsVisible = false;
+            AdminScreen.IsVisible = false;
+
             await Appear(ItemsCounterBackground, 300);
         }
         private void ThirdSlideActivate()
@@ -273,6 +278,7 @@ namespace Repac
             SecondScreen.IsVisible = false;
             ThirdScreen.IsVisible = true;
             FourthScreen.IsVisible = false;
+            AdminScreen.IsVisible = false;
 
             FooterTextLabel.Text = "TAPER CARTE/TEL. POUR COMPLÉTER LA TRANSACTION.";
             FooterTextLabel.TextColor = BuyCreditsButton.BackgroundColor;
@@ -293,8 +299,27 @@ namespace Repac
             SecondScreen.IsVisible = false;
             ThirdScreen.IsVisible = false;
             FourthScreen.IsVisible = true;
+            AdminScreen.IsVisible = false;
 
             NullifyTimerSet();
+        }
+
+        private void AdminSlideActivate()
+        {
+            CurrentSlide = Slides.Admin;
+
+            FirstScreen.IsVisible = false;
+            SecondScreen.IsVisible = false;
+            ThirdScreen.IsVisible = false;
+            FourthScreen.IsVisible = false;
+            AdminScreen.IsVisible = true;
+
+            AdminSlideReport();
+        }
+
+        private void AdminSlideReport()
+        {
+            AdminItemsCounter.Text = $"Scans count:{SessionScans.Count}";
         }
 
         private void NullifyCycle()
@@ -651,6 +676,11 @@ namespace Repac
         }
         private void ScanVerified(ScanDTO verifiedScan)
         {
+            if (CurrentSlide == Slides.First)
+            {
+                SecondSlideActivate();
+            }
+
             SessionScans.Add(verifiedScan);
             ReportScannedTags();
             AddScannedItem();
@@ -685,39 +715,53 @@ namespace Repac
             var a = 1;
         }
         #endregion
-        private void NewScanHappend(Guid containerTagId)
-        {
-            if (TagWasScanned(containerTagId))
-            {
-                ReportArea1Label.Text += $"Denied:This tag has already been scanned. \r\n";
-            }
-            else
-            {
-                CheckIfSessionExists();
-
-                ScanDTO scan = new ScanDTO()
-                {
-                    ScanId = Guid.NewGuid(),
-                    ContainerTagId = containerTagId,
-                    ScanSessionId = ScanSession.ScanSessionId
-                };
-
-                SessionScans.Add(scan);
-                ReportScannedTags();
-
-                if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
-                {
-                    ReportArea1Label.Text += $"Scan №{SessionScans.Count - 1} Happened. Count:{SessionScans.Count} \r\n";
-                    hubConnection.InvokeAsync("ScanHappened", scan);
-                }
-            }
-        }
 
         private void NewScanOrAuthenticationHappend(Guid tagId)
         {
-            if (CurrentUser.KeyChainId == tagId)
+            if (tagId == tag3Guid)
             {
-                SubmitFinishOperation();
+                //emulating admin card
+                if (CurrentSlide == Slides.Admin)
+                {
+                    if (CurrentUser == null)
+                    {
+                        SecondSlideActivate();
+                    }
+                    else
+                    {
+                        ThirdSlideActivate();
+                    }
+                }
+                else if(CurrentSlide == Slides.Second||CurrentSlide == Slides.Third)
+                {
+                    AdminSlideActivate();
+                }
+            }
+            else if (CurrentSlide == Slides.Admin)
+            {
+                ScanDTO cancelingScan = SessionScans.Where(scan => scan.ContainerTagId == tagId).FirstOrDefault();
+
+                if (cancelingScan != null)
+                {
+                    SessionScans.Remove(cancelingScan);
+                    ReportScannedTags();
+                    AdminSlideReport();
+
+                    if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
+                    {
+                        ReportArea1Label.Text += $"Scan of Tag №1 was canceled. Count:{SessionScans.Count} \r\n";
+                        SmallConsoleMessage($"Scan was canceled. TagId: {tagId}\r\n");
+                        hubConnection.InvokeAsync("CancelScan", cancelingScan.ScanId);
+                    }
+                }
+
+            }
+            else if (CurrentUser?.KeyChainId == tagId)
+            {
+                if (SessionScans.Count > 0)
+                {
+                    SubmitFinishOperation();
+                }
             }
             else if (TagWasScanned(tagId))
             {
@@ -1007,7 +1051,7 @@ namespace Repac
             {
                 ReportArea1Label.Text = $"Session Finished.  \r\n";
                 SmallConsoleMessage($"Session Finished.  \r\n");
-                hubConnection.InvokeAsync("FinishSession", ScanSession);
+                hubConnection.InvokeAsync("FinishSession", ScanSession.ScanSessionId, CurrentUser.UserId);
 
                 NullifySession();
                 FourthSlideActivate();
@@ -1034,29 +1078,31 @@ namespace Repac
 
         private void ThirdSlideUpdateLabels()
         {
-            int creditsAvailible = CurrentUser.RemainingCredits;
-            int creditsRequired = SessionScans.Count;
+            if (CurrentUser != null)
+            {
+                int creditsAvailible = CurrentUser.RemainingCredits;
+                int creditsRequired = SessionScans.Count;
 
-            if (creditsRequired == 0)
-            {
-                FirstLabel.Text = $"Scan your containers.";
-                SecondLabel.Text = $"";
-                ThirdLabel.Text = $"";
-                FourthLabel.Text = $"";
-            }
-            else if (creditsAvailible < creditsRequired)
-            {
                 FirstLabel.Text = $"Currently you have {creditsAvailible} availible credits.";
-                SecondLabel.Text = $"To finish session you need {creditsRequired - creditsAvailible} more credits.";
-                ThirdLabel.Text = $"It will cost {creditsRequired * 4}$.";
-                FourthLabel.Text = $"Scan you Key Chain to submit the purchase and finish session.";
-            }
-            else
-            {
-                FirstLabel.Text = $"Currently you have {creditsAvailible} availible credits.";
-                SecondLabel.Text = $"To finish session it will take {creditsRequired} credits.";
-                ThirdLabel.Text = $"Scan you Key Chain to submit and finish session.";
-                FourthLabel.Text = $"";
+
+                if (creditsRequired == 0)
+                {
+                    SecondLabel.Text = $"Scan your containers.";
+                    ThirdLabel.Text = $"";
+                    FourthLabel.Text = $"";
+                }
+                else if (creditsAvailible < creditsRequired)
+                {
+                    SecondLabel.Text = $"To finish session you need {creditsRequired - creditsAvailible} more credits.";
+                    ThirdLabel.Text = $"It will cost {creditsRequired - creditsAvailible}*4 = {creditsRequired * 4}$.";
+                    FourthLabel.Text = $"Scan you Key Chain to submit the purchase and finish session.";
+                }
+                else
+                {
+                    SecondLabel.Text = $"To finish session it will take {creditsRequired} credits.";
+                    ThirdLabel.Text = $"Scan you Key Chain to submit and finish session.";
+                    FourthLabel.Text = $"";
+                }
             }
         }
 
@@ -1080,8 +1126,17 @@ namespace Repac
             if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
             {
                 ReportArea1Label.Text += $"{amount} Credits requested to buy.  \r\n";
-                hubConnection.InvokeAsync("BuyCredits", CurrentUser.UserId, amount);
+                hubConnection.InvokeAsync("BuyCreditsAndFinish", CurrentUser.UserId, amount, ScanSession.ScanSessionId);
             }
+        }
+
+        private void SessionFinished(Guid scanSessionId)
+        {
+            ReportArea1Label.Text = $"Session Finished.  \r\n";
+            SmallConsoleMessage($"Session Finished.  \r\n");
+
+            NullifySession();
+            FourthSlideActivate();
         }
     }
 }

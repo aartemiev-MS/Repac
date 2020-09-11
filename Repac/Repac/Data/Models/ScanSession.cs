@@ -7,7 +7,6 @@ namespace Repac.Data.Models
 {
     class ScanSession
     {
-        [Key]
         public Guid ScanSessionId { get; set; }
         public Guid ScannerId { get; set; }
         public int CheckPointType { get; set; }
