@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using Repac.Data.Models;
 using Repac.Data.Models.DTOs;
-using Repac.Rfid_Weird_stuff;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -57,10 +56,6 @@ namespace Repac
             InitializeComponent();
             FirstSlideActivate();
 
-            List<ScanDTO> itemSource;
-
-            //DisplayReport();
-
             MessagingCenter.Subscribe<string>(this, "NewTagDataReceived", (tag) => { NewTagDataReceived(tag); });
 
             hubConnection = new HubConnectionBuilder()
@@ -104,22 +99,9 @@ namespace Repac
                 await hubConnection.StartAsync();
             };
 
-            this.ReadTagCommand = new RelayCommand(this.ExecuteReadTag, () => { return this.isIdle; });
-
-            this.HexIdentifier = string.Empty;
-            this.SelectedMemoryBank = TechnologySolutions.Rfid.MemoryBank.Epc; // 1;
-            this.WordAddress = 2;
-            this.WordCount = 2;
-            //this.MinimumPower = 10;
-            //this.OutputPower = this.MaximumPower = 30;
-
-            this.IsIdle = true;
-
-            // this.addNewEnumerator = this.transportsManager.Enumerators.Where(enumerator => enumerator.CanShowAddNew).FirstOrDefault();
-            this.AddNewCommand = new RelayCommand(() => { this.addNewEnumerator?.ShowAddNew(); }, () => { return this.addNewEnumerator != null; });
-
             ReportScannedTags();
 
+            FirstSlideActivate();
         }
 
         #region "Events"
@@ -162,7 +144,7 @@ namespace Repac
         {
             if (EditingItemsQuantityMode)
             {
-                AddScannedItem();
+                ScannedItemAnimation();
             }
         }
 
@@ -183,21 +165,15 @@ namespace Repac
 
                 if (EditingItemsQuantityMode)
                 {
-                    ItemsAdjustmentLabel.Opacity = 100;
                     ItemsScannesLabel.Opacity = 0;
 
-                    Appear(ImageSubstract, 300);
-                    Appear(ImageAdd, 300);
                     //ImageAdd.Opacity = 100;
                     //ImageSubstract.Opacity = 100;
                 }
                 else
                 {
-                    Fade(ImageSubstract, 300);
-                    await Fade(ImageAdd, 300);
                     //ImageAdd.Opacity = 0;
                     //ImageSubstract.Opacity = 0;
-                    ItemsAdjustmentLabel.Opacity = 0;
                     ItemsScannesLabel.Opacity = 100;
                 }
             }
@@ -225,11 +201,6 @@ namespace Repac
         {
             CurrentSlide = Slides.First;
 
-            FooterTextLabel.Text = "TAPER CARTE/TEL. POUR VOUS IDENTIFIER.";
-            FooterTextLabel.TextColor = Color.Black;
-            Footer.IsVisible = false;
-
-            InviteIcon.IsVisible = true;
             UserInfo.IsVisible = false;
 
             FirstScreen.IsVisible = true;
@@ -237,21 +208,15 @@ namespace Repac
             ThirdScreen.IsVisible = false;
             FourthScreen.IsVisible = false;
             AdminScreen.IsVisible = false;
+
+            DisplayRightFooter();
         }
         private async void SecondSlideActivate()
         {
             CurrentSlide = Slides.Second;
 
-            CounterLabel.Text = this.SessionScans.Count.ToString();
+        ItemsScannesLabel.Opacity = 100;
 
-            ImageAdd.Opacity = 0;
-            ImageSubstract.Opacity = 0;
-            ItemsAdjustmentLabel.Opacity = 0;
-            ItemsScannesLabel.Opacity = 100;
-
-            Footer.IsVisible = true;
-
-            InviteIcon.IsVisible = true;
             UserInfo.IsVisible = false;
 
             FirstScreen.IsVisible = false;
@@ -261,17 +226,12 @@ namespace Repac
             AdminScreen.IsVisible = false;
 
             await Appear(ItemsCounterBackground, 300);
+            DisplayRightFooter();
         }
         private void ThirdSlideActivate()
         {
             CurrentSlide = Slides.Third;
 
-            CounterLabelLeft.Text = this.SessionScans.Count.ToString();
-            CounterLabelRight.Text = this.ProductsCredit.ToString();
-
-            Footer.IsVisible = false;
-
-            InviteIcon.IsVisible = false;
             UserInfo.IsVisible = true;
 
             FirstScreen.IsVisible = false;
@@ -280,20 +240,14 @@ namespace Repac
             FourthScreen.IsVisible = false;
             AdminScreen.IsVisible = false;
 
-            FooterTextLabel.Text = "TAPER CARTE/TEL. POUR COMPLÉTER LA TRANSACTION.";
-            FooterTextLabel.TextColor = BuyCreditsButton.BackgroundColor;
-            Footer.IsVisible = SessionScans.Count <= ProductsCredit ? true : false;
-
             ThirdSlideUpdateLabels();
+            DisplayRightFooter();
         }
         private void FourthSlideActivate()
         {
             CurrentSlide = Slides.Fourth;
 
-            Footer.IsVisible = false;
-
-            InviteIcon.IsVisible = false;
-            UserInfo.IsVisible = true;
+            UserInfo.IsVisible = false;
 
             FirstScreen.IsVisible = false;
             SecondScreen.IsVisible = false;
@@ -314,19 +268,45 @@ namespace Repac
             FourthScreen.IsVisible = false;
             AdminScreen.IsVisible = true;
 
-            AdminSlideReport();
+            DisplayRightFooter();
         }
 
+       private void DisplayRightFooter()
+        {
+            if(CurrentSlide == Slides.Fourth || CurrentSlide == Slides.First)
+            {
+                FooterText_1.IsVisible = false;
+                FooterText_2.IsVisible = true;
+            }
+            else
+            {
+                FooterText_1.IsVisible = true;
+                FooterText_2.IsVisible = false;
+
+                if (CurrentSlide == Slides.Second)
+                {
+                    FooterText_1Label.Text = "TAPER ICI VOTRE PORTE-CLÉ TINNG! POUR PROCÉDER AU PAIEMENT";
+                }
+                else if (CurrentSlide == Slides.Third)
+                {
+                    FooterText_1Label.Text = "TAPER ICI VOTRE PORTE-CLÉ TINNG! POUR PROCÉDER AU PAIEMENT";
+                }
+                else if (CurrentSlide == Slides.Admin)
+                {
+                    FooterText_1Label.Text = "TAPER ICI VOTRE PORTE-CLÉ PRÉPOSÉ POUR RETOURNER AU MODE CLIENT";
+                }
+            }
+        }
         private void AdminSlideReport()
         {
-            AdminItemsCounter.Text = $"Scans count:{SessionScans.Count}";
+            //AdminItemsCounter.Text = $"Scans count:{SessionScans.Count}";
         }
 
         private void NullifyCycle()
         {
             SessionScans.Clear();
+            ScanSession = null;
             ProductsCredit = 0;
-            EditingItemsQuantityMode = false;
 
             FirstSlideActivate();
         }
@@ -361,45 +341,21 @@ namespace Repac
              });
         }
 
-        private async void AddScannedItem(string tagMessage = null)
+        private async void ScannedItemAnimation(string tagMessage = null)
         {
-            if (EditingItemsQuantityMode)
-            {
-                await ImageAdd.FadeTo(0, 100);
-                await ImageAdd.FadeTo(1, 100);
-            }
             await Fade(ItemsCounter, 200);
-            // SessionScans.Count += 1;
-
             CounterLabel.Text = SessionScans.Count.ToString();
-            CounterLabelLeft.Text = SessionScans.Count.ToString();
+            AdminCounterLabel.Text = SessionScans.Count.ToString();
             await Appear(ItemsCounter, 200);
-
-            if (SessionScans.Count > ProductsCredit)
-            {
-                CounterLabelRight.TextColor = Color.DarkRed;
-                CreditsError.Opacity = 100;
-            }
-            else
-            {
-                CounterLabelRight.TextColor = Color.Black;
-                CreditsError.Opacity = 0;
-            }
         }
 
         private async void SubScannedItem()
         {
             if (SessionScans.Count > 0)
             {
-                if (EditingItemsQuantityMode)
-                {
-                    await ImageSubstract.FadeTo(0, 100);
-                    await ImageSubstract.FadeTo(1, 100);
-                }
                 await Fade(ItemsCounter, 200);
                 //  SessionScans.Count -= 1;
                 CounterLabel.Text = this.SessionScans.Count.ToString();
-                CounterLabelLeft.Text = this.SessionScans.Count.ToString();
                 await Appear(ItemsCounter, 200);
                 if (SessionScans.Count > ProductsCredit)
                 {
@@ -421,7 +377,6 @@ namespace Repac
         #region Buttons
         private void ScanRfidButton2_Clicked(object sender, EventArgs e)
         {
-            ExecuteReadTag();
             //ICommand ReadTagCommand = new RelayCommand(this.ExecuteReadTag, () => { return this.isIdle; });
         }
         private void TestButtonButton1_Clicked(object sender, EventArgs e)
@@ -632,7 +587,7 @@ namespace Repac
             }
         }
 
-        private bool TagWasScanned(Guid scanId) => SessionScans.Where(scan => scan.ScanId == scanId || scan.ContainerTagId == scanId).Any();
+        private bool TagWasAlreadyScanned(Guid scanId) => SessionScans.Where(scan => scan.ScanId == scanId || scan.ContainerTagId == scanId).Any();
         #endregion
 
         #region SignalR invoked events
@@ -648,25 +603,34 @@ namespace Repac
         }
         private void Authorized(UserDTO user)
         {
-            CurrentUser = user;
-
-            if (CurrentSlide == Slides.First || CurrentSlide == Slides.Second || CurrentSlide == Slides.Fourth)
+            if (SessionScans.Count > 0)
             {
-                ReportArea1Label.Text += $"User {user.FirstName} {user.LastName} was authorized. Availible Credits:{CurrentUser.RemainingCredits} \r\n";
-                SmallConsoleMessage($"User {user.FirstName} {user.LastName} was authorized. Av Cr:{CurrentUser.RemainingCredits} \r\n");
-                ThirdSlideActivate();
+                CurrentUser = user;
+
+                if (CurrentSlide == Slides.First || CurrentSlide == Slides.Second || CurrentSlide == Slides.Fourth)
+                {
+                    ReportArea1Label.Text += $"User {user.FirstName} {user.LastName} was authorized. Availible Credits:{CurrentUser.RemainingCredits} \r\n";
+                    SmallConsoleMessage($"User {user.FirstName} {user.LastName} was authorized. Av Cr:{CurrentUser.RemainingCredits} \r\n");
+                    ThirdSlideActivate();
+                }
+                else
+                {
+                    if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
+                    {
+                        ReportArea1Label.Text = $"Session Finished.  \r\n";
+                        SmallConsoleMessage($"Session Finished.  \r\n");
+                        hubConnection.InvokeAsync("FinishSession", ScanSession);
+
+                        NullifySession();
+                        FourthSlideActivate();
+                    }
+                }
+
             }
             else
             {
-                if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
-                {
-                    ReportArea1Label.Text = $"Session Finished.  \r\n";
-                    SmallConsoleMessage($"Session Finished.  \r\n");
-                    hubConnection.InvokeAsync("FinishSession", ScanSession);
+                SmallConsoleMessage($"User {user.FirstName} {user.LastName} wasn't authorized. Because no scans happend yet \r\n");
 
-                    NullifySession();
-                    FourthSlideActivate();
-                }
             }
 
         }
@@ -676,15 +640,16 @@ namespace Repac
         }
         private void ScanVerified(ScanDTO verifiedScan)
         {
-            if (CurrentSlide == Slides.First)
+            if (CurrentSlide == Slides.First|| CurrentSlide == Slides.Fourth)
             {
                 SecondSlideActivate();
             }
 
             SessionScans.Add(verifiedScan);
             ReportScannedTags();
-            AddScannedItem();
+            ScannedItemAnimation();
             ThirdSlideUpdateLabels();
+
 
             ReportArea1Label.Text += $"Scan was verified. TagId:{verifiedScan.ContainerTagId}\r\n";
             SmallConsoleMessage($"Scan was verified. TagId:{verifiedScan.ContainerTagId} \r\n");
@@ -723,16 +688,16 @@ namespace Repac
                 //emulating admin card
                 if (CurrentSlide == Slides.Admin)
                 {
-                    if (CurrentUser == null)
+                    if (SessionScans.Count == 0)
                     {
-                        SecondSlideActivate();
+                        NullifyCycle();
                     }
                     else
                     {
-                        ThirdSlideActivate();
+                        SecondSlideActivate();
                     }
                 }
-                else if(CurrentSlide == Slides.Second||CurrentSlide == Slides.Third)
+                else if(CurrentSlide == Slides.Second && SessionScans.Count>0)
                 {
                     AdminSlideActivate();
                 }
@@ -745,7 +710,7 @@ namespace Repac
                 {
                     SessionScans.Remove(cancelingScan);
                     ReportScannedTags();
-                    AdminSlideReport();
+                    ScannedItemAnimation();
 
                     if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
                     {
@@ -763,7 +728,7 @@ namespace Repac
                     SubmitFinishOperation();
                 }
             }
-            else if (TagWasScanned(tagId))
+            else if (TagWasAlreadyScanned(tagId))
             {
                 ReportArea1Label.Text += $"Denied:This tag has already been scanned. \r\n";
                 SmallConsoleMessage($"Denied:The tag has already been scanned. TagId {tagId}\r\n");
@@ -800,236 +765,6 @@ namespace Repac
                 hubConnection.InvokeAsync("Authorization", userId);
             }
         }
-
-
-        #region Rfid Read
-        #region IsIdle
-        /// <summary>
-        /// Gets or sets a value indicating whether a long running task is not executing
-        /// </summary>
-        public bool IsIdle
-        {
-            get
-            {
-                return this.isIdle;
-            }
-
-            set
-            {
-                // this.Set(ref this.isIdle, value);
-                this.isIdle = value;
-            }
-        }
-
-        /// <summary>
-        /// Backing store for IsBusy property
-        /// </summary>
-        private bool isIdle;
-        #endregion
-        #region HexIdentifier
-        /// <summary>
-        /// Gets or sets the new EPC filter
-        /// </summary>
-        public string HexIdentifier
-        {
-            get
-            {
-                return this.hexIdentifier;
-            }
-
-            set
-            {
-                //this.Set(ref this.hexIdentifier, value);
-                hexIdentifier = value;
-            }
-        }
-
-        /// <summary>
-        /// Backing store for the HexIdentifier property
-        /// </summary>
-        private string hexIdentifier;
-        #endregion
-        #region MemoryBank
-        /// <summary>
-        /// Gets or sets the memoryBank
-        /// </summary>
-        public int MemoryBankIndex
-        {
-            get
-            {
-                return this.memoryBankIndex;
-            }
-
-            set
-            {
-                //if (this.Set(ref this.memoryBankIndex, value))
-                //{
-                //    this.RaisePropertyChanged("SelectedMemoryBank");
-                //}
-                memoryBankIndex = value;
-            }
-        }
-
-        /// <summary>
-        /// Backing store for the MemoryBank property
-        /// </summary>
-        private int memoryBankIndex;
-
-        public MemoryBank SelectedMemoryBank
-        {
-            get
-            {
-                return (MemoryBank)this.MemoryBankIndex;
-            }
-
-            set
-            {
-                this.MemoryBankIndex = (int)value;
-            }
-        }
-
-        /// <summary>
-        /// Gets the names of the memory banks sorted by enumeration order
-        /// </summary>
-        public List<string> MemeoryBanks
-        {
-            get
-            {
-                return Enum.GetValues(typeof(MemoryBank))
-                    .Cast<MemoryBank>()
-                    .OrderBy(x => (int)x)
-                    .Select(x => x.ToString())
-                    .ToList();
-            }
-        }
-        #endregion
-        #region WordAddress
-        /// <summary>
-        /// Gets or sets the wordAddress
-        /// </summary>
-        public int WordAddress
-        {
-            get
-            {
-                return this.wordAddress;
-            }
-
-            set
-            {
-                // this.Set(ref this.wordAddress, (int)value);
-                wordAddress = (int)value;
-            }
-        }
-
-        /// <summary>
-        /// Backing store for the WordAddress property
-        /// </summary>
-        private int wordAddress;
-        #endregion
-        #region WordCount
-        /// <summary>
-        /// Gets or sets the wordCount
-        /// </summary>
-        public int WordCount
-        {
-            get
-            {
-                return this.wordCount;
-            }
-
-            set
-            {
-                // this.Set(ref this.wordCount, (int)value);
-                wordCount = (int)value;
-            }
-        }
-
-        /// <summary>
-        /// Backing store for the WordCount property
-        /// </summary>
-        private int wordCount;
-        #endregion
-        #region OutputPower
-        /// <summary>
-        /// Gets or sets the outputPower
-        /// </summary>
-        public int OutputPower
-        {
-            get
-            {
-                return this.outputPower;
-            }
-
-            set
-            {
-                // this.Set(ref this.outputPower, value);
-                outputPower = value;
-            }
-        }
-
-        /// <summary>
-        /// Backing store for the OutputPower property
-        /// </summary>
-        private int outputPower;
-        #endregion
-
-        /// <summary>
-        /// The instance used to read tag
-        /// </summary>
-        private readonly ITagReader tagReader;
-
-
-        /// <summary>
-        /// Gets the command to read the tag
-        /// </summary>
-        public ICommand ReadTagCommand { get; private set; }
-        public ICommand WriteTagCommand { get; private set; }
-
-        private async void ExecuteReadTag()
-        {
-            this.IsIdle = false;
-            this.ReadTagCommand.RefreshCanExecute();
-            //    this.WriteTagCommand.RefreshCanExecute();
-
-            try
-            {
-                // Execute the potentially long running task off the UI thread
-                int count = await this.tagReader.ReadTagsAsync(this.HexIdentifier, this.SelectedMemoryBank, this.WordAddress, this.WordCount, this.OutputPower);
-            }
-            catch (Exception ex)
-            {
-            }
-
-
-            //await Task.Run(() =>
-            //{
-            //    try
-            //    {
-            //        if (this.tagReader.ReadTags(this.HexIdentifier.ToLower(), this.SelectedMemoryBank, this.WordAddress, this.WordCount, this.OutputPower))
-            //        {
-            //            this.AppendMessage("Done.");
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        this.AppendMessage(ex.Message);
-            //    }
-            //});
-
-            this.IsIdle = true;
-            this.ReadTagCommand.RefreshCanExecute();
-            //this.WriteTagCommand.RefreshCanExecute();
-        }
-        #endregion
-
-        #region Rfid Connect
-        public ICommand AddNewCommand { get; private set; }
-        private IAsciiTransportEnumerator addNewEnumerator;
-
-
-
-
-        #endregion
 
         private void BuyCreditsButton_Clicked(object sender, EventArgs e)
         {
@@ -1080,29 +815,12 @@ namespace Repac
         {
             if (CurrentUser != null)
             {
-                int creditsAvailible = CurrentUser.RemainingCredits;
-                int creditsRequired = SessionScans.Count;
+                int requiredCreditsToBuy = SessionScans.Count - CurrentUser.RemainingCredits;
 
-                FirstLabel.Text = $"Currently you have {creditsAvailible} availible credits.";
-
-                if (creditsRequired == 0)
-                {
-                    SecondLabel.Text = $"Scan your containers.";
-                    ThirdLabel.Text = $"";
-                    FourthLabel.Text = $"";
-                }
-                else if (creditsAvailible < creditsRequired)
-                {
-                    SecondLabel.Text = $"To finish session you need {creditsRequired - creditsAvailible} more credits.";
-                    ThirdLabel.Text = $"It will cost {creditsRequired - creditsAvailible}*4 = {creditsRequired * 4}$.";
-                    FourthLabel.Text = $"Scan you Key Chain to submit the purchase and finish session.";
-                }
-                else
-                {
-                    SecondLabel.Text = $"To finish session it will take {creditsRequired} credits.";
-                    ThirdLabel.Text = $"Scan you Key Chain to submit and finish session.";
-                    FourthLabel.Text = $"";
-                }
+                ProfileReport.Text = $"Solde: {CurrentUser.RemainingCredits} Crédit";
+                FirstLabel.Text = $"Bonjour, { CurrentUser.FirstName}!";
+                ThirdLabel.Text = $"{requiredCreditsToBuy * 4}$ pour";
+                FourthLabel.Text = $"{requiredCreditsToBuy} crédits supplémentaires";
             }
         }
 
