@@ -6,337 +6,422 @@
              mc:Ignorable="d"
              x:Class="Repac.MainPage">
     <Grid>
-    <Grid BackgroundColor="White" IsVisible="true">
+    <Grid BackgroundColor="White">
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.16*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="0.12*"/>
+            <RowDefinition Height="0.55*"/>
+            <RowDefinition Height="0.9*"/>
         </Grid.RowDefinitions>
-        
-        <Grid x:Name="Header">
-                <Label
+
+            <Grid x:Name="Header">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="1.7*"/>
+                </Grid.ColumnDefinitions>
+                <Label 
                     x:Name="SmallConsole"
                     Grid.Row="0"
-                    FontSize="Micro"/>
-                <Image Source="RepacLogo_Transparent.jpg"  
-                   Grid.Row="0">
-                <Image.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="RepacLogo_Tapped"/>
-                </Image.GestureRecognizers>
-            </Image>
-            <StackLayout x:Name="UserInfo"
-                         HorizontalOptions="End"
-                         Margin="0,5,20,0"
-                         IsVisible="True">
-                    <Image Source="PhilippesIcon_transparent.png"
-                           HorizontalOptions="EndAndExpand"
-                           WidthRequest="80"/>
-                    <Label x:Name="ProfileReport"
-                           TextColor="DeepPink"/>
+                    FontSize="Micro"
+                    IsVisible="false"/>
+                <Image Source="logo_tinng.png"  
+                       HorizontalOptions="Start"
+                       Margin="40,0,0,0"
+                       WidthRequest="200"
+                       Grid.Row="0">
+                </Image>
+                <StackLayout x:Name="UserInfo"
+                             Grid.Column="1"
+                             Margin="0,15,0,0"
+                             IsVisible="True" 
+                             Orientation="Horizontal">
+                    <Grid>
+                        <StackLayout HorizontalOptions="Fill">
+                            <Label x:Name="ProfileReport1"
+                                   Text="Bonjour Fragadan banjir Sandur Pitshman,"
+                                   TextColor="Black"
+                                   FontSize="Subtitle"/>
+                            <StackLayout Orientation="Horizontal">
+                            <Label x:Name="ProfileReport2"
+                                   HorizontalOptions="Start"
+                                   Text="Crédits manquants: 4"
+                                   TextColor="Red"
+                                   Margin="0,0,20,0"
+                                   FontSize="Small"/>
+                            <Label x:Name="ProfileReport3"
+                                   HorizontalOptions="End"
+                                   Text="Crédits au compte: 0"
+                                   TextColor="#24a9e1"
+                                   FontSize="Small"/>
+                            </StackLayout>
+                        </StackLayout>
+                    </Grid>
                 </StackLayout>
-        </Grid>
-        <Grid  Grid.Row="1">
+
+                <Image x:Name="UserIcon" 
+                               Source="PhilippesIcon_transparent.png"
+                               WidthRequest="80"
+                             Grid.Column="1"
+                               Margin="-10,0,0,0"
+                               HorizontalOptions="End"/>
+                <Grid x:Name="UserLine"
+                      BackgroundColor="Gray"
+                      Grid.Column="1"
+                      Margin="0,0,80,0"
+                      VerticalOptions="End"
+                      HeightRequest="1"/>
+            </Grid>
+        <Grid  Grid.Row="1" Grid.RowSpan="2">
             <StackLayout x:Name="FirstScreen"
                              BackgroundColor="White"
-                             VerticalOptions="CenterAndExpand" 
-                             IsVisible="true">
+                             VerticalOptions="Center" 
+                             IsVisible="false">
                 <StackLayout.GestureRecognizers>
                     <TapGestureRecognizer Tapped="FirstScreen_Tapped"/>
                     </StackLayout.GestureRecognizers>
-                    <Label Text="Votre service de contenants écologiques réutilisables sans-fil."
-                           HorizontalOptions="Center"
-                           Margin="0,-20,0,40"
-                           FontSize="Medium"/>
-                    <Label Text="Vous souhaite la " 
-                           HorizontalOptions="Center"
-                           FontSize="30"
-                           TextColor="Black"/>
-                    <Label Text="Bienvenue!"
-                           HorizontalOptions="Center"
-                           FontSize="50"
-                           TextColor="Black"/>
-                    <Label Text="Scannez un contenant pour commencer."
-                           HorizontalOptions="Center"
-                           FontSize="Large"
-                           TextColor="DeepPink"/>
-            </StackLayout>
-
-            <Grid x:Name="SecondScreen"
-                  IsVisible="false">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="0.2*"/>
-                    <RowDefinition Height="0.11*"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Label x:Name="ItemsScannesLabel" 
-                               Text="Items scannés"
-                               HorizontalOptions="Center" 
-                               FontSize="25"
-                               TextDecorations="Underline"
-                               TextColor="Black"
-                               Grid.Row="0"
-                               Grid.RowSpan="2"
-                               VerticalOptions="End"/>
-                
-                <Grid Grid.Row="1"  
-                      Grid.RowSpan="2"
-                      RowSpacing="5">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="5*"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-
-                        <Grid Grid.Row="1" x:Name="ItemsCounter">
-                                <Grid Margin="0"
-                                      HorizontalOptions="Center">
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="ItemsCounter_Tapped"/>
-                                    </Grid.GestureRecognizers>
-
-                                    <Image x:Name="ItemsCounterBackground"
-                                           Opacity="1" 
-                                           Source="BlueRoundedSquare.png"/>
-                                    <Label x:Name="CounterLabel"
-                                           Text="0" 
-                                           HorizontalOptions="Center"
-                                           FontSize="80" 
-                                           VerticalOptions="CenterAndExpand"
-                                           TextColor="Black"/>
-                                </Grid>
-                        </Grid>
-                    </Grid>
-            </Grid>
-
-            <Grid x:Name="ThirdScreen_Old"
-                  IsVisible="False">
-                <Grid VerticalOptions="CenterAndExpand">
-                    <Grid ColumnSpacing="3">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="0.22*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Grid Grid.Column="0" 
-                              Grid.ColumnSpan="2" 
-                              BackgroundColor="Black"
-                              Margin="0,0,0,60"/>
-                            <StackLayout BackgroundColor="White"
-                                     Grid.Column="0">
-                                <Label Text="Items scannés" 
-                                   HorizontalOptions="Center"
-                                   FontSize="30" 
-                                   TextDecorations="Underline"
-                                   TextColor="Black"
-                                   LineBreakMode="NoWrap"/>
-                            <Grid Margin="60,0,60,60">
-                                    <Image Source="BlueRoundedSquare.png"/>
-                                    <Label x:Name="CounterLabelLeft_Old" 
-                                       Text="0" 
-                                       HorizontalOptions="Center"
-                                       FontSize="80" 
-                                       VerticalOptions="CenterAndExpand"
-                                       TextColor="Black"/>
-                                </Grid>
-                            </StackLayout>
-                            <StackLayout BackgroundColor="White" 
-                                     Grid.Column="1"
-                                     Grid.ColumnSpan="1">
-                                <Label Text="Crédits au compte"
-                                       LineBreakMode="NoWrap"
-                                       HorizontalOptions="Center" 
-                                       FontSize="30" 
-                                       TextDecorations="Underline"
-                                       TextColor="Black"/>
-                            <Grid x:Name="CounterGridRight"
-                                  Margin="60,0,60,60" >
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
-                                    </Grid.GestureRecognizers>
-                                <Image Source="BlueRoundedSquare.png"/>
-                                <Label x:Name="CounterLabelRight" 
-                                       Text="0" 
-                                       HorizontalOptions="Center"
-                                       FontSize="80"
-                                       VerticalOptions="CenterAndExpand"
-                                       TextColor="Black"/>
-                            </Grid>
-                        </StackLayout>
-                    </Grid>
-                </Grid>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1.5*"/>
-                            <RowDefinition Height="2.5*"/>
-                            <RowDefinition Height="1.5*"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="4*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid Grid.Row="1" Grid.Column="2">
-                            <StackLayout>
-                                <Button x:Name="AddCreditsButton" 
-                                BackgroundColor="#00ff00"
-                                CornerRadius="25"
-                                FontSize="10"
-                                Text="Add credits"
-                                BorderColor="Black"
-                                BorderWidth="1"
-                                Margin="0"
-                                Clicked="AddProductCredit"/>
-                                <Button x:Name="BuyCreditsButton" 
-                                BackgroundColor="#00ff00"
-                                CornerRadius="25"
-                                FontSize="10"
-                                Text="Buy credits"
-                                BorderColor="Black"
-                                BorderWidth="1"
-                                Margin="0"
-                                Clicked="BuyCreditsButton_Clicked"/>
-                            </StackLayout>
-                        </Grid>
-                    </Grid>
-
-                    <Grid x:Name="CreditsError"
-                      Opacity="100"
-                      VerticalOptions="End">
-                    <Grid ColumnSpacing="3">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="100"/>
-                        </Grid.ColumnDefinitions>
-                        <Label Text="CRÉDITS INSUFFISANTS"
-                               TextColor="DarkRed"
-                               FontSize="20"
-                               Grid.Column="1"
-                               HorizontalOptions="Center"
-                               VerticalOptions="End"
-                               FontAttributes="Bold"
-                               Margin="20"
-                               LineBreakMode="NoWrap"/>
-                    </Grid>
-                </Grid>
-            </Grid>
-            <StackLayout x:Name="ThirdScreen"
-                  IsVisible="false">
-                    <Label x:Name="FirstLabel" 
-                           Text="Bonjour, Philippe!"
-                           FontSize="60"
-                           TextColor="Black"
-                           HorizontalTextAlignment="Center"/>
-                    <Label x:Name="SecondLabel" 
-                           FontSize="Title"
-                           TextColor="Black"
-                           Text="Afin de compléter l'achat, vous avez besoin de payer:"
-                           HorizontalTextAlignment="Center"/>
-                    <Label x:Name="ThirdLabel"
-                           Margin="0,-10"
-                           FontSize="Title"
-                           TextColor="DeepPink"
-                           FontAttributes="Bold"
-                           HorizontalTextAlignment="Center"/>
-                    <Label x:Name="FourthLabel"
-                           FontSize="Title"
-                           TextColor="DeepPink"
-                           Text="3 crédits supplémentaires."
-                           HorizontalTextAlignment="Center"/>
-                    <Label x:Name="FifthLabel"
-                           FontSize="Medium"
-                           TextColor="Black"
-                           Text="Si cela ne vous convient pas, indiquez au gérant"
-                           HorizontalTextAlignment="Center"/>
-                    <Label x:Name="SixthLabel"
-                           Margin="0,-10,0,50"
-                           FontSize="Medium"
-                           TextColor="Black"
-                           Text="qu'il vous aide à enlever des contenants Tinng!"
-                           HorizontalTextAlignment="Center"/>
-                    <Label x:Name="SeventhLabel"
-                           FontSize="Medium"
-                           TextColor="Black"
-                           Text="Si cela vous convient:"
-                           HorizontalTextAlignment="Center"/>
-
+                    <Image Source="logo_tinng.png"
+                           HeightRequest="150"
+                         HorizontalOptions="Center"/>
+                    <Image Source="conveyor.png" BackgroundColor="Orange"
+                        Margin="10,0,10,0"/>
                 </StackLayout>
+
+                <Grid x:Name="SecondScreen"
+                  IsVisible="false">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1.3*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid>
+                    <Button x:Name="SecondScreenCounter"
+                            HorizontalOptions="Center" 
+                            VerticalOptions="Center" 
+                            BorderWidth="3"
+                            BorderColor="Black"
+                            CornerRadius="25"
+                            WidthRequest="200"
+                            HeightRequest="200"
+                            Text="0"
+                            FontSize="Header"
+                            Margin="40,-20,0,0"
+                            BackgroundColor="White"/>
+                </Grid>
+                    <StackLayout
+                        Grid.Column="1"
+                        HorizontalOptions="End"
+                        VerticalOptions="Start">
+                        <Button
+                            Text="Animation place"
+                            BackgroundColor="#8dc73f"
+                            WidthRequest="450"
+                            HeightRequest="100"/>
+                        <StackLayout Orientation="Horizontal" 
+                                     Spacing="0">
+                            <Label TextColor="Black" 
+                               FontSize="12"
+                                   VerticalOptions="Center"
+                               Margin="20,0,20,0"
+                               Text="Présentez votre porte-clé Tinng! à la fin de l'achat."/>
+                            <Image Source="key_black.png" HeightRequest="50"/>
+                        </StackLayout>
+                    </StackLayout>
+                </Grid>
+
+            <Grid x:Name="ThirdScreen"
+                  IsVisible="false">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="0.7*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackLayout Margin="40,0,0,0"
+                                 VerticalOptions="Center">
+                       
+                        <Grid>
+                            <Button x:Name="ThirdScreenItemsCounter"
+                             HorizontalOptions="Center" 
+                             BorderWidth="2"
+                             BorderColor="Black"
+                             CornerRadius="25"
+                             WidthRequest="200"
+                             HeightRequest="200"
+                             Text="1"
+                             FontSize="120"
+                             BackgroundColor="White"/>
+                            <Label Text="Scannés"
+                                   HorizontalOptions="Center" 
+                                   TextColor="black"
+                                   FontSize="Small"
+                                   VerticalOptions="End"
+                                   Margin="0,0,0,15"/>
+                        </Grid>
+                    </StackLayout>
+
+                    <StackLayout Grid.Column="1"
+                             VerticalOptions="Center">
+                        <Grid>
+                            <Button x:Name="CreditsToBuyLabel"
+                                    HorizontalOptions="Center" 
+                                    BorderWidth="2"
+                                    BorderColor="Black"
+                                    TextColor="#8dc73f"
+                                    CornerRadius="25"
+                                    WidthRequest="150"
+                                    HeightRequest="150"
+                                    Text="0"
+                                    FontSize="50"
+                                    BackgroundColor="White"/>
+                            <Label Text="Crédits à acheter"
+                                   HorizontalOptions="Center" 
+                                   TextColor="black"
+                                   FontSize="Small"
+                                   FontAttributes="Italic"
+                                   VerticalOptions="End"
+                                   Margin="0,0,0,10"/>
+                        </Grid>
+                        <Button x:Name="AddCreditsButton"
+                                Text="Plus de crédits?" 
+                                BorderWidth="1"
+                                BorderColor="Black"
+                                CornerRadius="10"
+                                HorizontalOptions="Center"
+                                Clicked="AddCreditsButton_Clicked"/>
+                        <Button x:Name="ResetCreditsButton"
+                                Text="Reset" 
+                                BorderWidth="1"
+                                BorderColor="Black"
+                                CornerRadius="10"
+                                HorizontalOptions="Center"
+                                Clicked="ResetCreditsButton_Clicked"/>
+
+                        <StackLayout x:Name="AddCreditsOptionsButtons"
+                            Orientation="Horizontal"
+                            HorizontalOptions="Center">
+                            <Button HorizontalOptions="Center"
+                                    WidthRequest="70"
+                                    Text="+1"
+                                    BorderWidth="1"
+                                    BorderColor="Black"
+                                    CornerRadius="10"
+                                    Clicked="ButtonPlus1_Clicked"/>
+                            <Button HorizontalOptions="Center"
+                                    WidthRequest="70"
+                                    Text="+3"
+                                    BorderWidth="1"
+                                    BorderColor="Black"
+                                    CornerRadius="10"
+                                    Clicked="ButtonPlus3_Clicked"/>
+                        </StackLayout>
+                    </StackLayout>
+
+                    <StackLayout Grid.Column="2"
+                                 Margin="0,0,40,0"
+                                 VerticalOptions="Center">
+                        <Grid>
+                            <Button x:Name="ThirdScreenPaymentCounter"
+                             HorizontalOptions="Center" 
+                             BorderWidth="2"
+                             BorderColor="Black"
+                             CornerRadius="25"
+                             WidthRequest="200"
+                             HeightRequest="150"
+                             Text="5.00$"
+                             FontSize="50"
+                             BackgroundColor="White"/>
+                        </Grid>
+                        <StackLayout  Margin="10,0,10,0"
+                                      Orientation="Horizontal"
+                                      Grid.Column="2"
+                                      HorizontalOptions="Center"
+                                      VerticalOptions="Center"
+                                      HeightRequest="50">
+                            <StackLayout VerticalOptions="Center">
+                                <Label VerticalOptions="Center"
+                                       FontSize="Micro"
+                                       TextColor="Black"
+                                       Text="Tapez votre badge pour"/>
+                                <Label VerticalOptions="Center"
+                                       FontSize="Micro"
+                                       TextColor="Black"
+                                       Text="effectuer le paiement."/>
+                            </StackLayout>
+                            <Image Source="key_black"
+                                   x:Name="ThirdSlideKey"
+                                   HeightRequest="5"/>
+                        </StackLayout>
+
+                    </StackLayout>
+                </Grid>
                 
             <StackLayout x:Name="FourthScreen" 
-                         IsVisible="false">
-                <Label Text="Le paiement a été effectué avec succès."
-                       HorizontalOptions="Center"
-                       FontSize="Large"
-                       TextColor="Black"
-                       Margin="0,10,0,0"/>
-                <Image Source="Check_transparent.png"
-                       WidthRequest="150"/>
-                <Label Text="Merci, Philippe!"
-                       HorizontalOptions="Center"
-                       FontSize="50"
-                       TextColor="Black"/>
+                         IsVisible="true"
+                                 VerticalOptions="Center">
+                    <StackLayout Orientation="Horizontal" 
+                                 HorizontalOptions="Center">
+                        <Grid>
+                            <Button x:Name="FourthScreenCounterUsed"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"
+                                    BorderWidth="2"
+                                    BorderColor="Black"
+                                    TextColor="#CC0000"
+                                    CornerRadius="25"
+                                    WidthRequest="200"
+                                    HeightRequest="200"
+                                    Text="1"
+                                    FontSize="120"
+                                    BackgroundColor="White"/>
+                            <Label Text="Crédits utilisés"
+                                   HorizontalOptions="Center" 
+                                   TextColor="black"
+                                   FontSize="Small"
+                                   VerticalOptions="End"
+                                   Margin="0,0,0,35"/>
+                        </Grid>
+
+                        <StackLayout>
+                            <Image Source="Check_transparent.png"
+                                   HorizontalOptions="Center" 
+                                   WidthRequest="200"
+                                   Margin="25,0,0,0"/>
+                            <Label x:Name="PaymentSuccessLabel"
+                                Text="Paiement effectué!"
+                                   TextColor="black"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="Merci!"
+                                   TextColor="black"
+                                   HorizontalOptions="Center"/>
+                        </StackLayout>
+                        
+                        <Grid>
+                            <Button x:Name="FourthScreenCounterAvailible"
+                                    HorizontalOptions="Center" 
+                                    VerticalOptions="Center"
+                                    BorderWidth="2"
+                                    BorderColor="Black"
+                                    TextColor="#8dc73f"
+                                    CornerRadius="25"
+                                    WidthRequest="200"
+                                    HeightRequest="200"
+                                    Text="4"
+                                    FontSize="120"
+                                    BackgroundColor="White"/>
+                            <Label Text="Crédits disponibles"
+                                   HorizontalOptions="Center" 
+                                   TextColor="black"
+                                   FontSize="Small"
+                                   VerticalOptions="End"
+                                   Margin="0,0,0,35"/>
+                        </Grid>
+                    </StackLayout>
                 </StackLayout>
 
             <Grid x:Name="AdminScreen" IsVisible="false">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="0.3*"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.3*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackLayout
+                        HorizontalOptions="End"
+                        VerticalOptions="Start">
+                        <Button
+                            Text="Animation place"
+                            BackgroundColor="#8dc73f"
+                            WidthRequest="450"
+                            HeightRequest="100"/>
 
-                    <Label Text="Items scannés" 
-                           FontSize="25"
-                           HorizontalTextAlignment="Center"
-                           Margin="0,20,0,0"
-                           TextDecorations="Underline"
-                           TextColor="Black"/>
-                    
-                    <Grid x:Name="AdminItemsCounter"
-                          Grid.Row="1">
-                        <Grid Margin="0"
-                              HorizontalOptions="Center">
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="ItemsCounter_Tapped"/>
-                            </Grid.GestureRecognizers>                            
-
-                            <Image x:Name="AdminItemsCounterBackground"
-                                   Opacity="1" 
-                                   Source="RedRoundedSquare.jpg"
-                                   WidthRequest="150"/>
-                            <Label x:Name="AdminCounterLabel"
-                                   Text="0" 
-                                   HorizontalOptions="Center"
-                                   FontSize="80" 
-                                   VerticalOptions="CenterAndExpand"
-                                   TextColor="Black"/>
-                        </Grid>
+                        <StackLayout Orientation="Horizontal" 
+                                     Spacing="0">
+                            <Label TextColor="Black"                                                                 
+                                   FontSize="12"
+                                   VerticalOptions="Center"
+                                   Margin="20,0,0,0"
+                                   Text="Présentez votre porte-clé Tinng! à la fin de l'operation."/>
+                            <Image Source="key_black.png"
+                                   Margin="-15,0,0,0"
+                                   HeightRequest="50"/>
+                        </StackLayout>
+                    </StackLayout>
+                
+                    <Grid Grid.Column="1">
+                        <Button x:Name="AdminScreenCounter"
+                            HorizontalOptions="Center" 
+                            VerticalOptions="Center" 
+                            BorderWidth="3"
+                            BorderColor="Black"
+                            CornerRadius="25"
+                            WidthRequest="200"
+                            HeightRequest="200"
+                            Text="0"
+                            FontSize="Header"
+                            Margin="0,-20,40,0"
+                            BackgroundColor="PaleVioletRed"/>
                     </Grid>
                 </Grid>
-
             </Grid>
-            <Grid x:Name="Footer"
-                     Grid.Row="2">
-                <StackLayout  x:Name="FooterText_1"
-                              Orientation="Horizontal" 
-                              HorizontalOptions="Center">
-                    <Label x:Name="FooterText_1Label"
-                        Text="TAPER ICI VOTRE PORTE-CLÉ TINNG! POUR PROCÉDER AU PAIEMENT." 
-                           FontSize="Body"
-                           TextColor="Black"
-                           LineBreakMode="NoWrap"/>
-                    <Image Source="key_blue.png">
-                        <Image.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="FooterIcon_Tapped"/>
-                        </Image.GestureRecognizers>
-                    </Image>
-                </StackLayout>
-                <Label x:Name="FooterText_2"
-                           Text="©2020 Tinngs, tous droits réservés" 
-                           FontSize="Small"
-                           TextColor="Black"
-                       HorizontalTextAlignment="center"/>
-
+            <Grid x:Name="Footer" 
+                     Grid.Row="2"
+                  IsVisible="false">
             </Grid>
-    </Grid>
+        </Grid>        
+        
+            <!--<Button 
+                    VerticalOptions="Start"
+                    HorizontalOptions="Start"
+                    Text="T1" 
+                    WidthRequest="100" 
+                    HeightRequest="150"
+                    Opacity="0"
+                    Clicked="ButtonT1_Clicked"/>
+            <Button 
+                    VerticalOptions="End"
+                    HorizontalOptions="Start"
+                    Text="T2" 
+                    WidthRequest="100" 
+                    HeightRequest="150"
+                    Opacity="0"
+                    Clicked="ButtonT2_Clicked"/>
+            <Button 
+                    VerticalOptions="End"
+                    HorizontalOptions="End"
+                    Text="KC"
+                    WidthRequest="100" 
+                    HeightRequest="150"
+                    Opacity="0"
+                    Clicked="ButtonKC_Clicked"/>
+            <Button 
+                    VerticalOptions="Start"
+                    HorizontalOptions="End"
+                    Text="AT" 
+                    WidthRequest="100" 
+                    HeightRequest="150"
+                    Opacity="0"
+                    Clicked="ButtonAT_Clicked"/>-->
+        <StackLayout Orientation="Horizontal" VerticalOptions="End">
+            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+                    Text="T1" 
+                    Clicked="ButtonT1_Clicked"/>
+            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+                    Text="T2" 
+                    Clicked="ButtonT2_Clicked"/>
+            <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+                    Text="T random" 
+                    Clicked="ButtonT_Clicked"/>-->
+            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+                    Text="Key Ch"
+                    Clicked="ButtonKC_Clicked"/>
+            <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+                    Text="Adm Tag" 
+                    Clicked="ButtonAT_Clicked"/>-->
+            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+                    Text="Sasha" 
+                    x:Name="SashaButton"
+                    Clicked="ButtonSasha_Clicked"/>
+            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+                    WidthRequest="80"
+                    Text="Impinj" 
+                    Clicked="ButtonImpinj_Clicked"/>
+        </StackLayout>
+
         <Grid x:Name="TestScreen" 
                       BackgroundColor="LightGreen"
                       IsVisible="false">

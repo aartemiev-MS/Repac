@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
+﻿using Impinj.OctaneSdk;
+using Microsoft.AspNetCore.SignalR.Client;
 using Repac.Data.Models;
 using Repac.Data.Models.DTOs;
 using System;
@@ -7,21 +8,24 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using TechnologySolutions.Rfid;
-using TechnologySolutions.Rfid.AsciiProtocol.Transports;
 using Xamarin.Forms;
 
 namespace Repac
 {
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer
+
+    // #8dc73f green
+    // #24a9e1 blue
+    // #CC0000 red
+
     [DesignTimeVisible(false)]
     public partial class MainPage : ContentPage
     {
         Slides CurrentSlide { get; set; } = Slides.First;
         int ProductsCredit { get; set; } = 0;
-        bool EditingItemsQuantityMode { get; set; } = false;
+        int ExtraCreditsToBuy { get; set; } = 0;
+        int ResultCretits { get; set; } = 0;
 
         ScanSession ScanSession { get; set; }
         List<ScanDTO> SessionScans { get; set; } = new List<ScanDTO>();
@@ -105,26 +109,10 @@ namespace Repac
         }
 
         #region "Events"
-        private async void AddProductCredit(object sender, EventArgs e)
-        {
-            await Fade(CounterGridRight, 200);
-            ProductsCredit += 1;
-            CounterLabelRight.Text = this.ProductsCredit.ToString();
-            await Appear(CounterGridRight, 200);
-
-            if (SessionScans.Count <= ProductsCredit)
-            {
-                CounterLabelRight.TextColor = Color.Black;
-                CreditsError.Opacity = 0;
-
-                Footer.IsVisible = true;
-            }
-
-        }
 
         private void FirstScreen_Tapped(object sender, EventArgs e)
         {
-            SecondSlideActivate();
+            // SecondSlideActivate();
         }
 
         private void FooterIcon_Tapped(object sender, EventArgs e)
@@ -137,45 +125,6 @@ namespace Repac
                 case Slides.Third:
                     // FourthSlideActivate();
                     break;
-            }
-        }
-
-        private async void ButtonAdd_Clicked(object sender, EventArgs e)
-        {
-            if (EditingItemsQuantityMode)
-            {
-                ScannedItemAnimation();
-            }
-        }
-
-        private async void ButtonSub_Clicked(object sender, EventArgs e)
-        {
-            if (EditingItemsQuantityMode)
-            {
-
-                SubScannedItem();
-            }
-        }
-
-        private async void RepacLogo_Tapped(object sender, EventArgs e)
-        {
-            if (false)//CurrentSlide == Slides.Second
-            {
-                EditingItemsQuantityMode = !EditingItemsQuantityMode;
-
-                if (EditingItemsQuantityMode)
-                {
-                    ItemsScannesLabel.Opacity = 0;
-
-                    //ImageAdd.Opacity = 100;
-                    //ImageSubstract.Opacity = 100;
-                }
-                else
-                {
-                    //ImageAdd.Opacity = 0;
-                    //ImageSubstract.Opacity = 0;
-                    ItemsScannesLabel.Opacity = 100;
-                }
             }
         }
 
@@ -202,22 +151,27 @@ namespace Repac
             CurrentSlide = Slides.First;
 
             UserInfo.IsVisible = false;
+            UserIcon.IsVisible = false;
+            UserLine.IsVisible = false;
+            Header.IsVisible = false;
+            Footer.IsVisible = false;
 
             FirstScreen.IsVisible = true;
             SecondScreen.IsVisible = false;
             ThirdScreen.IsVisible = false;
             FourthScreen.IsVisible = false;
             AdminScreen.IsVisible = false;
-
-            DisplayRightFooter();
         }
         private async void SecondSlideActivate()
         {
             CurrentSlide = Slides.Second;
 
-        ItemsScannesLabel.Opacity = 100;
 
             UserInfo.IsVisible = false;
+            UserIcon.IsVisible = false;
+            UserLine.IsVisible = false;
+            Header.IsVisible = true;
+            Footer.IsVisible = false;
 
             FirstScreen.IsVisible = false;
             SecondScreen.IsVisible = true;
@@ -225,14 +179,19 @@ namespace Repac
             FourthScreen.IsVisible = false;
             AdminScreen.IsVisible = false;
 
-            await Appear(ItemsCounterBackground, 300);
-            DisplayRightFooter();
+            //await Appear(SecondScreenCounter, 300);
         }
         private void ThirdSlideActivate()
         {
             CurrentSlide = Slides.Third;
 
+            ThirdSlideKey.TranslateTo(100, 100);
+
             UserInfo.IsVisible = true;
+            UserIcon.IsVisible = true;
+            UserLine.IsVisible = true;
+            Header.IsVisible = true;
+            Footer.IsVisible = false;
 
             FirstScreen.IsVisible = false;
             SecondScreen.IsVisible = false;
@@ -240,20 +199,35 @@ namespace Repac
             FourthScreen.IsVisible = false;
             AdminScreen.IsVisible = false;
 
-            ThirdSlideUpdateLabels();
-            DisplayRightFooter();
+            ProfileReport1.IsVisible = true;
+            ProfileReport2.IsVisible = true;
+            ProfileReport3.IsVisible = true;
+
+            ThirdSlideSetText();
+
+            AddCreditsButton.IsVisible = true;
+            ResetCreditsButton.IsVisible = false;
+            AddCreditsOptionsButtons.IsVisible = false;
         }
         private void FourthSlideActivate()
         {
             CurrentSlide = Slides.Fourth;
 
-            UserInfo.IsVisible = false;
+            UserInfo.IsVisible = true;
+            UserIcon.IsVisible = true;
+            UserLine.IsVisible = true;
 
             FirstScreen.IsVisible = false;
             SecondScreen.IsVisible = false;
             ThirdScreen.IsVisible = false;
             FourthScreen.IsVisible = true;
             AdminScreen.IsVisible = false;
+
+            ProfileReport1.IsVisible = true;
+            ProfileReport2.IsVisible = false;
+            ProfileReport3.IsVisible = true;
+
+            ResultCretits = 0;
 
             NullifyTimerSet();
         }
@@ -267,36 +241,8 @@ namespace Repac
             ThirdScreen.IsVisible = false;
             FourthScreen.IsVisible = false;
             AdminScreen.IsVisible = true;
-
-            DisplayRightFooter();
         }
 
-       private void DisplayRightFooter()
-        {
-            if(CurrentSlide == Slides.Fourth || CurrentSlide == Slides.First)
-            {
-                FooterText_1.IsVisible = false;
-                FooterText_2.IsVisible = true;
-            }
-            else
-            {
-                FooterText_1.IsVisible = true;
-                FooterText_2.IsVisible = false;
-
-                if (CurrentSlide == Slides.Second)
-                {
-                    FooterText_1Label.Text = "TAPER ICI VOTRE PORTE-CLÉ TINNG! POUR PROCÉDER AU PAIEMENT";
-                }
-                else if (CurrentSlide == Slides.Third)
-                {
-                    FooterText_1Label.Text = "TAPER ICI VOTRE PORTE-CLÉ TINNG! POUR PROCÉDER AU PAIEMENT";
-                }
-                else if (CurrentSlide == Slides.Admin)
-                {
-                    FooterText_1Label.Text = "TAPER ICI VOTRE PORTE-CLÉ PRÉPOSÉ POUR RETOURNER AU MODE CLIENT";
-                }
-            }
-        }
         private void AdminSlideReport()
         {
             //AdminItemsCounter.Text = $"Scans count:{SessionScans.Count}";
@@ -343,32 +289,10 @@ namespace Repac
 
         private async void ScannedItemAnimation(string tagMessage = null)
         {
-            await Fade(ItemsCounter, 200);
-            CounterLabel.Text = SessionScans.Count.ToString();
-            AdminCounterLabel.Text = SessionScans.Count.ToString();
-            await Appear(ItemsCounter, 200);
-        }
-
-        private async void SubScannedItem()
-        {
-            if (SessionScans.Count > 0)
-            {
-                await Fade(ItemsCounter, 200);
-                //  SessionScans.Count -= 1;
-                CounterLabel.Text = this.SessionScans.Count.ToString();
-                await Appear(ItemsCounter, 200);
-                if (SessionScans.Count > ProductsCredit)
-                {
-                    CounterLabelRight.TextColor = Color.DarkRed;
-                    CreditsError.Opacity = 100;
-                }
-                else
-                {
-                    CounterLabelRight.TextColor = Color.Black;
-                    CreditsError.Opacity = 0;
-                }
-            }
-
+            // await Fade(SecondScreenCounter, 200);
+            // SecondScreenCounter.Text = SessionScans.Count.ToString();
+            // AdminCounterLabel.Text = SessionScans.Count.ToString();
+            // await Appear(SecondScreenCounter, 200);
         }
         #endregion
 
@@ -621,6 +545,7 @@ namespace Repac
                         SmallConsoleMessage($"Session Finished.  \r\n");
                         hubConnection.InvokeAsync("FinishSession", ScanSession);
 
+                        FourthSlideSetText();
                         NullifySession();
                         FourthSlideActivate();
                     }
@@ -640,7 +565,7 @@ namespace Repac
         }
         private void ScanVerified(ScanDTO verifiedScan)
         {
-            if (CurrentSlide == Slides.First|| CurrentSlide == Slides.Fourth)
+            if (CurrentSlide == Slides.First || CurrentSlide == Slides.Fourth)
             {
                 SecondSlideActivate();
             }
@@ -648,8 +573,12 @@ namespace Repac
             SessionScans.Add(verifiedScan);
             ReportScannedTags();
             ScannedItemAnimation();
-            ThirdSlideUpdateLabels();
 
+            SecondScreenCounter.Text = SessionScans.Count.ToString();
+            AdminScreenCounter.Text = SessionScans.Count.ToString();
+            ThirdScreenItemsCounter.Text = SessionScans.Count.ToString();
+
+            ThirdSlideSetText();
 
             ReportArea1Label.Text += $"Scan was verified. TagId:{verifiedScan.ContainerTagId}\r\n";
             SmallConsoleMessage($"Scan was verified. TagId:{verifiedScan.ContainerTagId} \r\n");
@@ -697,7 +626,7 @@ namespace Repac
                         SecondSlideActivate();
                     }
                 }
-                else if(CurrentSlide == Slides.Second && SessionScans.Count>0)
+                else if (CurrentSlide == Slides.Second && SessionScans.Count > 0)
                 {
                     AdminSlideActivate();
                 }
@@ -710,7 +639,9 @@ namespace Repac
                 {
                     SessionScans.Remove(cancelingScan);
                     ReportScannedTags();
-                    ScannedItemAnimation();
+                    SecondScreenCounter.Text = SessionScans.Count.ToString();
+                    AdminScreenCounter.Text = SessionScans.Count.ToString();
+                    // ScannedItemAnimation();
 
                     if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
                     {
@@ -782,21 +713,25 @@ namespace Repac
             ScanSession.ScanSessionEndTimestamp = DateTime.Now;
             ScanSession.UserId = CurrentUser.UserId;
 
-            if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
-            {
-                ReportArea1Label.Text = $"Session Finished.  \r\n";
-                SmallConsoleMessage($"Session Finished.  \r\n");
-                hubConnection.InvokeAsync("FinishSession", ScanSession.ScanSessionId, CurrentUser.UserId);
+            // if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
+            //{
+            ReportArea1Label.Text = $"Session Finished.  \r\n";
+            SmallConsoleMessage($"Session Finished.  \r\n");
+            hubConnection.InvokeAsync("FinishSession", ScanSession.ScanSessionId, CurrentUser.UserId);
 
-                NullifySession();
-                FourthSlideActivate();
-            }
+            FourthSlideSetText();
+            NullifySession();
+            FourthSlideActivate();
+            // }
         }
 
         private void NullifySession()
         {
+            ResultCretits = SessionScans.Count - CurrentUser.RemainingCredits + ExtraCreditsToBuy;
+
             ScanSession = null;
             CurrentUser = null;
+            ExtraCreditsToBuy = 0;
             SessionScans.Clear();
             ReportScannedTags();
         }
@@ -809,19 +744,6 @@ namespace Repac
             if (smallConsoleLog.Count > 2) SmallConsole.Text += $" {smallConsoleLog.Count - 3}) " + smallConsoleLog[smallConsoleLog.Count - 3];
             if (smallConsoleLog.Count > 1) SmallConsole.Text += $" {smallConsoleLog.Count - 2}) " + smallConsoleLog[smallConsoleLog.Count - 2];
             SmallConsole.Text += $" {smallConsoleLog.Count - 1}) " + smallConsoleLog[smallConsoleLog.Count - 1];
-        }
-
-        private void ThirdSlideUpdateLabels()
-        {
-            if (CurrentUser != null)
-            {
-                int requiredCreditsToBuy = SessionScans.Count - CurrentUser.RemainingCredits;
-
-                ProfileReport.Text = $"Solde: {CurrentUser.RemainingCredits} Crédit";
-                FirstLabel.Text = $"Bonjour, { CurrentUser.FirstName}!";
-                ThirdLabel.Text = $"{requiredCreditsToBuy * 4}$ pour";
-                FourthLabel.Text = $"{requiredCreditsToBuy} crédits supplémentaires";
-            }
         }
 
         private void SubmitFinishOperation()
@@ -853,8 +775,325 @@ namespace Repac
             ReportArea1Label.Text = $"Session Finished.  \r\n";
             SmallConsoleMessage($"Session Finished.  \r\n");
 
+            FourthSlideSetText();
             NullifySession();
             FourthSlideActivate();
         }
+
+        private void ButtonT1_Clicked(object sender, EventArgs e)
+        {
+            NewScanOrAuthenticationHappend(tag1Guid);
+            //TemporaryTestScan(tag1Guid);
+        }
+
+        private void ButtonT2_Clicked(object sender, EventArgs e)
+        {
+            NewScanOrAuthenticationHappend(tag2Guid);
+            //TemporaryTestScan(tag2Guid);
+        }
+
+        private void ButtonT_Clicked(object sender, EventArgs e)
+        {
+            TemporaryTestScan(Guid.NewGuid());
+        }
+
+        private void ButtonAT_Clicked(object sender, EventArgs e)
+        {
+            //ThirdSlideActivate();
+            NewScanOrAuthenticationHappend(tag3Guid);
+        }
+
+        async private void ButtonSasha_Clicked(object sender, EventArgs e)
+        {
+            Color aaa = SashaButton.BackgroundColor;
+            SashaButton.BackgroundColor = Color.FromHex("#CC0000");
+
+            ThirdSlideKey.TranslateTo(30, 5, 750, Easing.Linear);
+            await ThirdSlideKey.ScaleTo(10, 750);
+            await Task.Delay(200);
+
+            await ThirdSlideKey.RotateTo(20, 100);
+            await ThirdSlideKey.RotateTo(-20, 200);
+            await ThirdSlideKey.RotateTo(20, 200);
+            await ThirdSlideKey.RotateTo(-20, 200);
+            await ThirdSlideKey.RotateTo(0, 100);
+
+            await Task.Delay(1000);
+
+            await ThirdSlideKey.FadeTo(0, 200);
+            ThirdSlideKey.TranslateTo(100, 100, 0);
+            ThirdSlideKey.ScaleTo(1, 0);
+            await ThirdSlideKey.FadeTo(1, 0);
+            SashaButton.BackgroundColor = aaa;
+        }
+
+        private void ButtonKC_Clicked(object sender, EventArgs e)
+        {
+            NewScanOrAuthenticationHappend(keyChainSashaGuid);
+
+            //if (CurrentSlide == Slides.Third)
+            //{
+            //    FinishSession();
+            //}
+            //else
+            //{
+            //    Authorized(new UserDTO() { FirstName = "Denis", LastName = "Lopatin", RemainingCredits = 2 });
+            //}
+        }
+
+            private void AddCreditsButton_Clicked(object sender, EventArgs e)
+        {
+            AddCreditsButton.IsVisible = false;
+            ResetCreditsButton.IsVisible = false;
+            AddCreditsOptionsButtons.IsVisible = true;
+        }
+
+        private void ResetCreditsButton_Clicked(object sender, EventArgs e)
+        {
+            AddCreditsButton.IsVisible = false;
+            ResetCreditsButton.IsVisible = false;
+            AddCreditsOptionsButtons.IsVisible = true;
+
+            ExtraCreditsToBuy = 0;
+            ThirdSlideSetText();
+        }
+
+        private void ButtonPlus1_Clicked(object sender, EventArgs e)
+        {
+            AddCreditsButton.IsVisible = false;
+            ResetCreditsButton.IsVisible = true;
+            AddCreditsOptionsButtons.IsVisible = false;
+
+            ExtraCreditsToBuy = 1;
+            ThirdSlideSetText();
+        }
+
+        private void ButtonPlus3_Clicked(object sender, EventArgs e)
+        {
+            AddCreditsButton.IsVisible = false;
+            ResetCreditsButton.IsVisible = true;
+            AddCreditsOptionsButtons.IsVisible = false;
+
+            ExtraCreditsToBuy = 3;
+            ThirdSlideSetText();
+        }
+
+        private void ButtonImpinj_Clicked(object sender, EventArgs e)
+        {
+            ImpinjStart();
+        }
+
+        private void TemporaryTestScan(Guid id)
+        {
+            NewScanOrAuthenticationHappend(id);
+            ScanDTO newScan = new ScanDTO()
+            {
+                ScanId = Guid.NewGuid(),
+                ContainerTagId = id,
+            };
+
+            if (CurrentSlide != Slides.Admin && TagWasAlreadyScanned(id) == false)
+            {
+                ScanVerified(newScan);
+            }
+            else if (CurrentSlide == Slides.Admin)
+            {
+                ScanDTO cancelingScan = SessionScans.Where(scan => scan.ContainerTagId == id).FirstOrDefault();
+
+                SessionScans.Remove(cancelingScan);
+                SecondScreenCounter.Text = SessionScans.Count.ToString();
+                ThirdScreenItemsCounter.Text = SessionScans.Count.ToString();
+                AdminScreenCounter.Text = SessionScans.Count.ToString();
+            }
+        }
+
+        private void ThirdSlideSetText()
+        {
+            if (CurrentUser != null)
+            {
+                ThirdScreenPaymentCounter.Text = ScansMoreThanCredits() ? $"{(SessionScans.Count - CurrentUser.RemainingCredits + ExtraCreditsToBuy) * 5}.00$" : "0.00$";
+                CreditsToBuyLabel.Text = ScansMoreThanCredits() ? $"{SessionScans.Count - CurrentUser.RemainingCredits + ExtraCreditsToBuy}" : "0";
+
+                ProfileReport1.Text = $"Bonjour {CurrentUser.FirstName} {CurrentUser.LastName},";
+                ProfileReport2.Text = ScansMoreThanCredits() ? $"{SessionScans.Count - CurrentUser.RemainingCredits} crédits manquants" : $"{ CurrentUser.RemainingCredits - SessionScans.Count} crédits disponible";
+                ProfileReport3.Text = $"Crédits utilisés: {5}";
+            }
+        }
+
+        private void FourthSlideSetText()
+        {
+            int creditsBefore = CurrentUser.RemainingCredits;
+            int creditsUsed = SessionScans.Count;
+            int creditsBought = SessionScans.Count - CurrentUser.RemainingCredits + ExtraCreditsToBuy;
+            int creditsAfter = creditsBefore - creditsUsed + creditsBought;
+
+            bool paymentRequired = ScansMoreThanCredits();
+            PaymentSuccessLabel.IsVisible = paymentRequired ? true : false;
+
+            FourthScreenCounterAvailible.Text = $"{creditsAfter}";
+            FourthScreenCounterUsed.Text = $"{5 + creditsUsed}";
+            ProfileReport3.Text = $"Crédits au compte: {creditsAfter + 5 + creditsUsed}";
+
+        }
+
+        private bool ScansMoreThanCredits() => SessionScans.Count - CurrentUser.RemainingCredits >= 0;
+
+        #region "Impinj Reader"
+        const string READER_HOSTNAME = "192.168.1.21";  // NEED to set to your speedway!
+        // Create an instance of the ImpinjReader class.
+        static ImpinjReader reader = new ImpinjReader();
+
+        static void ConnectToReader()
+        {
+            try
+            {
+                Console.WriteLine("Attempting to connect to {0} ({1}).",
+                    reader.Name, READER_HOSTNAME);
+
+                // The maximum number of connection attempts
+                // before throwing an exception.
+                //reader.MaxConnectionAttempts = 15;
+                // Number of milliseconds before a 
+                // connection attempt times out.
+                reader.ConnectTimeout = 6000;
+                // Connect to the reader.
+                // Change the ReaderHostname constant in SolutionConstants.cs 
+                // to the IP address or hostname of your reader.
+                reader.Connect(READER_HOSTNAME);
+                Console.WriteLine("Successfully connected.");
+
+                // Tell the reader to send us any tag reports and 
+                // events we missed while we were disconnected.
+                reader.ResumeEventsAndReports();
+            }
+            catch (OctaneSdkException e)
+            {
+                Console.WriteLine("Failed to connect.");
+                throw e;
+            }
+        }
+
+        static void ImpinjStart()
+        {
+            try
+            {
+                // Assign a name to the reader. 
+                // This will be used in tag reports. 
+                reader.Name = "My Reader #1";
+
+                // Connect to the reader.
+                ConnectToReader();
+
+                // Get the default settings.
+                // We'll use these as a starting point
+                // and then modify the settings we're 
+                // interested in.
+                Settings settings = reader.QueryDefaultSettings();
+
+                // Start the reader as soon as it's configured.
+                // This will allow it to run without a client connected.
+                settings.AutoStart.Mode = AutoStartMode.Immediate;
+                settings.AutoStop.Mode = AutoStopMode.None;
+
+                // Use Advanced GPO to set GPO #1 
+                // when an client (LLRP) connection is present.
+                settings.Gpos.GetGpo(1).Mode = GpoMode.LLRPConnectionStatus;
+
+                // Tell the reader to include the timestamp in all tag reports.
+                settings.Report.IncludeFirstSeenTime = true;
+                settings.Report.IncludeLastSeenTime = true;
+                settings.Report.IncludeSeenCount = true;
+
+                // If this application disconnects from the 
+                // reader, hold all tag reports and events.
+                settings.HoldReportsOnDisconnect = true;
+
+                // Enable keepalives.
+                settings.Keepalives.Enabled = true;
+                settings.Keepalives.PeriodInMs = 5000;
+
+                // Enable link monitor mode.
+                // If our application fails to reply to
+                // five consecutive keepalive messages,
+                // the reader will close the network connection.
+                settings.Keepalives.EnableLinkMonitorMode = true;
+                settings.Keepalives.LinkDownThreshold = 5;
+
+                // Assign an event handler that will be called
+                // when keepalive messages are received.
+                reader.KeepaliveReceived += OnKeepaliveReceived;
+
+                // Assign an event handler that will be called
+                // if the reader stops sending keepalives.
+                reader.ConnectionLost += OnConnectionLost;
+
+                // Apply the newly modified settings.
+                reader.ApplySettings(settings);
+
+                // Save the settings to the reader's 
+                // non-volatile memory. This will
+                // allow the settings to persist
+                // through a power cycle.
+                reader.SaveSettings();
+
+                // Assign the TagsReported event handler.
+                // This specifies which method to call
+                // when tags reports are available.
+                reader.TagsReported += OnTagsReported;
+
+                // Wait for the user to press enter.
+                //Console.WriteLine("Press enter to exit.");
+                //Console.ReadLine();
+
+                //// Stop reading.
+                //reader.Stop();
+
+                //// Disconnect from the reader.
+                //reader.Disconnect();
+            }
+            catch (OctaneSdkException e)
+            {
+                // Handle Octane SDK errors.
+                Console.WriteLine("Octane SDK exception: {0}", e.Message);
+            }
+            catch (Exception e)
+            {
+                // Handle other .NET errors.
+                Console.WriteLine("Exception : {0}", e.Message);
+            }
+        }
+
+        static void OnConnectionLost(ImpinjReader reader)
+        {
+            // This event handler is called if the reader  
+            // stops sending keepalive messages (connection lost).
+            Console.WriteLine("Connection lost : {0} ({1})", reader.Name, reader.Address);
+
+            // Cleanup
+            reader.Disconnect();
+
+            // Try reconnecting to the reader
+            ConnectToReader();
+        }
+
+        static void OnKeepaliveReceived(ImpinjReader reader)
+        {
+            // This event handler is called when a keepalive 
+            // message is received from the reader.
+            Console.WriteLine("Keepalive received from {0} ({1})", reader.Name, reader.Address);
+        }
+
+        static void OnTagsReported(ImpinjReader sender, TagReport report)
+        {
+            // This event handler is called asynchronously 
+            // when tag reports are available.
+            // Loop through each tag in the report 
+            // and print the data.
+            foreach (Tag tag in report)
+            {
+                Console.WriteLine("EPC : {0} Timestamp : {1}", tag.Epc, tag.LastSeenTime);
+            }
+        }
+        #endregion
     }
 }
