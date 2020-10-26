@@ -7,9 +7,6 @@ using Android.OS;
 using Android.Runtime;
 using System;
 using System.Text;
-using TechnologySolutions.Rfid.AsciiProtocol.Extensions;
-using TechnologySolutions.Rfid.AsciiProtocol.Platform;
-using TechnologySolutions.Rfid.AsciiProtocol.Transports;
 using Xamarin.Forms;
 
 namespace Repac.Droid
@@ -19,14 +16,14 @@ namespace Repac.Droid
     {
         private NfcAdapter _nfcAdapter;
 
-        private IAndroidLifecycle lifecyle;
-
         protected override void OnCreate(Bundle savedInstanceState)
         {
             TabLayoutResource = Resource.Layout.Tabbar;
             ToolbarResource = Resource.Layout.Toolbar;
 
             base.OnCreate(savedInstanceState);
+
+            //VideoViewRenderer.Init();
 
             _nfcAdapter = NfcAdapter.GetDefaultAdapter(this);
 

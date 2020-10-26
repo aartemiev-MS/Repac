@@ -1,4 +1,5 @@
 ﻿using Impinj.OctaneSdk;
+using MediaManager;
 using Microsoft.AspNetCore.SignalR.Client;
 using Repac.Data.Models;
 using Repac.Data.Models.DTOs;
@@ -57,6 +58,7 @@ namespace Repac
 
         public MainPage()
         {
+            _impinjOutputLabel = ImpinjOutputLabel;
             InitializeComponent();
             FirstSlideActivate();
 
@@ -365,13 +367,13 @@ namespace Repac
             {
                 if (CurrentUser != null)
                 {
-                    if (CurrentUser.RemainingCredits >= SessionScans.Count)
+                    if (CurrentUser.AvailibleCredits >= SessionScans.Count)
                     {
                         FinishSession();
                     }
                     else
                     {
-                        ReportArea1Label.Text += $"Session Finish Denied. Not enough Credits: {CurrentUser.RemainingCredits} (need {SessionScans.Count})  \r\n";
+                        ReportArea1Label.Text += $"Session Finish Denied. Not enough Credits: {CurrentUser.AvailibleCredits} (need {SessionScans.Count})  \r\n";
                     }
                 }
                 else
@@ -533,8 +535,8 @@ namespace Repac
 
                 if (CurrentSlide == Slides.First || CurrentSlide == Slides.Second || CurrentSlide == Slides.Fourth)
                 {
-                    ReportArea1Label.Text += $"User {user.FirstName} {user.LastName} was authorized. Availible Credits:{CurrentUser.RemainingCredits} \r\n";
-                    SmallConsoleMessage($"User {user.FirstName} {user.LastName} was authorized. Av Cr:{CurrentUser.RemainingCredits} \r\n");
+                    ReportArea1Label.Text += $"User {user.FirstName} {user.LastName} was authorized. Availible Credits:{CurrentUser.AvailibleCredits} \r\n";
+                    SmallConsoleMessage($"User {user.FirstName} {user.LastName} was authorized. Av Cr:{CurrentUser.AvailibleCredits} \r\n");
                     ThirdSlideActivate();
                 }
                 else
@@ -592,10 +594,10 @@ namespace Repac
         }
         private void CreditsWereBought(int currentCredits)
         {
-            CurrentUser.RemainingCredits = currentCredits;
+           // CurrentUser.RemainingCredits = currentCredits;
 
-            ReportArea1Label.Text += $"Credits were bought. Availible Credits:{CurrentUser.RemainingCredits} \r\n";
-            SmallConsoleMessage($"Credits were bought. Availible Credits:{CurrentUser.RemainingCredits} \r\n");
+            ReportArea1Label.Text += $"Credits were bought. Availible Credits:{CurrentUser.AvailibleCredits} \r\n";
+            SmallConsoleMessage($"Credits were bought. Availible Credits:{CurrentUser.AvailibleCredits} \r\n");
 
             FinishSession();
         }
@@ -727,7 +729,7 @@ namespace Repac
 
         private void NullifySession()
         {
-            ResultCretits = SessionScans.Count - CurrentUser.RemainingCredits + ExtraCreditsToBuy;
+            ResultCretits = SessionScans.Count - CurrentUser.AvailibleCredits + ExtraCreditsToBuy;
 
             ScanSession = null;
             CurrentUser = null;
@@ -748,7 +750,7 @@ namespace Repac
 
         private void SubmitFinishOperation()
         {
-            int creditsAvailible = CurrentUser.RemainingCredits;
+            int creditsAvailible = CurrentUser.AvailibleCredits;
             int creditsRequired = SessionScans.Count;
 
             if (creditsAvailible < creditsRequired)
@@ -803,7 +805,7 @@ namespace Repac
             NewScanOrAuthenticationHappend(tag3Guid);
         }
 
-        async private void ButtonSasha_Clicked(object sender, EventArgs e)
+        async private void ButtonSasha1_Clicked(object sender, EventArgs e)
         {
             Color aaa = SashaButton.BackgroundColor;
             SashaButton.BackgroundColor = Color.FromHex("#CC0000");
@@ -827,7 +829,12 @@ namespace Repac
             SashaButton.BackgroundColor = aaa;
         }
 
-        private void ButtonKC_Clicked(object sender, EventArgs e)
+        async private void ButtonSasha1_Clicked(object sender, EventArgs e)
+        {
+            CrossMediaManager.Current.PlayFromResource("Tinng_Conveyor_animation_v2.mp4");
+        }
+
+            private void ButtonKC_Clicked(object sender, EventArgs e)
         {
             NewScanOrAuthenticationHappend(keyChainSashaGuid);
 
@@ -911,32 +918,32 @@ namespace Repac
         {
             if (CurrentUser != null)
             {
-                ThirdScreenPaymentCounter.Text = ScansMoreThanCredits() ? $"{(SessionScans.Count - CurrentUser.RemainingCredits + ExtraCreditsToBuy) * 5}.00$" : "0.00$";
-                CreditsToBuyLabel.Text = ScansMoreThanCredits() ? $"{SessionScans.Count - CurrentUser.RemainingCredits + ExtraCreditsToBuy}" : "0";
+                ThirdScreenPaymentCounter.Text = ScansMoreThanCredits() ? $"{(SessionScans.Count - CurrentUser.AvailibleCredits + ExtraCreditsToBuy) * 5}.00$" : "0.00$";
+                CreditsToBuyLabel.Text = ScansMoreThanCredits() ? $"{SessionScans.Count - CurrentUser.AvailibleCredits + ExtraCreditsToBuy}" : "0";
 
                 ProfileReport1.Text = $"Bonjour {CurrentUser.FirstName} {CurrentUser.LastName},";
-                ProfileReport2.Text = ScansMoreThanCredits() ? $"{SessionScans.Count - CurrentUser.RemainingCredits} crédits manquants" : $"{ CurrentUser.RemainingCredits - SessionScans.Count} crédits disponible";
-                ProfileReport3.Text = $"Crédits utilisés: {5}";
+                ProfileReport2.Text = ScansMoreThanCredits() ? $"{SessionScans.Count - CurrentUser.AvailibleCredits} crédits manquants" : $"{ CurrentUser.AvailibleCredits - SessionScans.Count} crédits disponible";
+                ProfileReport3.Text = $"Crédits utilisés: {CurrentUser.UsedCredits}";
             }
         }
 
         private void FourthSlideSetText()
         {
-            int creditsBefore = CurrentUser.RemainingCredits;
-            int creditsUsed = SessionScans.Count;
-            int creditsBought = SessionScans.Count - CurrentUser.RemainingCredits + ExtraCreditsToBuy;
-            int creditsAfter = creditsBefore - creditsUsed + creditsBought;
+            int creditsBefore = CurrentUser.AvailibleCredits;
+            int creditsUsedInSession = SessionScans.Count;
+            int creditsBought = SessionScans.Count - CurrentUser.AvailibleCredits + ExtraCreditsToBuy;
+            int creditsAfter = creditsBefore - creditsUsedInSession + creditsBought;
 
             bool paymentRequired = ScansMoreThanCredits();
             PaymentSuccessLabel.IsVisible = paymentRequired ? true : false;
 
             FourthScreenCounterAvailible.Text = $"{creditsAfter}";
-            FourthScreenCounterUsed.Text = $"{5 + creditsUsed}";
-            ProfileReport3.Text = $"Crédits au compte: {creditsAfter + 5 + creditsUsed}";
+            FourthScreenCounterUsed.Text = $"{CurrentUser.UsedCredits + creditsUsedInSession}";
+            ProfileReport3.Text = $"Crédits au compte: { CurrentUser.UsedCredits + creditsUsedInSession}";
 
         }
 
-        private bool ScansMoreThanCredits() => SessionScans.Count - CurrentUser.RemainingCredits >= 0;
+        private bool ScansMoreThanCredits() => SessionScans.Count - CurrentUser.AvailibleCredits >= 0;
 
         #region "Impinj Reader"
         const string READER_HOSTNAME = "192.168.1.21";  // NEED to set to your speedway!
@@ -1092,8 +1099,11 @@ namespace Repac
             foreach (Tag tag in report)
             {
                 Console.WriteLine("EPC : {0} Timestamp : {1}", tag.Epc, tag.LastSeenTime);
+                _impinjOutputLabel.Text += $"   TAG: {tag.Epc}";
             }
         }
+
         #endregion
+        static Label _impinjOutputLabel ;
     }
 }
