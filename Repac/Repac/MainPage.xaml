@@ -3,8 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:local="clr-namespace:VideoPlayerMediaManager"
-             xmlns:forms="clr-namespace:Plugin.MediaManager.Forms;assembly=Plugin.MediaManager.Forms"
              mc:Ignorable="d"
              x:Class="Repac.MainPage">
     <Grid>
@@ -84,8 +82,6 @@
                          HorizontalOptions="Center"/>
                     <Image Source="conveyor.png" BackgroundColor="Orange"
                         Margin="10,0,10,0"/>-->
-
-                    <forms:VideoView WidthRequest="320" HeightRequest="180" BackgroundColor="pink"/>
                 </StackLayout>
 
                 <Grid x:Name="SecondScreen"
@@ -422,7 +418,6 @@
                     Clicked="ButtonSasha1_Clicked"/>
             <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="Sasha 2" 
-                    x:Name="SashaButton"
                     Clicked="ButtonSasha2_Clicked"/>
             <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     WidthRequest="80"

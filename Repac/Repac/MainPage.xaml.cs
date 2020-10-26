@@ -1,5 +1,4 @@
 ﻿using Impinj.OctaneSdk;
-using MediaManager;
 using Microsoft.AspNetCore.SignalR.Client;
 using Repac.Data.Models;
 using Repac.Data.Models.DTOs;
@@ -58,7 +57,6 @@ namespace Repac
 
         public MainPage()
         {
-            _impinjOutputLabel = ImpinjOutputLabel;
             InitializeComponent();
             FirstSlideActivate();
 
@@ -829,9 +827,9 @@ namespace Repac
             SashaButton.BackgroundColor = aaa;
         }
 
-        async private void ButtonSasha1_Clicked(object sender, EventArgs e)
+        async private void ButtonSasha2_Clicked(object sender, EventArgs e)
         {
-            CrossMediaManager.Current.PlayFromResource("Tinng_Conveyor_animation_v2.mp4");
+          //  CrossMediaManager.Current.PlayFromResource("Tinng_Conveyor_animation_v2.mp4");
         }
 
             private void ButtonKC_Clicked(object sender, EventArgs e)
@@ -1099,11 +1097,9 @@ namespace Repac
             foreach (Tag tag in report)
             {
                 Console.WriteLine("EPC : {0} Timestamp : {1}", tag.Epc, tag.LastSeenTime);
-                _impinjOutputLabel.Text += $"   TAG: {tag.Epc}";
             }
         }
 
         #endregion
-        static Label _impinjOutputLabel ;
     }
 }
