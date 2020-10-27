@@ -5,6 +5,7 @@ using Android.Content.PM;
 using Android.Nfc;
 using Android.OS;
 using Android.Runtime;
+using Plugin.MediaManager.Forms.Android;
 using System;
 using System.Text;
 using Xamarin.Forms;
@@ -23,7 +24,7 @@ namespace Repac.Droid
 
             base.OnCreate(savedInstanceState);
 
-            //VideoViewRenderer.Init();
+            VideoViewRenderer.Init();
 
             _nfcAdapter = NfcAdapter.GetDefaultAdapter(this);
 

@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:forms="clr-namespace:Plugin.MediaManager.Forms;assembly=Plugin.MediaManager.Forms"
              mc:Ignorable="d"
              x:Class="Repac.MainPage">
     <Grid>
@@ -77,11 +77,10 @@
                 <StackLayout.GestureRecognizers>
                     <TapGestureRecognizer Tapped="FirstScreen_Tapped"/>
                     </StackLayout.GestureRecognizers>
-                    <!--<Image Source="logo_tinng.png"
-                           HeightRequest="150"
-                         HorizontalOptions="Center"/>
-                    <Image Source="conveyor.png" BackgroundColor="Orange"
-                        Margin="10,0,10,0"/>-->
+                    <forms:VideoView HorizontalOptions="Center" 
+                                     WidthRequest="400"
+                                     HeightRequest="200"
+                                     BackgroundColor="Orange"/>
                 </StackLayout>
 
                 <Grid x:Name="SecondScreen"

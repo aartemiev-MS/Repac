@@ -1,5 +1,8 @@
 ﻿using Impinj.OctaneSdk;
 using Microsoft.AspNetCore.SignalR.Client;
+using Plugin.MediaManager;
+using Plugin.MediaManager.Abstractions.Enums;
+using Plugin.MediaManager.Abstractions.Implementations;
 using Repac.Data.Models;
 using Repac.Data.Models.DTOs;
 using System;
@@ -7,7 +10,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace Repac
@@ -471,6 +476,30 @@ namespace Repac
         private void NewTagDataReceived(string tagMessage)
         {
             NewScanOrAuthenticationHappend(Guid.Parse(tagMessage));
+
+        }
+
+        private void NewTagDataReceivedPhil(string tagMessage)
+        {
+            switch (tagMessage)
+            {
+                case " ":
+
+                    NewScanOrAuthenticationHappend(tag1Guid);
+                    break;
+
+                case "  ":
+                    NewScanOrAuthenticationHappend(tag2Guid);
+                    break;
+
+                case "   ":
+                    NewScanOrAuthenticationHappend(tag3Guid);
+                    break;
+
+                case "    ":
+                    NewScanOrAuthenticationHappend(keyChainSashaGuid);
+                    break;
+            }
         }
 
         private void CheckIfSessionExists()
@@ -592,7 +621,7 @@ namespace Repac
         }
         private void CreditsWereBought(int currentCredits)
         {
-           // CurrentUser.RemainingCredits = currentCredits;
+            // CurrentUser.RemainingCredits = currentCredits;
 
             ReportArea1Label.Text += $"Credits were bought. Availible Credits:{CurrentUser.AvailibleCredits} \r\n";
             SmallConsoleMessage($"Credits were bought. Availible Credits:{CurrentUser.AvailibleCredits} \r\n");
@@ -827,12 +856,51 @@ namespace Repac
             SashaButton.BackgroundColor = aaa;
         }
 
-        async private void ButtonSasha2_Clicked(object sender, EventArgs e)
+        private void ButtonSasha2_Clicked(object sender, EventArgs e)
         {
-          //  CrossMediaManager.Current.PlayFromResource("Tinng_Conveyor_animation_v2.mp4");
+            string sampleUrlVideo = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_20mb.mp4";
+            string localVideoName = "Tinng_Conveyor_animation_v2.mp4";
+            string localVideoPath = "file:///Assets/Tinng_Conveyor_animation_v2.mp4";
+            string convertedVideoName = "conveyor_animation.mp4";
+
+            string fullPath = "C:/Users/sasha/source/repos/Repac/Repac/Repac.Android/Resources/drawable/Tinng_Conveyor_animation_v2.mp4";
+
+            var aaa = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+            WriteResourceToFile(localVideoName, convertedVideoName);
+
+            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string localFilename = "downloaded.mp3";
+            string localPath = Path.Combine(documentsPath, localVideoName);
+            string pathToFileURL = new System.Uri(localPath).AbsolutePath;
+            // CrossMediaManager.Current.Play("file://" + pathToFileURL);
+
+            var cacheFile = Path.Combine(FileSystem.CacheDirectory, localVideoName);
+            if (File.Exists(cacheFile))
+                File.Delete(cacheFile);
+            using (var resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("0x7F070081"))
+            using (var file = new FileStream(cacheFile, FileMode.Create, FileAccess.Write))
+            {
+                // resource.CopyTo(file);
+            }
+            CrossMediaManager.Current.Play(new MediaFile("file://localhost/" + cacheFile, MediaFileType.Video, ResourceAvailability.Local));
+
+            //CrossMediaManager.Current.Play(fullPath);
+
+            //Resource.Drawable.T
         }
 
-            private void ButtonKC_Clicked(object sender, EventArgs e)
+        public void WriteResourceToFile(string resourceName, string fileName)
+        {
+            using (var resource = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+            {
+                using (var file = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+                {
+                    resource.CopyTo(file);
+                }
+            }
+        }
+
+        private void ButtonKC_Clicked(object sender, EventArgs e)
         {
             NewScanOrAuthenticationHappend(keyChainSashaGuid);
 
@@ -846,7 +914,7 @@ namespace Repac
             //}
         }
 
-            private void AddCreditsButton_Clicked(object sender, EventArgs e)
+        private void AddCreditsButton_Clicked(object sender, EventArgs e)
         {
             AddCreditsButton.IsVisible = false;
             ResetCreditsButton.IsVisible = false;
