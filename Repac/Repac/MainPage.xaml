@@ -396,18 +396,18 @@
                     Opacity="0"
                     Clicked="ButtonAT_Clicked"/>-->
         <StackLayout Orientation="Horizontal" VerticalOptions="End">
-            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+            <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="T1" 
                     Clicked="ButtonT1_Clicked"/>
             <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="T2" 
-                    Clicked="ButtonT2_Clicked"/>
+                    Clicked="ButtonT2_Clicked"/>-->
             <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="T random" 
                     Clicked="ButtonT_Clicked"/>-->
-            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+            <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="Key Ch"
-                    Clicked="ButtonKC_Clicked"/>
+                    Clicked="ButtonKC_Clicked"/>-->
             <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="Adm Tag" 
                     Clicked="ButtonAT_Clicked"/>-->
@@ -418,10 +418,10 @@
             <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="Sasha 2" 
                     Clicked="ButtonSasha2_Clicked"/>
-            <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     WidthRequest="80"
                     Text="Impinj" 
-                    Clicked="ButtonImpinj_Clicked"/>-->
+                    Clicked="ButtonImpinj_Clicked"/>
         </StackLayout>
 
         <Grid x:Name="TestScreen" 

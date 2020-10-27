@@ -38,16 +38,18 @@ namespace Repac
 
         private string dbPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "RepacCashRegister3.db");
         private readonly Guid userSashaGuid = Guid.Parse("666b55ac-96e7-47b0-96d1-38622d0b176e");
-        private readonly Guid keyChainSashaGuid = Guid.Parse("b1056d6c-7f02-4f46-bdc6-e9feaff54a20");
-        private readonly Guid scannerId = Guid.Parse("c75cc42d-1295-4cea-ba9e-c0b88bddfa49");
+        private static readonly Guid keyChainSashaGuid = Guid.Parse("b1056d6c-7f02-4f46-bdc6-e9feaff54a20");
+        private static readonly Guid scannerId = Guid.Parse("c75cc42d-1295-4cea-ba9e-c0b88bddfa49");
 
 
-        private Guid tag1Guid = Guid.Parse("51a29bbf-d4d3-43c9-b290-d2445611b0d3");
-        private Guid tag2Guid = Guid.Parse("b8a43e30-d24d-43f9-a697-7d6614d6c786");
-        private Guid tag3Guid = Guid.Parse("c55cf3d1-9fd5-435d-b7cc-ea36a1c1bf3c");
-        private Guid wrongTagGuid = Guid.Parse("8945418f-d9bb-43a1-b26a-ccaec30c2eec");
+        private static Guid tag1Guid = Guid.Parse("51a29bbf-d4d3-43c9-b290-d2445611b0d3");
+        private static Guid tag2Guid = Guid.Parse("b8a43e30-d24d-43f9-a697-7d6614d6c786");
+        private static Guid tag3Guid = Guid.Parse("c55cf3d1-9fd5-435d-b7cc-ea36a1c1bf3c");
+        private static Guid wrongTagGuid = Guid.Parse("8945418f-d9bb-43a1-b26a-ccaec30c2eec");
 
         private HubConnection hubConnection;
+
+        private static MainPage Me;
 
         private List<string> smallConsoleLog = new List<string>();
 
@@ -64,6 +66,7 @@ namespace Repac
         {
             InitializeComponent();
             FirstSlideActivate();
+            Me = this;
 
             MessagingCenter.Subscribe<string>(this, "NewTagDataReceived", (tag) => { NewTagDataReceived(tag); });
 
@@ -475,29 +478,54 @@ namespace Repac
 
         private void NewTagDataReceived(string tagMessage)
         {
-            NewScanOrAuthenticationHappend(Guid.Parse(tagMessage));
+            //NewScanOrAuthenticationHappend(Guid.Parse(tagMessage));
+
+            if (Guid.Parse(tagMessage)!=keyChainSashaGuid)
+            {
+                TemporaryTestScan(Guid.Parse(tagMessage));
+
+            }
+            else
+            {
+                if (CurrentSlide == Slides.Third)
+                {
+                    FinishSession();
+                }
+                else
+                {
+                    Authorized(new UserDTO() { FirstName = "Denis", LastName = "Lopatin", OwnedCredits = 2, UsedCredits=0});
+                }
+
+            }
 
         }
 
-        private void NewTagDataReceivedPhil(string tagMessage)
+        private static void NewTagDataReceivedPhil(string tagMessage)
         {
             switch (tagMessage)
             {
-                case " ":
+                case "A000 0000 0000 0000 0000 3144":
 
-                    NewScanOrAuthenticationHappend(tag1Guid);
+                    Me.TemporaryTestScan(tag1Guid);
                     break;
 
-                case "  ":
-                    NewScanOrAuthenticationHappend(tag2Guid);
+                case "A000 0000 0000 0000 0000 3145":
+                    Me.TemporaryTestScan(tag2Guid);
                     break;
 
-                case "   ":
-                    NewScanOrAuthenticationHappend(tag3Guid);
+                case "A000 0000 0000 0000 0000 3146":
+                    Me.TemporaryTestScan(tag3Guid);
                     break;
 
-                case "    ":
-                    NewScanOrAuthenticationHappend(keyChainSashaGuid);
+                case "A000 0000 0000 0000 0000 3147":
+                    if (Me.CurrentSlide == Slides.Third)
+                    {
+                        Me.FinishSession();
+                    }
+                    else
+                    {
+                        Me.Authorized(new UserDTO() { FirstName = "Denis", LastName = "Lopatin", OwnedCredits = 2, UsedCredits = 0 });
+                    }
                     break;
             }
         }
@@ -1165,6 +1193,8 @@ namespace Repac
             foreach (Tag tag in report)
             {
                 Console.WriteLine("EPC : {0} Timestamp : {1}", tag.Epc, tag.LastSeenTime);
+
+                NewTagDataReceivedPhil(tag.Epc.ToString());
             }
         }
 
