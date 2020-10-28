@@ -74,12 +74,12 @@
                              BackgroundColor="White"
                              VerticalOptions="Center" 
                              IsVisible="true">
-                <StackLayout.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="FirstScreen_Tapped"/>
-                    </StackLayout.GestureRecognizers>
+                    <Image Source="logo_tinng.png"
+                           HeightRequest="150"
+                         HorizontalOptions="Center"/>
                     <forms:VideoView HorizontalOptions="Center" 
                                      WidthRequest="400"
-                                     HeightRequest="200"
+                                     HeightRequest="100"
                                      BackgroundColor="Orange"/>
                 </StackLayout>
 
@@ -356,10 +356,6 @@
                             BackgroundColor="PaleVioletRed"/>
                     </Grid>
                 </Grid>
-            </Grid>
-            <Grid x:Name="Footer" 
-                     Grid.Row="2"
-                  IsVisible="false">
             </Grid>
         </Grid>        
         

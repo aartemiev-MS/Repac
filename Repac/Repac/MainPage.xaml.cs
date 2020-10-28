@@ -1,8 +1,6 @@
 ﻿using Impinj.OctaneSdk;
 using Microsoft.AspNetCore.SignalR.Client;
 using Plugin.MediaManager;
-using Plugin.MediaManager.Abstractions.Enums;
-using Plugin.MediaManager.Abstractions.Implementations;
 using Repac.Data.Models;
 using Repac.Data.Models.DTOs;
 using System;
@@ -28,6 +26,7 @@ namespace Repac
     public partial class MainPage : ContentPage
     {
         Slides CurrentSlide { get; set; } = Slides.First;
+        ThirdSlideButtonsMode CurrentButtonsMode { get; set; } = ThirdSlideButtonsMode.Add;
         int ProductsCredit { get; set; } = 0;
         int ExtraCreditsToBuy { get; set; } = 0;
         int ResultCretits { get; set; } = 0;
@@ -62,14 +61,32 @@ namespace Repac
             Admin
         }
 
+        enum ThirdSlideButtonsMode
+        {
+            Add,
+            Reset,
+            Options
+        }
+
         public MainPage()
         {
             InitializeComponent();
             FirstSlideActivate();
+
             Me = this;
 
             MessagingCenter.Subscribe<string>(this, "NewTagDataReceived", (tag) => { NewTagDataReceived(tag); });
+            MessagingCenter.Subscribe<string>(this, "NewTagDataReceivedPhil", (tag) => { NewTagDataReceivedPhil(tag); });
 
+            SignalRHubCOnfiguration();
+
+            ReportScannedTags();
+
+            FirstSlideActivate();
+        }
+
+        private void SignalRHubCOnfiguration()
+        {
             hubConnection = new HubConnectionBuilder()
                  .WithUrl("https://repaccore.conveyor.cloud/signalrhub")
                  // .WithAutomaticReconnect()
@@ -110,10 +127,6 @@ namespace Repac
                 await Task.Delay(1000);
                 await hubConnection.StartAsync();
             };
-
-            ReportScannedTags();
-
-            FirstSlideActivate();
         }
 
         #region "Events"
@@ -157,83 +170,33 @@ namespace Repac
         private void FirstSlideActivate()
         {
             CurrentSlide = Slides.First;
-
-            UserInfo.IsVisible = false;
-            UserIcon.IsVisible = false;
-            UserLine.IsVisible = false;
-            Header.IsVisible = false;
-            Footer.IsVisible = false;
-
-            FirstScreen.IsVisible = true;
-            SecondScreen.IsVisible = false;
-            ThirdScreen.IsVisible = false;
-            FourthScreen.IsVisible = false;
-            AdminScreen.IsVisible = false;
+            RightScreenDisplay(CurrentSlide);
+            RightHeaderDisplay(CurrentSlide);
         }
         private async void SecondSlideActivate()
         {
             CurrentSlide = Slides.Second;
-
-
-            UserInfo.IsVisible = false;
-            UserIcon.IsVisible = false;
-            UserLine.IsVisible = false;
-            Header.IsVisible = true;
-            Footer.IsVisible = false;
-
-            FirstScreen.IsVisible = false;
-            SecondScreen.IsVisible = true;
-            ThirdScreen.IsVisible = false;
-            FourthScreen.IsVisible = false;
-            AdminScreen.IsVisible = false;
+            RightScreenDisplay(CurrentSlide);
+            RightHeaderDisplay(CurrentSlide);
 
             //await Appear(SecondScreenCounter, 300);
         }
         private void ThirdSlideActivate()
         {
             CurrentSlide = Slides.Third;
+            RightScreenDisplay(CurrentSlide);
+            RightHeaderDisplay(CurrentSlide);
+            RightThirdSlideButtonsDisplay(ThirdSlideButtonsMode.Add);
 
             ThirdSlideKey.TranslateTo(100, 100);
 
-            UserInfo.IsVisible = true;
-            UserIcon.IsVisible = true;
-            UserLine.IsVisible = true;
-            Header.IsVisible = true;
-            Footer.IsVisible = false;
-
-            FirstScreen.IsVisible = false;
-            SecondScreen.IsVisible = false;
-            ThirdScreen.IsVisible = true;
-            FourthScreen.IsVisible = false;
-            AdminScreen.IsVisible = false;
-
-            ProfileReport1.IsVisible = true;
-            ProfileReport2.IsVisible = true;
-            ProfileReport3.IsVisible = true;
-
             ThirdSlideSetText();
-
-            AddCreditsButton.IsVisible = true;
-            ResetCreditsButton.IsVisible = false;
-            AddCreditsOptionsButtons.IsVisible = false;
         }
         private void FourthSlideActivate()
         {
             CurrentSlide = Slides.Fourth;
-
-            UserInfo.IsVisible = true;
-            UserIcon.IsVisible = true;
-            UserLine.IsVisible = true;
-
-            FirstScreen.IsVisible = false;
-            SecondScreen.IsVisible = false;
-            ThirdScreen.IsVisible = false;
-            FourthScreen.IsVisible = true;
-            AdminScreen.IsVisible = false;
-
-            ProfileReport1.IsVisible = true;
-            ProfileReport2.IsVisible = false;
-            ProfileReport3.IsVisible = true;
+            RightScreenDisplay(CurrentSlide);
+            RightHeaderDisplay(CurrentSlide);
 
             ResultCretits = 0;
 
@@ -243,12 +206,48 @@ namespace Repac
         private void AdminSlideActivate()
         {
             CurrentSlide = Slides.Admin;
+            RightScreenDisplay(CurrentSlide);
+        }
 
-            FirstScreen.IsVisible = false;
-            SecondScreen.IsVisible = false;
-            ThirdScreen.IsVisible = false;
-            FourthScreen.IsVisible = false;
-            AdminScreen.IsVisible = true;
+        private void RightScreenDisplay(Slides slide)
+        {
+            FirstScreen.IsVisible = slide == Slides.First ? true : false;
+            SecondScreen.IsVisible = slide == Slides.Second ? true : false;
+            ThirdScreen.IsVisible = slide == Slides.Third ? true : false;
+            FourthScreen.IsVisible = slide == Slides.Fourth ? true : false;
+            AdminScreen.IsVisible = slide == Slides.Admin ? true : false;
+        }
+        private void RightHeaderDisplay(Slides slide)
+        {
+            if (CurrentSlide == Slides.First)
+            {
+                Header.IsVisible = false;
+            }
+            else
+            {
+                Header.IsVisible = true;
+
+                if(CurrentSlide==Slides.Second|| CurrentSlide == Slides.Admin)
+                {
+                    UserInfo.IsVisible = false;
+                    UserIcon.IsVisible = false;
+                    UserLine.IsVisible = false;
+                }
+                else
+                {
+                    UserInfo.IsVisible = true;
+                    UserIcon.IsVisible = true;
+                    UserLine.IsVisible = true;
+                }
+            }
+        }
+        private void RightThirdSlideButtonsDisplay(ThirdSlideButtonsMode mode)
+        {
+            CurrentButtonsMode = mode;
+
+            AddCreditsButton.IsVisible = mode == ThirdSlideButtonsMode.Add ? true : false;
+            ResetCreditsButton.IsVisible = mode == ThirdSlideButtonsMode.Reset ? true : false;
+            AddCreditsOptionsButtons.IsVisible = mode == ThirdSlideButtonsMode.Options ? true : false;
         }
 
         private void AdminSlideReport()
@@ -480,7 +479,7 @@ namespace Repac
         {
             //NewScanOrAuthenticationHappend(Guid.Parse(tagMessage));
 
-            if (Guid.Parse(tagMessage)!=keyChainSashaGuid)
+            if (Guid.Parse(tagMessage) != keyChainSashaGuid)
             {
                 TemporaryTestScan(Guid.Parse(tagMessage));
 
@@ -493,7 +492,7 @@ namespace Repac
                 }
                 else
                 {
-                    Authorized(new UserDTO() { FirstName = "Denis", LastName = "Lopatin", OwnedCredits = 2, UsedCredits=0});
+                    Authorized(new UserDTO() { FirstName = "Denis", LastName = "Lopatin", OwnedCredits = 2, UsedCredits = 0 });
                 }
 
             }
@@ -894,13 +893,12 @@ namespace Repac
             string fullPath = "C:/Users/sasha/source/repos/Repac/Repac/Repac.Android/Resources/drawable/Tinng_Conveyor_animation_v2.mp4";
 
             var aaa = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-            WriteResourceToFile(localVideoName, convertedVideoName);
+            //WriteResourceToFile(localVideoName, convertedVideoName);
 
             string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string localFilename = "downloaded.mp3";
             string localPath = Path.Combine(documentsPath, localVideoName);
             string pathToFileURL = new System.Uri(localPath).AbsolutePath;
-            // CrossMediaManager.Current.Play("file://" + pathToFileURL);
+            CrossMediaManager.Current.Play("file://" + pathToFileURL);
 
             var cacheFile = Path.Combine(FileSystem.CacheDirectory, localVideoName);
             if (File.Exists(cacheFile))
@@ -910,7 +908,7 @@ namespace Repac
             {
                 // resource.CopyTo(file);
             }
-            CrossMediaManager.Current.Play(new MediaFile("file://localhost/" + cacheFile, MediaFileType.Video, ResourceAvailability.Local));
+            // CrossMediaManager.Current.Play(new MediaFile("file://localhost/" + cacheFile, MediaFileType.Video, ResourceAvailability.Local));
 
             //CrossMediaManager.Current.Play(fullPath);
 
@@ -944,16 +942,12 @@ namespace Repac
 
         private void AddCreditsButton_Clicked(object sender, EventArgs e)
         {
-            AddCreditsButton.IsVisible = false;
-            ResetCreditsButton.IsVisible = false;
-            AddCreditsOptionsButtons.IsVisible = true;
+            RightThirdSlideButtonsDisplay(ThirdSlideButtonsMode.Options);
         }
 
         private void ResetCreditsButton_Clicked(object sender, EventArgs e)
         {
-            AddCreditsButton.IsVisible = false;
-            ResetCreditsButton.IsVisible = false;
-            AddCreditsOptionsButtons.IsVisible = true;
+            RightThirdSlideButtonsDisplay(ThirdSlideButtonsMode.Add);
 
             ExtraCreditsToBuy = 0;
             ThirdSlideSetText();
@@ -961,9 +955,7 @@ namespace Repac
 
         private void ButtonPlus1_Clicked(object sender, EventArgs e)
         {
-            AddCreditsButton.IsVisible = false;
-            ResetCreditsButton.IsVisible = true;
-            AddCreditsOptionsButtons.IsVisible = false;
+            RightThirdSlideButtonsDisplay(ThirdSlideButtonsMode.Reset);
 
             ExtraCreditsToBuy = 1;
             ThirdSlideSetText();
@@ -971,9 +963,7 @@ namespace Repac
 
         private void ButtonPlus3_Clicked(object sender, EventArgs e)
         {
-            AddCreditsButton.IsVisible = false;
-            ResetCreditsButton.IsVisible = true;
-            AddCreditsOptionsButtons.IsVisible = false;
+            RightThirdSlideButtonsDisplay(ThirdSlideButtonsMode.Reset);
 
             ExtraCreditsToBuy = 3;
             ThirdSlideSetText();
@@ -1040,7 +1030,7 @@ namespace Repac
         private bool ScansMoreThanCredits() => SessionScans.Count - CurrentUser.AvailibleCredits >= 0;
 
         #region "Impinj Reader"
-        const string READER_HOSTNAME = "192.168.1.21";  // NEED to set to your speedway!
+        const string READER_HOSTNAME = "10.28.74.112";  // NEED to set to your speedway!
         // Create an instance of the ImpinjReader class.
         static ImpinjReader reader = new ImpinjReader();
 
@@ -1194,10 +1184,13 @@ namespace Repac
             {
                 Console.WriteLine("EPC : {0} Timestamp : {1}", tag.Epc, tag.LastSeenTime);
 
-                NewTagDataReceivedPhil(tag.Epc.ToString());
+                //NewTagDataReceivedPhil(tag.Epc.ToString());
+                MessagingCenter.Send(tag.Epc.ToString(), "NewTagDataReceivedPhil");
             }
         }
 
         #endregion
+
+        //Android.Util.AndroidRuntimeException: 'Only the original thread that created a view hierarchy can touch its views.'
     }
 }
