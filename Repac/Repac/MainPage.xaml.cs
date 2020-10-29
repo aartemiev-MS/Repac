@@ -1,4 +1,5 @@
-﻿using Impinj.OctaneSdk;
+﻿using Android.App;
+using Impinj.OctaneSdk;
 using Microsoft.AspNetCore.SignalR.Client;
 using Plugin.MediaManager;
 using Repac.Data.Models;
@@ -227,7 +228,7 @@ namespace Repac
             {
                 Header.IsVisible = true;
 
-                if(CurrentSlide==Slides.Second|| CurrentSlide == Slides.Admin)
+                if (CurrentSlide == Slides.Second || CurrentSlide == Slides.Admin)
                 {
                     UserInfo.IsVisible = false;
                     UserIcon.IsVisible = false;
@@ -528,6 +529,13 @@ namespace Repac
                     break;
             }
         }
+
+
+        private static void TestAction()
+        {
+            // details.Text = OStateUserID.name + "\n" + OStateUserID.population;
+        }
+
 
         private void CheckIfSessionExists()
         {
@@ -1174,7 +1182,7 @@ namespace Repac
             Console.WriteLine("Keepalive received from {0} ({1})", reader.Name, reader.Address);
         }
 
-        static void OnTagsReported(ImpinjReader sender, TagReport report)
+        static async void OnTagsReported(ImpinjReader sender, TagReport report)
         {
             // This event handler is called asynchronously 
             // when tag reports are available.
@@ -1184,11 +1192,41 @@ namespace Repac
             {
                 Console.WriteLine("EPC : {0} Timestamp : {1}", tag.Epc, tag.LastSeenTime);
 
+                string tagId = tag.Epc.ToString();
+                lastScanTagId = tagId;
+
                 //NewTagDataReceivedPhil(tag.Epc.ToString());
-                MessagingCenter.Send(tag.Epc.ToString(), "NewTagDataReceivedPhil");
+
+                MessagingCenter.Send(tag.Epc.ToString(), "NewTagDataReceivedPhil"); //way 1
+
+                //Device.BeginInvokeOnMainThread(delegate () { NewTagDataReceivedPhil(tagId); }); //way 2
+              
+                //Device.BeginInvokeOnMainThread(NewTagDataReceivedPhilBridge); //way 3
+
+                //await Task.Run(() => { NewTagDataReceivedPhil(tagId); }); //way 4
+
+
+
+
+
+                //Context Context = DependencyService.Get<AndroidPropertyHandler>().GetMainActivityContext();
+                //var Activity = (Activity)Context;
+                //Runnable MyRunnable = new Runnable(() => {
+                //    Debug.WriteLine("My work goes here...");
+                //});
+                //Activity.RunOnUiThread(MyRunnable);
+                //Activity.RunOnUiThread(NewTagDataReceivedPhilBridge1);
             }
+
+
         }
 
+        private static string lastScanTagId;
+        private static void NewTagDataReceivedPhilBridge()
+        {
+            NewTagDataReceivedPhil(lastScanTagId);
+            lastScanTagId = null;
+        }
         #endregion
 
         //Android.Util.AndroidRuntimeException: 'Only the original thread that created a view hierarchy can touch its views.'
