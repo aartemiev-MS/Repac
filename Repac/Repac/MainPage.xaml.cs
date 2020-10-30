@@ -1,5 +1,4 @@
-﻿using Android.App;
-using Impinj.OctaneSdk;
+﻿using Impinj.OctaneSdk;
 using Microsoft.AspNetCore.SignalR.Client;
 using Plugin.MediaManager;
 using Repac.Data.Models;
@@ -41,6 +40,7 @@ namespace Repac
         private static readonly Guid keyChainSashaGuid = Guid.Parse("b1056d6c-7f02-4f46-bdc6-e9feaff54a20");
         private static readonly Guid scannerId = Guid.Parse("c75cc42d-1295-4cea-ba9e-c0b88bddfa49");
 
+        private static readonly TimeSpan oneSecond = new TimeSpan(1000);
 
         private static Guid tag1Guid = Guid.Parse("51a29bbf-d4d3-43c9-b290-d2445611b0d3");
         private static Guid tag2Guid = Guid.Parse("b8a43e30-d24d-43f9-a697-7d6614d6c786");
@@ -52,6 +52,7 @@ namespace Repac
         private static MainPage Me;
 
         private List<string> smallConsoleLog = new List<string>();
+        private static Dictionary<string, DateTime> ScansTimingTracker = new Dictionary<string, DateTime>();
 
         enum Slides
         {
@@ -72,7 +73,6 @@ namespace Repac
         public MainPage()
         {
             InitializeComponent();
-            FirstSlideActivate();
 
             Me = this;
 
@@ -80,10 +80,19 @@ namespace Repac
             MessagingCenter.Subscribe<string>(this, "NewTagDataReceivedPhil", (tag) => { NewTagDataReceivedPhil(tag); });
 
             SignalRHubCOnfiguration();
-
-            ReportScannedTags();
+            ImpinjStart();
 
             FirstSlideActivate();
+
+            if (Device.RuntimePlatform == Device.UWP)
+            {
+                WelcomeLogo.Source = ImageSource.FromFile("Assets/logo_tinng.png");
+                HeaderLogo.Source = ImageSource.FromFile("Assets/logo_tinng.png");
+                UserIcon.Source = ImageSource.FromFile("Assets/PhilippesIcon_transparent.png");
+                SuccessLabel.Source = ImageSource.FromFile("Assets/Check_transparent.png");
+
+                // Xamarin.Forms.Application.Current.M.Height = 754;
+            }
         }
 
         private void SignalRHubCOnfiguration()
@@ -112,19 +121,16 @@ namespace Repac
 
             hubConnection.Reconnecting += async (error) =>
             {
-                ReportArea1Label.Text += $"Hub Connection is Reconnecting \r\n";
                 await Task.Delay(1000);
                 await hubConnection.StartAsync();
             };
             hubConnection.Closed += async (error) =>
             {
-                ReportArea1Label.Text += $"Hub Connection was Closed \r\n";
                 await Task.Delay(1000);
                 await hubConnection.StartAsync();
             };
             hubConnection.Reconnected += async (error) =>
             {
-                ReportArea1Label.Text += $"Hub Connection was Reconnected \r\n";
                 await Task.Delay(1000);
                 await hubConnection.StartAsync();
             };
@@ -274,25 +280,25 @@ namespace Repac
         {
             int counter = 0;           // timer will work for 6 seconds (12 * 0.5sec)
             Device.StartTimer(TimeSpan.FromSeconds(0.5), () =>
-             {
-                 if (counter < 12)     // we check each 0.5 seconds
-                 {
-                     if (CurrentSlide == Slides.Fourth)
-                     {
-                         counter += 1;
-                         return true;  // user has't tapped on screen yet. we understand it because the fourth slide is still active
-                     }
-                     else
-                     {
-                         return false; // user has tapped on screen and cycle has already been nullified. we dont need this timer anymore
-                     }
-                 }
-                 else
-                 {
-                     NullifyCycle();   // 6 seconds of timer has passed so we nullify the cycle
-                     return false;
-                 }
-             });
+            {
+                if (counter < 12)     // we check each 0.5 seconds
+                {
+                    if (CurrentSlide == Slides.Fourth)
+                    {
+                        counter += 1;
+                        return true;  // user has't tapped on screen yet. we understand it because the fourth slide is still active
+                    }
+                    else
+                    {
+                        return false; // user has tapped on screen and cycle has already been nullified. we dont need this timer anymore
+                    }
+                }
+                else
+                {
+                    NullifyCycle();   // 6 seconds of timer has passed so we nullify the cycle
+                    return false;
+                }
+            });
         }
 
         private async void ScannedItemAnimation(string tagMessage = null)
@@ -331,11 +337,9 @@ namespace Repac
                 ScanDTO lastScan = SessionScans[SessionScans.Count - 1];
 
                 SessionScans.Remove(lastScan);
-                ReportScannedTags();
 
                 if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
                 {
-                    ReportArea1Label.Text += $"Last Scan (№{SessionScans.Count}) Deleted. Count:{SessionScans.Count} \r\n";
                     hubConnection.InvokeAsync("CancelScan", lastScan.ScanId);
                 }
             }
@@ -345,14 +349,12 @@ namespace Repac
 
             if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
             {
-                ReportArea1Label.Text = $"Session Deleted. \r\n";
                 hubConnection.InvokeAsync("CancelSession", ScanSession.ScanSessionId);
             }
 
             ScanSession = null;
             CurrentUser = null;
             SessionScans.Clear();
-            ReportScannedTags();
         }
         private void BuyCreditButton_Clicked(object sender, EventArgs e)
         {
@@ -364,7 +366,6 @@ namespace Repac
             }
             else
             {
-                ReportArea1Label.Text += $"Credits can't be bought unless user is authorized \r\n";
             }
         }
         private void FinishSessionButton_Clicked(object sender, EventArgs e)
@@ -379,17 +380,14 @@ namespace Repac
                     }
                     else
                     {
-                        ReportArea1Label.Text += $"Session Finish Denied. Not enough Credits: {CurrentUser.AvailibleCredits} (need {SessionScans.Count})  \r\n";
                     }
                 }
                 else
                 {
-                    ReportArea1Label.Text += $"Session can't be finished unless user is authorized \r\n";
                 }
             }
             else
             {
-                ReportArea1Label.Text += $"Empty session can't be finished \r\n";
             }
         }
         private async void AuthorizeButton_Clicked(object sender, EventArgs e)
@@ -401,7 +399,6 @@ namespace Repac
         {
             if (hubConnection.State == HubConnectionState.Connected)
             {
-                ReportArea1Label.Text += $"Connection is already established \r\n";
             }
             else
             {
@@ -409,7 +406,6 @@ namespace Repac
                 {
                     if (hubConnection.State == HubConnectionState.Connecting)
                     {
-                        ReportArea1Label.Text += $"Connecting.. \r\n";
                         await Task.Delay(2000);
                     }
 
@@ -417,13 +413,11 @@ namespace Repac
                     {
                         await hubConnection.StartAsync();
                         System.Diagnostics.Debugger.Log(1, "test", "Successfully connected");
-                        ReportArea1Label.Text += $"Successfully connected \r\n";
                         break;
                     }
                     catch
                     {
                         // Failed to connect, trying again in 5000 ms.
-                        ReportArea1Label.Text += $"Failed to connect. Next attempt in 2 sec \r\n";
                         await Task.Delay(2000);
                     }
                 }
@@ -445,11 +439,9 @@ namespace Repac
             if (tag1Scan != null)
             {
                 SessionScans.Remove(tag1Scan);
-                ReportScannedTags();
 
                 if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
                 {
-                    ReportArea1Label.Text += $"Scan of Tag №1 was canceled. Count:{SessionScans.Count} \r\n";
                     hubConnection.InvokeAsync("CancelScan", tag1Scan.ScanId);
                 }
             }
@@ -461,11 +453,9 @@ namespace Repac
             if (tag2Scan != null)
             {
                 SessionScans.Remove(tag2Scan);
-                ReportScannedTags();
 
                 if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
                 {
-                    ReportArea1Label.Text += $"Scan of Tag №2 was canceled. Count:{SessionScans.Count} \r\n";
                     hubConnection.InvokeAsync("CancelScan", tag2Scan.ScanId);
                 }
             }
@@ -547,31 +537,7 @@ namespace Repac
                     ScanSessionStartTimestamp = DateTime.Now
                 };
 
-                ReportArea1Label.Text += $"New Session Started. Count:{SessionScans.Count} \r\n";
                 SmallConsoleMessage($"New Session Started. \r\n");
-            }
-        }
-
-        private void ReportScannedTags()
-        {
-            ReportArea2Label.Text = $" Scanned Tags Count: {SessionScans.Count}.       Ids: \r\n";
-
-            for (int i = 0; i < SessionScans.Count; i++)
-            {
-                ScanDTO scan = SessionScans[i];
-
-                if (scan.ContainerTagId == tag1Guid)
-                {
-                    ReportArea2Label.Text += $" {i}) {scan.ContainerTagId}      (Tag №1) \r\n";
-                }
-                else if (scan.ContainerTagId == tag2Guid)
-                {
-                    ReportArea2Label.Text += $" {i}) {scan.ContainerTagId}      (Tag №2) \r\n";
-                }
-                else
-                {
-                    ReportArea2Label.Text += $" {i}) {scan.ContainerTagId} \r\n";
-                }
             }
         }
 
@@ -583,7 +549,6 @@ namespace Repac
 
         private void TestEvent1(string arg1, string arg2)
         {
-            ReportArea1Label.Text += $"TestEvent1. arg1:{arg1} arg2:{arg2} \r\n";
         }
         private void ReceiveMessage(string message)
         {
@@ -597,7 +562,6 @@ namespace Repac
 
                 if (CurrentSlide == Slides.First || CurrentSlide == Slides.Second || CurrentSlide == Slides.Fourth)
                 {
-                    ReportArea1Label.Text += $"User {user.FirstName} {user.LastName} was authorized. Availible Credits:{CurrentUser.AvailibleCredits} \r\n";
                     SmallConsoleMessage($"User {user.FirstName} {user.LastName} was authorized. Av Cr:{CurrentUser.AvailibleCredits} \r\n");
                     ThirdSlideActivate();
                 }
@@ -605,7 +569,6 @@ namespace Repac
                 {
                     if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
                     {
-                        ReportArea1Label.Text = $"Session Finished.  \r\n";
                         SmallConsoleMessage($"Session Finished.  \r\n");
                         hubConnection.InvokeAsync("FinishSession", ScanSession);
 
@@ -625,7 +588,6 @@ namespace Repac
         }
         private void NotAuthorized(string reason)
         {
-            ReportArea1Label.Text += $"User hasn't been authorized: {reason} \r\n";
         }
         private void ScanVerified(ScanDTO verifiedScan)
         {
@@ -635,7 +597,6 @@ namespace Repac
             }
 
             SessionScans.Add(verifiedScan);
-            ReportScannedTags();
             ScannedItemAnimation();
 
             SecondScreenCounter.Text = SessionScans.Count.ToString();
@@ -644,13 +605,11 @@ namespace Repac
 
             ThirdSlideSetText();
 
-            ReportArea1Label.Text += $"Scan was verified. TagId:{verifiedScan.ContainerTagId}\r\n";
             SmallConsoleMessage($"Scan was verified. TagId:{verifiedScan.ContainerTagId} \r\n");
         }
 
         private void ScanNotVerified(Guid scanId, string reason)
         {
-            ReportArea1Label.Text += $"Scan hasn't been verified: {reason} \r\n";
 
             //SessionScans.Remove(notVerifiedScan);
         }
@@ -658,14 +617,12 @@ namespace Repac
         {
             // CurrentUser.RemainingCredits = currentCredits;
 
-            ReportArea1Label.Text += $"Credits were bought. Availible Credits:{CurrentUser.AvailibleCredits} \r\n";
             SmallConsoleMessage($"Credits were bought. Availible Credits:{CurrentUser.AvailibleCredits} \r\n");
 
             FinishSession();
         }
         private void CreditsWereNotBought(string reason)
         {
-            ReportArea1Label.Text += $"Credits were not bought: {reason} \r\n";
         }
 
         private void SashaTest()
@@ -702,14 +659,12 @@ namespace Repac
                 if (cancelingScan != null)
                 {
                     SessionScans.Remove(cancelingScan);
-                    ReportScannedTags();
                     SecondScreenCounter.Text = SessionScans.Count.ToString();
                     AdminScreenCounter.Text = SessionScans.Count.ToString();
                     // ScannedItemAnimation();
 
                     if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
                     {
-                        ReportArea1Label.Text += $"Scan of Tag №1 was canceled. Count:{SessionScans.Count} \r\n";
                         SmallConsoleMessage($"Scan was canceled. TagId: {tagId}\r\n");
                         hubConnection.InvokeAsync("CancelScan", cancelingScan.ScanId);
                     }
@@ -725,7 +680,6 @@ namespace Repac
             }
             else if (TagWasAlreadyScanned(tagId))
             {
-                ReportArea1Label.Text += $"Denied:This tag has already been scanned. \r\n";
                 SmallConsoleMessage($"Denied:The tag has already been scanned. TagId {tagId}\r\n");
             }
             else
@@ -747,7 +701,6 @@ namespace Repac
 
                 if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
                 {
-                    ReportArea1Label.Text += $"Tag Scan Happened \r\n";
                     hubConnection.InvokeAsync("TagScanHappened", tagScan);
                 }
             }
@@ -779,7 +732,6 @@ namespace Repac
 
             // if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
             //{
-            ReportArea1Label.Text = $"Session Finished.  \r\n";
             SmallConsoleMessage($"Session Finished.  \r\n");
             hubConnection.InvokeAsync("FinishSession", ScanSession.ScanSessionId, CurrentUser.UserId);
 
@@ -797,7 +749,6 @@ namespace Repac
             CurrentUser = null;
             ExtraCreditsToBuy = 0;
             SessionScans.Clear();
-            ReportScannedTags();
         }
 
         private void SmallConsoleMessage(string text)
@@ -829,14 +780,12 @@ namespace Repac
         {
             if (hubConnection.State == HubConnectionState.Connected || hubConnection.State == HubConnectionState.Connecting)
             {
-                ReportArea1Label.Text += $"{amount} Credits requested to buy.  \r\n";
                 hubConnection.InvokeAsync("BuyCreditsAndFinish", CurrentUser.UserId, amount, ScanSession.ScanSessionId);
             }
         }
 
         private void SessionFinished(Guid scanSessionId)
         {
-            ReportArea1Label.Text = $"Session Finished.  \r\n";
             SmallConsoleMessage($"Session Finished.  \r\n");
 
             FourthSlideSetText();
@@ -923,29 +872,18 @@ namespace Repac
             //Resource.Drawable.T
         }
 
-        public void WriteResourceToFile(string resourceName, string fileName)
-        {
-            using (var resource = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
-            {
-                using (var file = new FileStream(fileName, FileMode.Create, FileAccess.Write))
-                {
-                    resource.CopyTo(file);
-                }
-            }
-        }
-
         private void ButtonKC_Clicked(object sender, EventArgs e)
         {
-            NewScanOrAuthenticationHappend(keyChainSashaGuid);
+            // NewScanOrAuthenticationHappend(keyChainSashaGuid);
 
-            //if (CurrentSlide == Slides.Third)
-            //{
-            //    FinishSession();
-            //}
-            //else
-            //{
-            //    Authorized(new UserDTO() { FirstName = "Denis", LastName = "Lopatin", RemainingCredits = 2 });
-            //}
+            if (CurrentSlide == Slides.Third)
+            {
+                FinishSession();
+            }
+            else
+            {
+                Authorized(new UserDTO() { FirstName = "Denis", LastName = "Lopatin", OwnedCredits = 2, UsedCredits = 0 });
+            }
         }
 
         private void AddCreditsButton_Clicked(object sender, EventArgs e)
@@ -1059,6 +997,7 @@ namespace Repac
                 // Change the ReaderHostname constant in SolutionConstants.cs 
                 // to the IP address or hostname of your reader.
                 reader.Connect(READER_HOSTNAME);
+                //Console.Clear();
                 Console.WriteLine("Successfully connected.");
 
                 // Tell the reader to send us any tag reports and 
@@ -1182,6 +1121,9 @@ namespace Repac
             Console.WriteLine("Keepalive received from {0} ({1})", reader.Name, reader.Address);
         }
 
+        private static bool tag1Scanned = false;
+        private static bool tag2Scanned = false;
+        private static bool tag4Scanned = false;
         static async void OnTagsReported(ImpinjReader sender, TagReport report)
         {
             // This event handler is called asynchronously 
@@ -1193,33 +1135,98 @@ namespace Repac
                 Console.WriteLine("EPC : {0} Timestamp : {1}", tag.Epc, tag.LastSeenTime);
 
                 string tagId = tag.Epc.ToString();
-                lastScanTagId = tagId;
+
+                if (TagWasRecentlyScanned(tagId)) { return; }
+                ManageScansTimingTracker(tagId);
+
+                //lastScanTagId = tagId;
+                //switch (tagId)
+                //{
+                //    case "A000 0000 0000 0000 0000 3144":  //tag 1
+                //        if (tag1Scanned)
+                //        {
+                //            if (tag2Scanned)
+                //            {
+                //                if (tag4Scanned)
+                //                {
+                //                    return;
+                //                }
+                //                else
+                //                {
+                //                    System.Threading.Thread.Sleep(5000);
+                //                    tagId = "A000 0000 0000 0000 0000 3147";  //tag 4
+                //                    Device.BeginInvokeOnMainThread(delegate () { NewTagDataReceivedPhil(tagId); });
+                //                    tag4Scanned = true;
+                //                    return;
+                //                }
+                //            }
+                //            else
+                //            {
+                //                //System.Threading.Thread.Sleep(5000);
+                //                tagId = "A000 0000 0000 0000 0000 3145";  //tag 2
+                //                Device.BeginInvokeOnMainThread(delegate () { NewTagDataReceivedPhil(tagId); });
+                //                tag2Scanned = true;
+                //                return;
+                //            }
+                //        }
+                //        else
+                //        {
+                //            tag1Scanned = true;
+                //        }
+                //        break;
+                //    case "A000 0000 0000 0000 0000 3145":  //tag 2
+                //        if (tag2Scanned)
+                //        {
+                //            return;
+                //        }
+                //        else
+                //        {
+                //            tag2Scanned = true;
+                //        }
+                //        break;
+                //}
 
                 //NewTagDataReceivedPhil(tag.Epc.ToString());
 
-                MessagingCenter.Send(tag.Epc.ToString(), "NewTagDataReceivedPhil"); //way 1
+                // MessagingCenter.Send(tag.Epc.ToString(), "NewTagDataReceivedPhil"); //way 1
 
-                //Device.BeginInvokeOnMainThread(delegate () { NewTagDataReceivedPhil(tagId); }); //way 2
-              
+                Device.BeginInvokeOnMainThread(delegate () { NewTagDataReceivedPhil(tagId); }); //way 2
+
                 //Device.BeginInvokeOnMainThread(NewTagDataReceivedPhilBridge); //way 3
 
                 //await Task.Run(() => { NewTagDataReceivedPhil(tagId); }); //way 4
 
 
 
-
-
-                //Context Context = DependencyService.Get<AndroidPropertyHandler>().GetMainActivityContext();
-                //var Activity = (Activity)Context;
-                //Runnable MyRunnable = new Runnable(() => {
-                //    Debug.WriteLine("My work goes here...");
-                //});
-                //Activity.RunOnUiThread(MyRunnable);
-                //Activity.RunOnUiThread(NewTagDataReceivedPhilBridge1);
             }
 
 
         }
+
+        private static bool TagWasRecentlyScanned(string tagId)
+        {
+            if (ThisTagWasAlreadyScanned(tagId))
+            {
+                return DateTime.Now - CurrentTagLastScanDate(tagId) < oneSecond ? true : false;                
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private static void ManageScansTimingTracker(string tagId)
+        {
+            if (ThisTagWasAlreadyScanned(tagId))
+            {
+                ScansTimingTracker.Remove(tagId);
+            }
+
+            ScansTimingTracker.Add(tagId, DateTime.Now);
+        }
+        private static bool ThisTagWasAlreadyScanned(string tagId)=> ScansTimingTracker.Where(scan => scan.Key == tagId).Any();
+        private static DateTime CurrentTagLastScanDate(string tagId)=> ScansTimingTracker.Where(scan => scan.Key == tagId).FirstOrDefault().Value;
+
 
         private static string lastScanTagId;
         private static void NewTagDataReceivedPhilBridge()
@@ -1227,6 +1234,7 @@ namespace Repac
             NewTagDataReceivedPhil(lastScanTagId);
             lastScanTagId = null;
         }
+
         #endregion
 
         //Android.Util.AndroidRuntimeException: 'Only the original thread that created a view hierarchy can touch its views.'
