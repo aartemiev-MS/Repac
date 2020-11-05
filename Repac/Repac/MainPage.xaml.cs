@@ -94,6 +94,7 @@ namespace Repac
                 KeySecondSlide.Source = ImageSource.FromFile("Assets/key_black.png");
                 KeyAdminSlide.Source = ImageSource.FromFile("Assets/key_black.png");
                 ThirdSlideKey.Source = ImageSource.FromFile("Assets/key_black.png");
+                ClickIcon.Source = ImageSource.FromFile("Assets/clickIcon.png");
 
 
                 // ApplicationView.PreferredLaunchViewSize = new Windows.Foundation.Size(480, 800);
@@ -967,7 +968,7 @@ namespace Repac
         {
             if (CurrentUser != null)
             {
-                ThirdScreenPaymentCounter.Text = ScansMoreThanCredits() ? $"{(SessionScans.Count - CurrentUser.AvailibleCredits + ExtraCreditsToBuy) * 5}.00$" : "0.00$";
+                ThirdScreenPaymentCounter.Text = ScansMoreThanCredits() ? $"{(SessionScans.Count - CurrentUser.AvailibleCredits + ExtraCreditsToBuy) * 5}" : "0";
                 CreditsToBuyLabel.Text = ScansMoreThanCredits() ? $"{SessionScans.Count - CurrentUser.AvailibleCredits + ExtraCreditsToBuy}" : "0";
 
                 ProfileReport1.Text = $"Bonjour {CurrentUser.FirstName} {CurrentUser.LastName},";
@@ -1243,7 +1244,7 @@ namespace Repac
         }
 
         #endregion
-
+        
         //Android.Util.AndroidRuntimeException: 'Only the original thread that created a view hierarchy can touch its views.'
     }
 }

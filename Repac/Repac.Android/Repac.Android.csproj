@@ -208,5 +208,8 @@
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\Tinng_Conveyor_animation_v2.mp4" />
   </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\clickIcon.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>

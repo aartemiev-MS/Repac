@@ -28,7 +28,7 @@ namespace Repac.UWP
             this.InitializeComponent();
             LoadApplication(new Repac.App());
 
-            ApplicationView.PreferredLaunchViewSize = new Size(2000, 1200);
+            ApplicationView.PreferredLaunchViewSize = new Size(1000, 600); //2000x1200
             ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
         }
     }
