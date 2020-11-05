@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -40,7 +41,7 @@ namespace Repac
         private static readonly Guid keyChainSashaGuid = Guid.Parse("b1056d6c-7f02-4f46-bdc6-e9feaff54a20");
         private static readonly Guid scannerId = Guid.Parse("c75cc42d-1295-4cea-ba9e-c0b88bddfa49");
 
-        private static readonly TimeSpan oneSecond = new TimeSpan(1000);
+        private static readonly TimeSpan scanDelay = new TimeSpan(4000);
 
         private static Guid tag1Guid = Guid.Parse("51a29bbf-d4d3-43c9-b290-d2445611b0d3");
         private static Guid tag2Guid = Guid.Parse("b8a43e30-d24d-43f9-a697-7d6614d6c786");
@@ -90,8 +91,12 @@ namespace Repac
                 HeaderLogo.Source = ImageSource.FromFile("Assets/logo_tinng.png");
                 UserIcon.Source = ImageSource.FromFile("Assets/PhilippesIcon_transparent.png");
                 SuccessLabel.Source = ImageSource.FromFile("Assets/Check_transparent.png");
+                KeySecondSlide.Source = ImageSource.FromFile("Assets/key_black.png");
+                KeyAdminSlide.Source = ImageSource.FromFile("Assets/key_black.png");
+                ThirdSlideKey.Source = ImageSource.FromFile("Assets/key_black.png");
 
-                // Xamarin.Forms.Application.Current.M.Height = 754;
+
+                // ApplicationView.PreferredLaunchViewSize = new Windows.Foundation.Size(480, 800);
             }
         }
 
@@ -196,6 +201,7 @@ namespace Repac
             RightThirdSlideButtonsDisplay(ThirdSlideButtonsMode.Add);
 
             ThirdSlideKey.TranslateTo(100, 100);
+            ThirdSlideKey.ScaleTo(0.1);
 
             ThirdSlideSetText();
         }
@@ -483,7 +489,7 @@ namespace Repac
                 }
                 else
                 {
-                    Authorized(new UserDTO() { FirstName = "Denis", LastName = "Lopatin", OwnedCredits = 2, UsedCredits = 0 });
+                    Authorized(new UserDTO() { FirstName = "Denis", LastName = "Lopatin", OwnedCredits = 1, UsedCredits = 0 });
                 }
 
             }
@@ -514,7 +520,7 @@ namespace Repac
                     }
                     else
                     {
-                        Me.Authorized(new UserDTO() { FirstName = "Denis", LastName = "Lopatin", OwnedCredits = 2, UsedCredits = 0 });
+                        Me.Authorized(new UserDTO() { FirstName = "Denis", LastName = "Lopatin", OwnedCredits = 1, UsedCredits = 0 });
                     }
                     break;
             }
@@ -795,14 +801,27 @@ namespace Repac
 
         private void ButtonT1_Clicked(object sender, EventArgs e)
         {
-            NewScanOrAuthenticationHappend(tag1Guid);
+            // NewScanOrAuthenticationHappend(tag1Guid);
             //TemporaryTestScan(tag1Guid);
+
+            string tagId = "A000 0000 0000 0000 0000 3144";
+            if (TagWasRecentlyScanned(tagId)) { return; }
+            ManageScansTimingTracker(tagId);
+            ManageTagReportStatus(tagId);
+            Device.BeginInvokeOnMainThread(delegate () { NewTagDataReceivedPhil(tagId); });
         }
 
         private void ButtonT2_Clicked(object sender, EventArgs e)
         {
-            NewScanOrAuthenticationHappend(tag2Guid);
+            //NewScanOrAuthenticationHappend(tag2Guid);
             //TemporaryTestScan(tag2Guid);
+
+            string tagId = "A000 0000 0000 0000 0000 3145";
+            if (TagWasRecentlyScanned(tagId)) { return; }
+            ManageScansTimingTracker(tagId);
+            ManageTagReportStatus(tagId);
+            Device.BeginInvokeOnMainThread(delegate () { NewTagDataReceivedPhil(tagId); });
+
         }
 
         private void ButtonT_Clicked(object sender, EventArgs e)
@@ -822,7 +841,7 @@ namespace Repac
             SashaButton.BackgroundColor = Color.FromHex("#CC0000");
 
             ThirdSlideKey.TranslateTo(30, 5, 750, Easing.Linear);
-            await ThirdSlideKey.ScaleTo(10, 750);
+            await ThirdSlideKey.ScaleTo(1, 750);
             await Task.Delay(200);
 
             await ThirdSlideKey.RotateTo(20, 100);
@@ -835,7 +854,7 @@ namespace Repac
 
             await ThirdSlideKey.FadeTo(0, 200);
             ThirdSlideKey.TranslateTo(100, 100, 0);
-            ThirdSlideKey.ScaleTo(1, 0);
+            ThirdSlideKey.ScaleTo(0.1, 0);
             await ThirdSlideKey.FadeTo(1, 0);
             SashaButton.BackgroundColor = aaa;
         }
@@ -867,7 +886,7 @@ namespace Repac
             }
             // CrossMediaManager.Current.Play(new MediaFile("file://localhost/" + cacheFile, MediaFileType.Video, ResourceAvailability.Local));
 
-            //CrossMediaManager.Current.Play(fullPath);
+            //CrossMediaManager.Current.Play(sampleUrlVideo);
 
             //Resource.Drawable.T
         }
@@ -882,7 +901,7 @@ namespace Repac
             }
             else
             {
-                Authorized(new UserDTO() { FirstName = "Denis", LastName = "Lopatin", OwnedCredits = 2, UsedCredits = 0 });
+                Authorized(new UserDTO() { FirstName = "Denis", LastName = "Lopatin", OwnedCredits = 1, UsedCredits = 0 });
             }
         }
 
@@ -1138,55 +1157,7 @@ namespace Repac
 
                 if (TagWasRecentlyScanned(tagId)) { return; }
                 ManageScansTimingTracker(tagId);
-
-                //lastScanTagId = tagId;
-                //switch (tagId)
-                //{
-                //    case "A000 0000 0000 0000 0000 3144":  //tag 1
-                //        if (tag1Scanned)
-                //        {
-                //            if (tag2Scanned)
-                //            {
-                //                if (tag4Scanned)
-                //                {
-                //                    return;
-                //                }
-                //                else
-                //                {
-                //                    System.Threading.Thread.Sleep(5000);
-                //                    tagId = "A000 0000 0000 0000 0000 3147";  //tag 4
-                //                    Device.BeginInvokeOnMainThread(delegate () { NewTagDataReceivedPhil(tagId); });
-                //                    tag4Scanned = true;
-                //                    return;
-                //                }
-                //            }
-                //            else
-                //            {
-                //                //System.Threading.Thread.Sleep(5000);
-                //                tagId = "A000 0000 0000 0000 0000 3145";  //tag 2
-                //                Device.BeginInvokeOnMainThread(delegate () { NewTagDataReceivedPhil(tagId); });
-                //                tag2Scanned = true;
-                //                return;
-                //            }
-                //        }
-                //        else
-                //        {
-                //            tag1Scanned = true;
-                //        }
-                //        break;
-                //    case "A000 0000 0000 0000 0000 3145":  //tag 2
-                //        if (tag2Scanned)
-                //        {
-                //            return;
-                //        }
-                //        else
-                //        {
-                //            tag2Scanned = true;
-                //        }
-                //        break;
-                //}
-
-                //NewTagDataReceivedPhil(tag.Epc.ToString());
+                ManageTagReportStatus(tagId);
 
                 // MessagingCenter.Send(tag.Epc.ToString(), "NewTagDataReceivedPhil"); //way 1
 
@@ -1195,19 +1166,55 @@ namespace Repac
                 //Device.BeginInvokeOnMainThread(NewTagDataReceivedPhilBridge); //way 3
 
                 //await Task.Run(() => { NewTagDataReceivedPhil(tagId); }); //way 4
-
-
-
             }
 
 
+        }
+
+        private static void ManageTagReportStatus(string tagId)
+        {
+            Thread tagReportingThread;
+            Button tagReportingButton;
+
+            switch (tagId)
+            {
+                case "A000 0000 0000 0000 0000 3144":
+                    tagReportingButton = Me.T1Report;
+                    break;
+
+                case "A000 0000 0000 0000 0000 3145":
+                    tagReportingButton = Me.T2Report;
+                    break;
+
+                case "A000 0000 0000 0000 0000 3146":
+                    tagReportingButton = Me.T3Report;
+                    break;
+
+                case "A000 0000 0000 0000 0000 3147":
+                    tagReportingButton = Me.T4Report;
+                    break;
+
+                default:
+                    tagReportingButton = new Button();
+                    break;
+            }
+
+            Color tempColor = tagReportingButton.BackgroundColor;
+            Device.BeginInvokeOnMainThread(delegate () { tagReportingButton.BackgroundColor = Color.FromHex("#CC0000"); });
+
+            tagReportingThread = new Thread(() =>
+            {
+                Task.Delay((int)scanDelay.Ticks).Wait();
+                Device.BeginInvokeOnMainThread(delegate () { tagReportingButton.BackgroundColor = tempColor; });
+            });
+            tagReportingThread.Start();
         }
 
         private static bool TagWasRecentlyScanned(string tagId)
         {
             if (ThisTagWasAlreadyScanned(tagId))
             {
-                return DateTime.Now - CurrentTagLastScanDate(tagId) < oneSecond ? true : false;                
+                return DateTime.Now - CurrentTagLastScanDate(tagId) < scanDelay ? true : false;
             }
             else
             {
@@ -1224,8 +1231,8 @@ namespace Repac
 
             ScansTimingTracker.Add(tagId, DateTime.Now);
         }
-        private static bool ThisTagWasAlreadyScanned(string tagId)=> ScansTimingTracker.Where(scan => scan.Key == tagId).Any();
-        private static DateTime CurrentTagLastScanDate(string tagId)=> ScansTimingTracker.Where(scan => scan.Key == tagId).FirstOrDefault().Value;
+        private static bool ThisTagWasAlreadyScanned(string tagId) => ScansTimingTracker.Where(scan => scan.Key == tagId).Any();
+        private static DateTime CurrentTagLastScanDate(string tagId) => ScansTimingTracker.Where(scan => scan.Key == tagId).FirstOrDefault().Value;
 
 
         private static string lastScanTagId;

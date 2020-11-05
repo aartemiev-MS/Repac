@@ -8,5 +8,17 @@
     xmlns:forms="using:Xamarin.Forms.Platform.UWP"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
- 
+    <Frame >
+        <Frame.Background>
+            <LinearGradientBrush StartPoint="0,0"
+                             EndPoint="1,0">
+                <GradientStop Color="#BBBBBB"
+                          Offset="0.1"/>
+                <GradientStop Color="red"
+                              Offset="0.5"/>
+                <GradientStop Color="#BBBBBB"
+                          Offset="1.0"/>
+            </LinearGradientBrush>
+        </Frame.Background>
+    </Frame>
 </forms:WindowsPage>

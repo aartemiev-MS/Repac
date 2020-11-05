@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:forms="clr-namespace:Plugin.MediaManager.Forms;assembly=Plugin.MediaManager.Forms"
+             xmlns:magic="clr-namespace:MagicGradients;assembly=MagicGradients"
              mc:Ignorable="d"
              x:Class="Repac.MainPage">
     <Grid>
@@ -24,45 +25,45 @@
                     IsVisible="false"/>
                 <Image Source="logo_tinng.png"  
                        x:Name="HeaderLogo"
-                       HorizontalOptions="Start"
+                       HorizontalOptions="Center"
                        Margin="40,0,0,0"
-                       WidthRequest="200"
+                       WidthRequest="325"
                        Grid.Row="0">
                 </Image>
                 <StackLayout x:Name="UserInfo"
                              Grid.Column="1"
-                             Margin="0,15,0,0"
+                             Margin="0,0,0,0"
                              IsVisible="True" 
                              Orientation="Horizontal">
                     <Grid>
-                        <StackLayout HorizontalOptions="Fill">
+                        <StackLayout VerticalOptions="Center">
                             <Label x:Name="ProfileReport1"
                                    Text="Bonjour Fragadan banjir Sandur Pitshman,"
                                    TextColor="Black"
-                                   FontSize="Subtitle"/>
+                                   FontSize="20"/>
                             <StackLayout Orientation="Horizontal">
                                 <Label x:Name="ProfileReport2"
                                    HorizontalOptions="Start"
                                    Text="Crédits manquants: 4"
                                    TextColor="Red"
                                    Margin="0,0,20,0"
-                                   FontSize="Small"/>
+                                   FontSize="20"/>
                                 <Label x:Name="ProfileReport3"
                                    HorizontalOptions="End"
                                    Text="Crédits au compte: 0"
                                    TextColor="#24a9e1"
-                                   FontSize="Small"/>
+                                   FontSize="20"/>
                             </StackLayout>
                         </StackLayout>
                     </Grid>
                 </StackLayout>
 
                 <Image x:Name="UserIcon" 
-                               Source="PhilippesIcon_transparent.png"
-                               WidthRequest="80"
-                             Grid.Column="1"
-                               Margin="-10,0,0,0"
-                               HorizontalOptions="End"/>
+                       Source="PhilippesIcon_transparent.png"
+                       WidthRequest="80"
+                       Grid.Column="1"
+                       Margin="-10,0,50,0"
+                       HorizontalOptions="End"/>
                 <Grid x:Name="UserLine"
                       BackgroundColor="Gray"
                       Grid.Column="1"
@@ -74,15 +75,20 @@
                 <StackLayout x:Name="FirstScreen"
                              BackgroundColor="White"
                              VerticalOptions="Center" 
-                             IsVisible="true">
+                             HorizontalOptions="Center" 
+                             IsVisible="false">
                     <Image Source="logo_tinng.png"
-                           HeightRequest="150"
+                           HeightRequest="225"
                            x:Name="WelcomeLogo"
-                           HorizontalOptions="Center"/>
+                           HorizontalOptions="Center"
+                           Margin="0,0,0,75"/>                                      
+
                     <forms:VideoView HorizontalOptions="Center" 
                                      WidthRequest="400"
                                      HeightRequest="100"
                                      BackgroundColor="Orange"/>
+
+
                 </StackLayout>
 
                 <Grid x:Name="SecondScreen"
@@ -96,33 +102,42 @@
                             HorizontalOptions="Center" 
                             VerticalOptions="Center" 
                             BorderWidth="3"
-                            BorderColor="Black"
+                            BorderColor="#646464"
                             CornerRadius="25"
-                            WidthRequest="200"
-                            HeightRequest="200"
+                            WidthRequest="325"
+                            HeightRequest="325"
                             Text="0"
-                            TextColor="Black"
-                            FontSize="Header"
-                            Margin="40,-20,0,0"
+                            TextColor="#646464"
+                            FontSize="200"
+                            Margin="0,-20,0,0"
                             BackgroundColor="White"/>
                     </Grid>
                     <StackLayout
                         Grid.Column="1"
                         HorizontalOptions="End"
-                        VerticalOptions="Start">
+                        VerticalOptions="Center">
                         <Button
                             Text="Animation place"
                             BackgroundColor="#8dc73f"
                             WidthRequest="450"
                             HeightRequest="100"/>
                         <StackLayout Orientation="Horizontal" 
-                                     Spacing="0">
+                                     Spacing="0"
+                                     Margin="20,0,20,0">
                             <Label TextColor="Black" 
-                               FontSize="12"
-                                   VerticalOptions="Center"
-                               Margin="20,0,20,0"
-                               Text="Présentez votre porte-clé Tinng! à la fin de l'achat."/>
-                            <Image Source="key_black.png" HeightRequest="50"/>
+                                       FontSize="20"
+                                       VerticalOptions="Center"
+                                       Text="Présentez votre porte-clé"/>
+                            <Label TextColor="Black" 
+                                       FontSize="20"
+                                       VerticalOptions="Center"
+                                       FontAttributes="Bold"
+                                       Text=" Tinng!"/>
+                            <Label TextColor="Black" 
+                                       FontSize="20"
+                                       VerticalOptions="Center"
+                                       Text=" à la fin de l'achat."/>
+                            <Image x:Name="KeySecondSlide"  Source="Key_black.png" HeightRequest="50"/>
                         </StackLayout>
                     </StackLayout>
                 </Grid>
@@ -135,20 +150,20 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <StackLayout Margin="40,0,0,0"
+                    <StackLayout Margin="0,0,0,0"
                                  VerticalOptions="Center">
 
                         <Grid>
                             <Button x:Name="ThirdScreenItemsCounter"
-                                    TextColor="black"
+                                    TextColor="#646464"
                                     HorizontalOptions="Center" 
                                     BorderWidth="2"
-                                    BorderColor="Black"
+                                    BorderColor="#646464"
                                     CornerRadius="25"
-                                    WidthRequest="200"
-                                    HeightRequest="200"
+                                    WidthRequest="325"
+                                    HeightRequest="325"
                                     Text="1"
-                                    FontSize="120"
+                                    FontSize="200"
                                     BackgroundColor="White"/>
                             <Label Text="Scannés"
                                    HorizontalOptions="Center" 
@@ -165,13 +180,13 @@
                             <Button x:Name="CreditsToBuyLabel"
                                     HorizontalOptions="Center" 
                                     BorderWidth="2"
-                                    BorderColor="Black"
+                                    BorderColor="#646464"
                                     TextColor="#8dc73f"
                                     CornerRadius="25"
-                                    WidthRequest="150"
-                                    HeightRequest="150"
+                                    WidthRequest="250"
+                                    HeightRequest="250"
                                     Text="0"
-                                    FontSize="50"
+                                    FontSize="100"
                                     BackgroundColor="White"/>
                             <Label Text="Crédits à acheter"
                                    HorizontalOptions="Center" 
@@ -181,42 +196,122 @@
                                    VerticalOptions="End"
                                    Margin="0,0,0,10"/>
                         </Grid>
-                        <Button x:Name="AddCreditsButton"
-                                Text="Plus de crédits?" 
-                                BorderWidth="1"
-                                BorderColor="Black"
-                                TextColor="black"
-                                CornerRadius="10"
-                                HorizontalOptions="Center"
-                                Clicked="AddCreditsButton_Clicked"/>
-                        <Button x:Name="ResetCreditsButton"
-                                Text="Reset" 
-                                BorderWidth="1"
-                                BorderColor="Black"
-                                TextColor="black"
-                                CornerRadius="10"
-                                HorizontalOptions="Center"
-                                Clicked="ResetCreditsButton_Clicked"/>
+
+                        <Grid x:Name="AddCreditsButton"
+                              HorizontalOptions="Center"                              
+                              WidthRequest="225">
+                            <Frame CornerRadius="10" Padding="0">
+                                <magic:GradientView VerticalOptions="FillAndExpand">
+                                    <magic:GradientView.GradientSource>
+                                        <magic:GradientCollection>
+                                            <magic:LinearGradient Angle="90">
+                                                <magic:GradientStop Color="#BBBBBB" Offset="0" />
+                                                <magic:GradientStop Color="#F2F2F2" Offset="0.6" />
+                                                <magic:GradientStop Color="#BBBBBB" Offset="1" />
+                                            </magic:LinearGradient>
+                                        </magic:GradientCollection>
+                                    </magic:GradientView.GradientSource>
+                                </magic:GradientView>
+                            </Frame>
+                            <Button Text="Plus de crédits?" 
+                                    BorderWidth="1"
+                                    BorderColor="Black"
+                                    TextColor="black"
+                                    BackgroundColor="Transparent"
+                                    CornerRadius="10"
+                                    HorizontalOptions="Center"
+                                    FontSize="25"
+                                    HeightRequest="50"
+                                    WidthRequest="225"
+                                    Clicked="AddCreditsButton_Clicked"/>
+                        </Grid>
+
+                        <Grid x:Name="ResetCreditsButton"
+                              HorizontalOptions="Center"                              
+                              WidthRequest="100">
+                            <Frame CornerRadius="10" Padding="0">
+                                <magic:GradientView VerticalOptions="FillAndExpand">
+                                    <magic:GradientView.GradientSource>
+                                        <magic:GradientCollection>
+                                            <magic:LinearGradient Angle="90">
+                                                <magic:GradientStop Color="#BBBBBB" Offset="0" />
+                                                <magic:GradientStop Color="#F2F2F2" Offset="0.6" />
+                                                <magic:GradientStop Color="#BBBBBB" Offset="1" />
+                                            </magic:LinearGradient>
+                                        </magic:GradientCollection>
+                                    </magic:GradientView.GradientSource>
+                                </magic:GradientView>
+                            </Frame>
+                            <Button Text="Reset" 
+                                    BorderWidth="1"
+                                    BorderColor="Black"
+                                    TextColor="black"
+                                    BackgroundColor="Transparent"
+                                    CornerRadius="10"
+                                    HorizontalOptions="Center"
+                                    FontSize="25"
+                                    HeightRequest="50"
+                                    WidthRequest="100"
+                                    Clicked="ResetCreditsButton_Clicked"/>
+                        </Grid>
 
                         <StackLayout x:Name="AddCreditsOptionsButtons"
                             Orientation="Horizontal"
                             HorizontalOptions="Center">
-                            <Button HorizontalOptions="Center"
-                                    WidthRequest="70"
-                                    Text="+1"
+                            <Grid HorizontalOptions="Center"   
+                                  WidthRequest="75">
+                                <Frame CornerRadius="10" Padding="0">
+                                    <magic:GradientView VerticalOptions="FillAndExpand">
+                                        <magic:GradientView.GradientSource>
+                                            <magic:GradientCollection>
+                                                <magic:LinearGradient Angle="90">
+                                                    <magic:GradientStop Color="#BBBBBB" Offset="0" />
+                                                    <magic:GradientStop Color="#F2F2F2" Offset="0.6" />
+                                                    <magic:GradientStop Color="#BBBBBB" Offset="1" />
+                                                </magic:LinearGradient>
+                                            </magic:GradientCollection>
+                                        </magic:GradientView.GradientSource>
+                                    </magic:GradientView>
+                                </Frame>
+                                <Button Text="+1" 
                                     BorderWidth="1"
                                     BorderColor="Black"
                                     TextColor="black"
+                                    BackgroundColor="Transparent"
                                     CornerRadius="10"
+                                    HorizontalOptions="Center"
+                                    FontSize="25"
+                                    HeightRequest="50"
+                                    WidthRequest="75"
                                     Clicked="ButtonPlus1_Clicked"/>
-                            <Button HorizontalOptions="Center"
-                                    WidthRequest="70"
-                                    Text="+3"
+                            </Grid>
+                            <Grid HorizontalOptions="Center"   
+                                  WidthRequest="75">
+                                <Frame CornerRadius="10" Padding="0">
+                                    <magic:GradientView VerticalOptions="FillAndExpand">
+                                        <magic:GradientView.GradientSource>
+                                            <magic:GradientCollection>
+                                                <magic:LinearGradient Angle="90">
+                                                    <magic:GradientStop Color="#BBBBBB" Offset="0" />
+                                                    <magic:GradientStop Color="#F2F2F2" Offset="0.6" />
+                                                    <magic:GradientStop Color="#BBBBBB" Offset="1" />
+                                                </magic:LinearGradient>
+                                            </magic:GradientCollection>
+                                        </magic:GradientView.GradientSource>
+                                    </magic:GradientView>
+                                </Frame>
+                                <Button Text="+3" 
                                     BorderWidth="1"
                                     BorderColor="Black"
                                     TextColor="black"
+                                    BackgroundColor="Transparent"
                                     CornerRadius="10"
+                                    HorizontalOptions="Center"
+                                    FontSize="25"
+                                    HeightRequest="50"
+                                    WidthRequest="75"
                                     Clicked="ButtonPlus3_Clicked"/>
+                            </Grid>
                         </StackLayout>
                     </StackLayout>
 
@@ -227,13 +322,13 @@
                             <Button x:Name="ThirdScreenPaymentCounter"
                                     HorizontalOptions="Center" 
                                     BorderWidth="2"
-                                    BorderColor="Black"
-                                    TextColor="black"
+                                    BorderColor="#646464"
+                                    TextColor="#646464"
                                     CornerRadius="25"
-                                    WidthRequest="200"
-                                    HeightRequest="150"
+                                    WidthRequest="350"
+                                    HeightRequest="250"
                                     Text="5.00$"
-                                    FontSize="50"
+                                    FontSize="100"
                                     BackgroundColor="White"/>
                         </Grid>
                         <StackLayout  Margin="10,0,10,0"
@@ -244,17 +339,17 @@
                                       HeightRequest="50">
                             <StackLayout VerticalOptions="Center">
                                 <Label VerticalOptions="Center"
-                                       FontSize="Micro"
+                                       FontSize="18"
                                        TextColor="Black"
                                        Text="Tapez votre badge pour"/>
                                 <Label VerticalOptions="Center"
-                                       FontSize="Micro"
+                                       FontSize="18"
                                        TextColor="Black"
                                        Text="effectuer le paiement."/>
                             </StackLayout>
                             <Image Source="key_black"
                                    x:Name="ThirdSlideKey"
-                                   HeightRequest="5"/>
+                                   HeightRequest="50"/>
                         </StackLayout>
 
                     </StackLayout>
@@ -270,17 +365,17 @@
                                     HorizontalOptions="Center"
                                     VerticalOptions="Center"
                                     BorderWidth="2"
-                                    BorderColor="Black"
+                                    BorderColor="#646464"
                                     TextColor="#CC0000"
                                     CornerRadius="25"
-                                    WidthRequest="200"
-                                    HeightRequest="200"
+                                    WidthRequest="350"
+                                    HeightRequest="350"
                                     Text="1"
-                                    FontSize="120"
+                                    FontSize="200"
                                     BackgroundColor="White"/>
                             <Label Text="Crédits utilisés"
                                    HorizontalOptions="Center" 
-                                   TextColor="black"
+                                   TextColor="#646464"
                                    FontSize="Small"
                                    VerticalOptions="End"
                                    Margin="0,0,0,35"/>
@@ -290,13 +385,15 @@
                             <Image Source="Check_transparent.png"
                                    HorizontalOptions="Center" 
                                    x:Name="SuccessLabel"
-                                   WidthRequest="200"
+                                   WidthRequest="350"
                                    Margin="25,0,0,0"/>
                             <Label x:Name="PaymentSuccessLabel"
-                                Text="Paiement effectué!"
+                                   Text="Paiement effectué!"
+                                   FontSize="20"
                                    TextColor="black"
                                    HorizontalOptions="Center"/>
                             <Label Text="Merci!"
+                                   FontSize="20"
                                    TextColor="black"
                                    HorizontalOptions="Center"/>
                         </StackLayout>
@@ -306,17 +403,17 @@
                                     HorizontalOptions="Center" 
                                     VerticalOptions="Center"
                                     BorderWidth="2"
-                                    BorderColor="Black"
+                                    BorderColor="#646464"
                                     TextColor="#8dc73f"
                                     CornerRadius="25"
-                                    WidthRequest="200"
-                                    HeightRequest="200"
+                                    WidthRequest="350"
+                                    HeightRequest="350"
                                     Text="4"
-                                    FontSize="120"
+                                    FontSize="200"
                                     BackgroundColor="White"/>
                             <Label Text="Crédits disponibles"
                                    HorizontalOptions="Center" 
-                                   TextColor="black"
+                                   TextColor="#646464"
                                    FontSize="Small"
                                    VerticalOptions="End"
                                    Margin="0,0,0,35"/>
@@ -324,48 +421,67 @@
                     </StackLayout>
                 </StackLayout>
 
-                <Grid x:Name="AdminScreen" IsVisible="false">
+                <Grid x:Name="AdminScreen" IsVisible="true">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.3*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackLayout
                         HorizontalOptions="End"
-                        VerticalOptions="Start">
+                        VerticalOptions="Center">
                         <Button
                             Text="Animation place"
                             BackgroundColor="#8dc73f"
                             WidthRequest="450"
                             HeightRequest="100"/>
-
                         <StackLayout Orientation="Horizontal" 
-                                     Spacing="0">
-                            <Label TextColor="Black"                                                                 
-                                   FontSize="12"
-                                   VerticalOptions="Center"
-                                   Margin="20,0,0,0"
-                                   Text="Présentez votre porte-clé Tinng! à la fin de l'operation."/>
-                            <Image Source="key_black.png"
-                                   Margin="-15,0,0,0"
-                                   HeightRequest="50"/>
+                                     Spacing="0"
+                                     Margin="20,0,20,0">
+                            <Label TextColor="Black" 
+                                       FontSize="20"
+                                       VerticalOptions="Center"
+                                       Text="Présentez votre porte-clé"/>
+                            <Label TextColor="Black" 
+                                       FontSize="20"
+                                       VerticalOptions="Center"
+                                       FontAttributes="Bold"
+                                       Text=" Tinng!"/>
+                            <Label TextColor="Black" 
+                                       FontSize="20"
+                                       VerticalOptions="Center"
+                                       Text=" à la fin de l'operation."/>
+                            <Image x:Name="KeyAdminSlide"  Source="Key_black.png" HeightRequest="50"/>
                         </StackLayout>
-                    </StackLayout>
-
-                    <Grid Grid.Column="1">
-                        <Button x:Name="AdminScreenCounter"
+                    </StackLayout>                  
+                    <Grid Grid.Column="1" 
+                          HorizontalOptions="Center"  
+                          VerticalOptions="Center"
+                          HeightRequest="325"
+                          WidthRequest="325">
+                        <Frame CornerRadius="25" Padding="0">
+                            <magic:GradientView VerticalOptions="FillAndExpand">
+                                <magic:GradientView.GradientSource>
+                                    <magic:RadialGradient Center="0.5,0.5" RadiusX="200" RadiusY="200">
+                                        <magic:GradientStop Color="#F5CDCF" Offset="0" />
+                                        <magic:GradientStop Color="#DA3681" Offset="1" />
+                                    </magic:RadialGradient>
+                                </magic:GradientView.GradientSource>
+                            </magic:GradientView>
+                        </Frame>
+                        <Button x:Name="AdminScreenCounter" 
                                 HorizontalOptions="Center" 
                                 VerticalOptions="Center" 
                                 BorderWidth="3"
                                 BorderColor="Black"
+                                BackgroundColor="Transparent"
                                 TextColor="black"
                                 CornerRadius="25"
-                                WidthRequest="200"
-                                HeightRequest="200"
+                                WidthRequest="325"
+                                HeightRequest="325"
                                 Text="0"
-                                FontSize="Header"
-                                Margin="0,-20,40,0"
-                                BackgroundColor="PaleVioletRed"/>
+                                FontSize="200"/>
                     </Grid>
+
                 </Grid>
             </Grid>
         </Grid>
@@ -402,30 +518,37 @@
                     HeightRequest="150"
                     Opacity="0"
                     Clicked="ButtonAT_Clicked"/>-->
+        <StackLayout Orientation="Horizontal" VerticalOptions="End" HorizontalOptions="End">
+            <Button x:Name="T1Report" BorderWidth="3" BorderColor="DarkRed" CornerRadius="15" Text="T1" WidthRequest="50"/>
+            <Button x:Name="T2Report" BorderWidth="3" BorderColor="DarkRed" CornerRadius="15" Text="T2" WidthRequest="50"/>
+            <Button x:Name="T3Report" BorderWidth="3" BorderColor="DarkRed" CornerRadius="15" Text="T3" WidthRequest="50"/>
+            <Button x:Name="T4Report" BorderWidth="3" BorderColor="DarkRed" CornerRadius="15" Text="T4" WidthRequest="50"/>
+        </StackLayout>
+
         <StackLayout Orientation="Horizontal" VerticalOptions="End">
-            <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="T1" 
                     Clicked="ButtonT1_Clicked"/>
             <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="T2" 
-                    Clicked="ButtonT2_Clicked"/>-->
+                    Clicked="ButtonT2_Clicked"/>
             <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="T random" 
                     Clicked="ButtonT_Clicked"/>
             <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="Key Ch"
                     Clicked="ButtonKC_Clicked"/>
-            <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="Adm Tag" 
-                    Clicked="ButtonAT_Clicked"/>-->
+                    Clicked="ButtonAT_Clicked"/>
             <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="Sasha 1" 
                     x:Name="SashaButton"
                     Clicked="ButtonSasha1_Clicked"/>
             <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="Sasha 2" 
-                    Clicked="ButtonSasha2_Clicked"/>
-            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+                    Clicked="ButtonSasha2_Clicked"/>-->
+            <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     WidthRequest="80"
                     Text="Impinj" 
                     Clicked="ButtonImpinj_Clicked"/>-->
