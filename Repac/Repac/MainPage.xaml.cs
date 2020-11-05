@@ -838,7 +838,7 @@ namespace Repac
 
         async private void ButtonSasha1_Clicked(object sender, EventArgs e)
         {
-            Color aaa = SashaButton.BackgroundColor;
+            Color tempColor = SashaButton.BackgroundColor;
             SashaButton.BackgroundColor = Color.FromHex("#CC0000");
 
             ThirdSlideKey.TranslateTo(30, 5, 750, Easing.Linear);
@@ -857,7 +857,16 @@ namespace Repac
             ThirdSlideKey.TranslateTo(100, 100, 0);
             ThirdSlideKey.ScaleTo(0.1, 0);
             await ThirdSlideKey.FadeTo(1, 0);
-            SashaButton.BackgroundColor = aaa;
+
+            //-----
+
+            await ThirdSlideKey.TranslateTo(-50, -50, 500, Easing.Linear);
+            await ClickIcon.ScaleTo(0.8, 500);
+            await ClickIcon.ScaleTo(1, 500);
+            await ThirdSlideKey.FadeTo(0, 200);
+            await ThirdSlideKey.TranslateTo(0, 0, 0);
+
+            SashaButton.BackgroundColor = tempColor;
         }
 
         private void ButtonSasha2_Clicked(object sender, EventArgs e)

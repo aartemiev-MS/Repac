@@ -224,7 +224,9 @@
                                     WidthRequest="225"
                                     Clicked="AddCreditsButton_Clicked"/>
                         </Grid>
-                            <Image x:Name="ClickIcon" WidthRequest="50" Margin="-25,25,0,-25" Aspect="AspectFit" Source="clickIcon.png"/>
+                            <Grid WidthRequest="50" HeightRequest="50" Margin="-25,25,0,-25">
+                                <Image x:Name="ClickIcon" Aspect="AspectFit" Source="clickIcon.png"/>
+                            </Grid>
                         </StackLayout>
 
                         <Grid x:Name="ResetCreditsButton"
