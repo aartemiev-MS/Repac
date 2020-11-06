@@ -151,10 +151,11 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <AndroidResource Include="Assets\conveyor.png">
+    <Content Include="Assets\conveyor.png">
       <Generator>MSBuild:UpdateGeneratedFiles</Generator>
       <SubType>Designer</SubType>
-    </AndroidResource>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <AndroidResource Include="Assets\InviteIcon.png">
       <Generator>MSBuild:UpdateGeneratedFiles</Generator>
       <SubType>Designer</SubType>

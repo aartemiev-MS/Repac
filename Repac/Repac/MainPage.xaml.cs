@@ -36,8 +36,6 @@ namespace Repac
         List<ScanDTO> SessionScans { get; set; } = new List<ScanDTO>();
         UserDTO CurrentUser { get; set; }
 
-        private string dbPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "RepacCashRegister3.db");
-        private readonly Guid userSashaGuid = Guid.Parse("666b55ac-96e7-47b0-96d1-38622d0b176e");
         private static readonly Guid keyChainSashaGuid = Guid.Parse("b1056d6c-7f02-4f46-bdc6-e9feaff54a20");
         private static readonly Guid scannerId = Guid.Parse("c75cc42d-1295-4cea-ba9e-c0b88bddfa49");
 
@@ -77,8 +75,7 @@ namespace Repac
 
             Me = this;
 
-            MessagingCenter.Subscribe<string>(this, "NewTagDataReceived", (tag) => { NewTagDataReceived(tag); });
-            MessagingCenter.Subscribe<string>(this, "NewTagDataReceivedPhil", (tag) => { NewTagDataReceivedPhil(tag); });
+            MessagingCenter.Subscribe<string>(this, "NewTagDataReceivedNFC", (tag) => { NewTagDataReceivedPhil(tag); });
 
             SignalRHubCOnfiguration();
             ImpinjStart();
@@ -95,6 +92,7 @@ namespace Repac
                 KeyAdminSlide.Source = ImageSource.FromFile("Assets/key_black.png");
                 ThirdSlideKey.Source = ImageSource.FromFile("Assets/key_black.png");
                 ClickIcon.Source = ImageSource.FromFile("Assets/clickIcon.png");
+                ConveyorTemp.Source = ImageSource.FromFile("Assets/conveyor.png");
 
 
                 // ApplicationView.PreferredLaunchViewSize = new Windows.Foundation.Size(480, 800);
@@ -185,6 +183,8 @@ namespace Repac
             CurrentSlide = Slides.First;
             RightScreenDisplay(CurrentSlide);
             RightHeaderDisplay(CurrentSlide);
+
+            SashaButton.IsVisible = false;
         }
         private async void SecondSlideActivate()
         {
@@ -205,6 +205,8 @@ namespace Repac
             ThirdSlideKey.ScaleTo(0.1);
 
             ThirdSlideSetText();
+
+            SashaButton.IsVisible = true;
         }
         private void FourthSlideActivate()
         {
@@ -215,6 +217,8 @@ namespace Repac
             ResultCretits = 0;
 
             NullifyTimerSet();
+
+            SashaButton.IsVisible = false;
         }
 
         private void AdminSlideActivate()
@@ -499,6 +503,14 @@ namespace Repac
 
         private static void NewTagDataReceivedPhil(string tagMessage)
         {
+            //"3008 33B2 DDD9 0140 0000 0000":
+            //"E280 1160 6000 0207 1111 3017":
+            //"E280 6894 0000 4003 2C91 48FD": не нужно
+            //"E280 6894 0000 5003 2C91 48FC": не нужно
+
+            string newUserKeyChainID = "";
+            string newAdminKeyChainID = "";
+
             switch (tagMessage)
             {
                 case "A000 0000 0000 0000 0000 3144":
@@ -838,35 +850,38 @@ namespace Repac
 
         async private void ButtonSasha1_Clicked(object sender, EventArgs e)
         {
-            Color tempColor = SashaButton.BackgroundColor;
-            SashaButton.BackgroundColor = Color.FromHex("#CC0000");
+            if (SashaButton.BackgroundColor != Color.FromHex("#CC0000"))
+            {
+                Color tempColor = SashaButton.BackgroundColor;
+                SashaButton.BackgroundColor = Color.FromHex("#CC0000");
 
-            ThirdSlideKey.TranslateTo(30, 5, 750, Easing.Linear);
-            await ThirdSlideKey.ScaleTo(1, 750);
-            await Task.Delay(200);
+                ThirdSlideKey.TranslateTo(30, 5, 750, Easing.Linear);
+                await ThirdSlideKey.ScaleTo(1, 750);
+                await Task.Delay(200);
 
-            await ThirdSlideKey.RotateTo(20, 100);
-            await ThirdSlideKey.RotateTo(-20, 200);
-            await ThirdSlideKey.RotateTo(20, 200);
-            await ThirdSlideKey.RotateTo(-20, 200);
-            await ThirdSlideKey.RotateTo(0, 100);
+                await ThirdSlideKey.RotateTo(20, 100);
+                await ThirdSlideKey.RotateTo(-20, 200);
+                await ThirdSlideKey.RotateTo(20, 200);
+                await ThirdSlideKey.RotateTo(-20, 200);
+                await ThirdSlideKey.RotateTo(0, 100);
 
-            await Task.Delay(1000);
+                await Task.Delay(1000);
 
-            await ThirdSlideKey.FadeTo(0, 200);
-            ThirdSlideKey.TranslateTo(100, 100, 0);
-            ThirdSlideKey.ScaleTo(0.1, 0);
-            await ThirdSlideKey.FadeTo(1, 0);
+                await ThirdSlideKey.FadeTo(0, 200);
+                ThirdSlideKey.TranslateTo(100, 100, 0);
+                ThirdSlideKey.ScaleTo(0.1, 0);
+                await ThirdSlideKey.FadeTo(1, 0);
 
-            //-----
+                //-----
 
-            await ThirdSlideKey.TranslateTo(-50, -50, 500, Easing.Linear);
-            await ClickIcon.ScaleTo(0.8, 500);
-            await ClickIcon.ScaleTo(1, 500);
-            await ThirdSlideKey.FadeTo(0, 200);
-            await ThirdSlideKey.TranslateTo(0, 0, 0);
+                await ThirdSlideKey.TranslateTo(-50, -50, 500, Easing.Linear);
+                await ClickIcon.ScaleTo(0.8, 500);
+                await ClickIcon.ScaleTo(1, 500);
+                await ThirdSlideKey.FadeTo(0, 200);
+                await ThirdSlideKey.TranslateTo(0, 0, 0);
 
-            SashaButton.BackgroundColor = tempColor;
+                SashaButton.BackgroundColor = tempColor;
+            }
         }
 
         private void ButtonSasha2_Clicked(object sender, EventArgs e)
@@ -1162,22 +1177,28 @@ namespace Repac
             foreach (Tag tag in report)
             {
                 Console.WriteLine("EPC : {0} Timestamp : {1}", tag.Epc, tag.LastSeenTime);
-
-                string tagId = tag.Epc.ToString();
-
-                if (TagWasRecentlyScanned(tagId)) { return; }
-                ManageScansTimingTracker(tagId);
-                ManageTagReportStatus(tagId);
-
-                // MessagingCenter.Send(tag.Epc.ToString(), "NewTagDataReceivedPhil"); //way 1
-
-                Device.BeginInvokeOnMainThread(delegate () { NewTagDataReceivedPhil(tagId); }); //way 2
-
-                //Device.BeginInvokeOnMainThread(NewTagDataReceivedPhilBridge); //way 3
-
-                //await Task.Run(() => { NewTagDataReceivedPhil(tagId); }); //way 4
+                ReportTags(tag);
             }
 
+
+        }
+
+        static async void ReportTags(Tag tag)
+        {
+            string tagId = tag.Epc.ToString();
+
+            //way 1
+            if (TagWasRecentlyScanned(tagId)) { return; }
+            ManageScansTimingTracker(tagId);
+
+
+            //way 2
+            DateTime lastScanTime = DateTime.Parse(tag.LastSeenTime.ToString());
+            if (DateTime.Now - lastScanTime > scanDelay)
+            {
+                ManageTagReportStatus(tagId);
+                Device.BeginInvokeOnMainThread(delegate () { NewTagDataReceivedPhil(tagId); });
+            }
 
         }
 

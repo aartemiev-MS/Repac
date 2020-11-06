@@ -74,7 +74,7 @@
             </Grid>
             <Grid  Grid.Row="1" Grid.RowSpan="2">
                 <StackLayout x:Name="FirstScreen"
-                             IsVisible="false"
+                             IsVisible="true"
                              BackgroundColor="White"
                              VerticalOptions="Center" 
                              HorizontalOptions="Center" >
@@ -83,10 +83,11 @@
                            x:Name="WelcomeLogo"
                            HorizontalOptions="Center"
                            Margin="0,0,0,75"/>
-                    <forms:VideoView HorizontalOptions="Center" 
+                    <!--<forms:VideoView HorizontalOptions="Center" 
                                      WidthRequest="400"
                                      HeightRequest="100"
-                                     BackgroundColor="Orange"/>
+                                     BackgroundColor="Orange"/>-->
+                    <Image x:Name="ConveyorTemp" Source="conveyor.png" Margin="0,-80,0,0"/>
 
 
                 </StackLayout>
@@ -139,7 +140,7 @@
                 </Grid>
 
                 <Grid x:Name="ThirdScreen"
-                      IsVisible="true">
+                      IsVisible="false">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="10*"/>
                         <ColumnDefinition Width="7*"/>
@@ -524,15 +525,15 @@
         </StackLayout>
 
         <StackLayout Orientation="Horizontal" VerticalOptions="End">
-            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15" WidthRequest="50"
                     Text="T1" 
                     Clicked="ButtonT1_Clicked"/>
-            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15" WidthRequest="50"
                     Text="T2" 
                     Clicked="ButtonT2_Clicked"/>
-            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+            <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="T random" 
-                    Clicked="ButtonT_Clicked"/>
+                    Clicked="ButtonT_Clicked"/>-->
             <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="Key Ch"
                     Clicked="ButtonKC_Clicked"/>
