@@ -30,7 +30,7 @@ namespace Repac.Droid
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
-            LoadApplication(new App());
+            LoadApplication(new App(true));
         }
 
         protected override void OnPause()

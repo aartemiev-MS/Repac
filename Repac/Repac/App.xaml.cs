@@ -10,11 +10,11 @@ namespace Repac
 {
     public partial class App : Application
     {
-        public App()
+        public App(bool takeOffMode=false)
         {
             InitializeComponent();
 
-            MainPage = new MainPage();
+            MainPage = new MainPage(takeOffMode);
         }
 
         protected override void OnStart()

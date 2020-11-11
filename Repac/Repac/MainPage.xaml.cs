@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 
+
 namespace Repac
 {
     // Learn more about making custom code visible in the Xamarin.Forms previewer
@@ -31,6 +32,7 @@ namespace Repac
         int ProductsCredit { get; set; } = 0;
         int ExtraCreditsToBuy { get; set; } = 0;
         int ResultCretits { get; set; } = 0;
+        bool TakeOutMode { get; set; }
 
         ScanSession ScanSession { get; set; }
         List<ScanDTO> SessionScans { get; set; } = new List<ScanDTO>();
@@ -41,9 +43,36 @@ namespace Repac
 
         private static readonly TimeSpan scanDelay = new TimeSpan(4000);
 
-        private static Guid tag1Guid = Guid.Parse("51a29bbf-d4d3-43c9-b290-d2445611b0d3");
-        private static Guid tag2Guid = Guid.Parse("b8a43e30-d24d-43f9-a697-7d6614d6c786");
+        //Container tags
+        private static Dictionary<Guid, String> containerTags = new Dictionary<Guid, String>()
+        {
+            [Guid.Parse("51a29bbf-d4d3-43c9-b290-d2445611b0d3")] = "3008 33B2 DDD9 0140 0000 0000", //tag1
+            [Guid.Parse("b8a43e30-d24d-43f9-a697-7d6614d6c786")] = "E280 1160 6000 0207 1111 3017", //tag1
+            [Guid.Parse("00469717-ce49-4a04-aa0d-3a0ad9ff8801")] = "E280 1160 6000 0207 1110 F4F7", //tag1
+            [Guid.Parse("d1855273-312a-4c19-91ce-33c9fb8ec5e2")] = "E280 6894 0000 5003 2C91 48FC", //tag1
+            [Guid.Parse("390eedbf-792e-48de-bbb4-d6a6b7e8dd65")] = "E280 6894 0000 4003 2C91 48FD" //tag1
+        };
+
+        private static Dictionary<String, Guid> containerTagsEPCLookup = containerTags.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+
+        //Admin Keychains
         private static Guid tag3Guid = Guid.Parse("c55cf3d1-9fd5-435d-b7cc-ea36a1c1bf3c");
+
+        private static List<Guid> adminKeychains = new List<Guid>()
+        {
+           Guid.Parse("c55cf3d1-9fd5-435d-b7cc-ea36a1c1bf3c")
+        };
+
+        //User Keychains
+
+        private static Dictionary<Guid, UserDTO> userKeychains = new Dictionary<Guid, UserDTO>()
+        {
+            [Guid.Parse("b1056d6c-7f02-4f46-bdc6-e9feaff54a20")] = new UserDTO { FirstName = "Sasha", LastName = "Artemev", OwnedCredits = 5, UsedCredits = 0 },
+            [Guid.Parse("11b86ae9-9a49-4d2f-a9d9-27dfb1c4863a")] = new UserDTO { FirstName = "Denis", LastName = "Lopatin", OwnedCredits = 1, UsedCredits = 0 }
+        };
+
+
+
         private static Guid wrongTagGuid = Guid.Parse("8945418f-d9bb-43a1-b26a-ccaec30c2eec");
 
         private HubConnection hubConnection;
@@ -56,7 +85,8 @@ namespace Repac
         enum Slides
         {
             First,
-            Second,
+            SecondMain,
+            SecondTakeOut,
             Third,
             Fourth,
             Admin
@@ -69,11 +99,18 @@ namespace Repac
             Options
         }
 
-        public MainPage()
+        public MainPage(bool takeOutMode = false)
         {
             InitializeComponent();
 
+            if (takeOutMode)
+            {
+                WelcomeLogo.IsVisible = false;
+                ConveyorTemp.IsVisible = false;
+            }
+
             Me = this;
+            TakeOutMode = takeOutMode;
 
             MessagingCenter.Subscribe<string>(this, "NewTagDataReceivedNFC", (tag) => { NewTagDataReceivedPhil(tag); });
 
@@ -151,7 +188,7 @@ namespace Repac
         {
             switch (CurrentSlide)
             {
-                case Slides.Second:
+                case Slides.SecondMain:
                     //ThirdSlideActivate();
                     break;
                 case Slides.Third:
@@ -184,15 +221,35 @@ namespace Repac
             RightScreenDisplay(CurrentSlide);
             RightHeaderDisplay(CurrentSlide);
 
-            SashaButton.IsVisible = false;
+            StartMessageLabel.IsVisible = TakeOutMode ? true : false;
         }
-        private async void SecondSlideActivate()
+        private void SecondSlideActivate()
         {
-            CurrentSlide = Slides.Second;
+            if (TakeOutMode)
+            {
+                SecondSlideTakeOutActivate();
+            }
+            else
+            {
+                SecondSlideMainActivate();
+            }
+        }
+
+        private void SecondSlideMainActivate()
+        {
+            CurrentSlide = Slides.SecondMain;
             RightScreenDisplay(CurrentSlide);
             RightHeaderDisplay(CurrentSlide);
 
             //await Appear(SecondScreenCounter, 300);
+        }
+
+        private void SecondSlideTakeOutActivate()
+        {
+            CurrentSlide = Slides.SecondMain;
+            RightScreenDisplay(CurrentSlide);
+            RightHeaderDisplay(CurrentSlide);
+
         }
         private void ThirdSlideActivate()
         {
@@ -206,7 +263,7 @@ namespace Repac
 
             ThirdSlideSetText();
 
-            SashaButton.IsVisible = true;
+            // SashaButton.IsVisible = true;
         }
         private void FourthSlideActivate()
         {
@@ -218,7 +275,7 @@ namespace Repac
 
             NullifyTimerSet();
 
-            SashaButton.IsVisible = false;
+            //SashaButton.IsVisible = false;
         }
 
         private void AdminSlideActivate()
@@ -230,7 +287,8 @@ namespace Repac
         private void RightScreenDisplay(Slides slide)
         {
             FirstScreen.IsVisible = slide == Slides.First ? true : false;
-            SecondScreen.IsVisible = slide == Slides.Second ? true : false;
+            SecondScreenMain.IsVisible = slide == Slides.SecondMain ? true : false;
+            SecondScreenTakeOut.IsVisible = slide == Slides.SecondTakeOut ? true : false;
             ThirdScreen.IsVisible = slide == Slides.Third ? true : false;
             FourthScreen.IsVisible = slide == Slides.Fourth ? true : false;
             AdminScreen.IsVisible = slide == Slides.Admin ? true : false;
@@ -245,7 +303,7 @@ namespace Repac
             {
                 Header.IsVisible = true;
 
-                if (CurrentSlide == Slides.Second || CurrentSlide == Slides.Admin)
+                if (CurrentSlide == Slides.SecondMain || CurrentSlide == Slides.Admin)
                 {
                     UserInfo.IsVisible = false;
                     UserIcon.IsVisible = false;
@@ -339,7 +397,7 @@ namespace Repac
 
         private void ScanButton_Clicked(object sender, EventArgs e)
         {
-            NewScanOrAuthenticationHappend(tag1Guid);
+            //NewScanOrAuthenticationHappend(tag1Guid);
         }
         private void CancelScanButton_Clicked(object sender, EventArgs e)
         {
@@ -437,7 +495,7 @@ namespace Repac
         }
         private void ScanTag1_Clicked(object sender, EventArgs e)
         {
-            NewScanOrAuthenticationHappend(tag2Guid);
+            //NewScanOrAuthenticationHappend(tag2Guid);
         }
         private void ScanTag2_Clicked(object sender, EventArgs e)
         {
@@ -445,7 +503,7 @@ namespace Repac
         }
         private void CancelTag1_Clicked(object sender, EventArgs e)
         {
-            ScanDTO tag1Scan = SessionScans.Where(scan => scan.ContainerTagId == tag1Guid).FirstOrDefault();
+            ScanDTO tag1Scan = null; //= SessionScans.Where(scan => scan.ContainerTagId == tag1Guid).FirstOrDefault();
 
             if (tag1Scan != null)
             {
@@ -459,7 +517,7 @@ namespace Repac
         }
         private void CancelTag2_Clicked(object sender, EventArgs e)
         {
-            ScanDTO tag2Scan = SessionScans.Where(scan => scan.ContainerTagId == tag2Guid).FirstOrDefault();
+            ScanDTO tag2Scan = null; //= SessionScans.Where(scan => scan.ContainerTagId == tag2Guid).FirstOrDefault();
 
             if (tag2Scan != null)
             {
@@ -503,40 +561,17 @@ namespace Repac
 
         private static void NewTagDataReceivedPhil(string tagMessage)
         {
-            //"3008 33B2 DDD9 0140 0000 0000":
-            //"E280 1160 6000 0207 1111 3017":
-            //"E280 6894 0000 4003 2C91 48FD": не нужно
-            //"E280 6894 0000 5003 2C91 48FC": не нужно
+            Guid TagGuid;
+            if (!Guid.TryParse(tagMessage, out TagGuid)) TagGuid = containerTagsEPCLookup[tagMessage];
 
-            string newUserKeyChainID = "";
-            string newAdminKeyChainID = "";
+            if (adminKeychains.Contains(TagGuid) || containerTags.ContainsKey(TagGuid)) Me.TemporaryTestScan(TagGuid);
 
-            switch (tagMessage)
+            if (userKeychains.ContainsKey(TagGuid))
             {
-                case "A000 0000 0000 0000 0000 3144":
-
-                    Me.TemporaryTestScan(tag1Guid);
-                    break;
-
-                case "A000 0000 0000 0000 0000 3145":
-                    Me.TemporaryTestScan(tag2Guid);
-                    break;
-
-                case "A000 0000 0000 0000 0000 3146":
-                    Me.TemporaryTestScan(tag3Guid);
-                    break;
-
-                case "A000 0000 0000 0000 0000 3147":
-                    if (Me.CurrentSlide == Slides.Third)
-                    {
-                        Me.FinishSession();
-                    }
-                    else
-                    {
-                        Me.Authorized(new UserDTO() { FirstName = "Denis", LastName = "Lopatin", OwnedCredits = 1, UsedCredits = 0 });
-                    }
-                    break;
+                if (Me.CurrentSlide == Slides.Third) Me.FinishSession();
+                else Me.Authorized(userKeychains[TagGuid]);
             }
+
         }
 
 
@@ -579,7 +614,7 @@ namespace Repac
             {
                 CurrentUser = user;
 
-                if (CurrentSlide == Slides.First || CurrentSlide == Slides.Second || CurrentSlide == Slides.Fourth)
+                if (CurrentSlide == Slides.First || CurrentSlide == Slides.SecondMain || CurrentSlide == Slides.Fourth)
                 {
                     SmallConsoleMessage($"User {user.FirstName} {user.LastName} was authorized. Av Cr:{CurrentUser.AvailibleCredits} \r\n");
                     ThirdSlideActivate();
@@ -612,7 +647,7 @@ namespace Repac
         {
             if (CurrentSlide == Slides.First || CurrentSlide == Slides.Fourth)
             {
-                SecondSlideActivate();
+                SecondSlideMainActivate();
             }
 
             SessionScans.Add(verifiedScan);
@@ -663,10 +698,10 @@ namespace Repac
                     }
                     else
                     {
-                        SecondSlideActivate();
+                        SecondSlideMainActivate();
                     }
                 }
-                else if (CurrentSlide == Slides.Second && SessionScans.Count > 0)
+                else if (CurrentSlide == Slides.SecondMain && SessionScans.Count > 0)
                 {
                     AdminSlideActivate();
                 }
@@ -850,38 +885,38 @@ namespace Repac
 
         async private void ButtonSasha1_Clicked(object sender, EventArgs e)
         {
-            if (SashaButton.BackgroundColor != Color.FromHex("#CC0000"))
-            {
-                Color tempColor = SashaButton.BackgroundColor;
-                SashaButton.BackgroundColor = Color.FromHex("#CC0000");
+            //if (SashaButton.BackgroundColor != Color.FromHex("#CC0000"))
+            //{
+            //    Color tempColor = SashaButton.BackgroundColor;
+            //    SashaButton.BackgroundColor = Color.FromHex("#CC0000");
 
-                ThirdSlideKey.TranslateTo(30, 5, 750, Easing.Linear);
-                await ThirdSlideKey.ScaleTo(1, 750);
-                await Task.Delay(200);
+            //    ThirdSlideKey.TranslateTo(30, 5, 750, Easing.Linear);
+            //    await ThirdSlideKey.ScaleTo(1, 750);
+            //    await Task.Delay(200);
 
-                await ThirdSlideKey.RotateTo(20, 100);
-                await ThirdSlideKey.RotateTo(-20, 200);
-                await ThirdSlideKey.RotateTo(20, 200);
-                await ThirdSlideKey.RotateTo(-20, 200);
-                await ThirdSlideKey.RotateTo(0, 100);
+            //    await ThirdSlideKey.RotateTo(20, 100);
+            //    await ThirdSlideKey.RotateTo(-20, 200);
+            //    await ThirdSlideKey.RotateTo(20, 200);
+            //    await ThirdSlideKey.RotateTo(-20, 200);
+            //    await ThirdSlideKey.RotateTo(0, 100);
 
-                await Task.Delay(1000);
+            //    await Task.Delay(1000);
 
-                await ThirdSlideKey.FadeTo(0, 200);
-                ThirdSlideKey.TranslateTo(100, 100, 0);
-                ThirdSlideKey.ScaleTo(0.1, 0);
-                await ThirdSlideKey.FadeTo(1, 0);
+            //    await ThirdSlideKey.FadeTo(0, 200);
+            //    ThirdSlideKey.TranslateTo(100, 100, 0);
+            //    ThirdSlideKey.ScaleTo(0.1, 0);
+            //    await ThirdSlideKey.FadeTo(1, 0);
 
-                //-----
+            //    //-----
 
-                await ThirdSlideKey.TranslateTo(-50, -50, 500, Easing.Linear);
-                await ClickIcon.ScaleTo(0.8, 500);
-                await ClickIcon.ScaleTo(1, 500);
-                await ThirdSlideKey.FadeTo(0, 200);
-                await ThirdSlideKey.TranslateTo(0, 0, 0);
+            //    await ThirdSlideKey.TranslateTo(-50, -50, 500, Easing.Linear);
+            //    await ClickIcon.ScaleTo(0.8, 500);
+            //    await ClickIcon.ScaleTo(1, 500);
+            //    await ThirdSlideKey.FadeTo(0, 200);
+            //    await ThirdSlideKey.TranslateTo(0, 0, 0);
 
-                SashaButton.BackgroundColor = tempColor;
-            }
+            //    SashaButton.BackgroundColor = tempColor;
+            //}
         }
 
         private void ButtonSasha2_Clicked(object sender, EventArgs e)
@@ -973,7 +1008,7 @@ namespace Repac
                 ContainerTagId = id,
             };
 
-            if (CurrentSlide != Slides.Admin && TagWasAlreadyScanned(id) == false)
+            if (CurrentSlide != Slides.Admin && !TagWasAlreadyScanned(id) && !adminKeychains.Contains(id))
             {
                 ScanVerified(newScan);
             }
@@ -1023,6 +1058,8 @@ namespace Repac
         const string READER_HOSTNAME = "10.28.74.112";  // NEED to set to your speedway!
         // Create an instance of the ImpinjReader class.
         static ImpinjReader reader = new ImpinjReader();
+        static AntennaConfig antennaConfig;
+        static Impinj.OctaneSdk.Settings readerSettings;
 
         static void ConnectToReader()
         {
@@ -1031,17 +1068,8 @@ namespace Repac
                 Console.WriteLine("Attempting to connect to {0} ({1}).",
                     reader.Name, READER_HOSTNAME);
 
-                // The maximum number of connection attempts
-                // before throwing an exception.
-                //reader.MaxConnectionAttempts = 15;
-                // Number of milliseconds before a 
-                // connection attempt times out.
-                reader.ConnectTimeout = 6000;
-                // Connect to the reader.
-                // Change the ReaderHostname constant in SolutionConstants.cs 
-                // to the IP address or hostname of your reader.
                 reader.Connect(READER_HOSTNAME);
-                //Console.Clear();
+
                 Console.WriteLine("Successfully connected.");
 
                 // Tell the reader to send us any tag reports and 
@@ -1108,6 +1136,19 @@ namespace Repac
                 // Assign an event handler that will be called
                 // if the reader stops sending keepalives.
                 reader.ConnectionLost += OnConnectionLost;
+
+                // The maximum number of connection attempts
+                // before throwing an exception.
+                //reader.MaxConnectionAttempts = 15;
+                // Number of milliseconds before a
+                // connection attempt times out.
+                reader.ConnectTimeout = 6000;
+                // Connect to the reader.
+                // Change the ReaderHostname constant in SolutionConstants.cs
+                // to the IP address or hostname of your reader.
+
+                // Put Read power Tx to 20 Dbm.
+                foreach (AntennaConfig antenna in settings.Antennas) { antenna.TxPowerInDbm = 20; }
 
                 // Apply the newly modified settings.
                 reader.ApplySettings(settings);
@@ -1190,15 +1231,17 @@ namespace Repac
             //way 1
             if (TagWasRecentlyScanned(tagId)) { return; }
             ManageScansTimingTracker(tagId);
+            Device.BeginInvokeOnMainThread(delegate () { NewTagDataReceivedPhil(tagId); });
+
 
 
             //way 2
-            DateTime lastScanTime = DateTime.Parse(tag.LastSeenTime.ToString());
-            if (DateTime.Now - lastScanTime > scanDelay)
-            {
-                ManageTagReportStatus(tagId);
-                Device.BeginInvokeOnMainThread(delegate () { NewTagDataReceivedPhil(tagId); });
-            }
+            //DateTime lastScanTime = DateTime.Parse(tag.LastSeenTime.ToString());
+            //if (DateTime.Now - lastScanTime > scanDelay)
+            //{
+            //    ManageTagReportStatus(tagId);
+            //    Device.BeginInvokeOnMainThread(delegate () { NewTagDataReceivedPhil(tagId); });
+            //}
 
         }
 
@@ -1273,8 +1316,17 @@ namespace Repac
             lastScanTagId = null;
         }
 
+        private void ButtonSlide2_Clicked(object sender, EventArgs e)
+        {
+            SecondSlideActivate();
+        }
+
+        private void SmallKeyboardClicked(object sender, EventArgs e)
+        {
+            EmptyOrdersList.IsVisible = false;
+        }
+
         #endregion
-        
-        //Android.Util.AndroidRuntimeException: 'Only the original thread that created a view hierarchy can touch its views.'
+
     }
 }

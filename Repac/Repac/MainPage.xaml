@@ -74,7 +74,7 @@
             </Grid>
             <Grid  Grid.Row="1" Grid.RowSpan="2">
                 <StackLayout x:Name="FirstScreen"
-                             IsVisible="true"
+                             IsVisible="false"
                              BackgroundColor="White"
                              VerticalOptions="Center" 
                              HorizontalOptions="Center" >
@@ -82,17 +82,21 @@
                            HeightRequest="225"
                            x:Name="WelcomeLogo"
                            HorizontalOptions="Center"
-                           Margin="0,0,0,75"/>
+                           Margin="0,0,0,0"/>
+                    <StackLayout x:Name="StartMessageLabel" HorizontalOptions="Center" Orientation="Horizontal">
+                        <Label Text="Tapez votre badge pour commencer" TextColor="Black" FontSize="30"/>
+                        <Image x:Name="KeyFirstSlide"  Source="Key_black.png" HeightRequest="50"/>
+                    </StackLayout>
                     <!--<forms:VideoView HorizontalOptions="Center" 
                                      WidthRequest="400"
                                      HeightRequest="100"
                                      BackgroundColor="Orange"/>-->
-                    <Image x:Name="ConveyorTemp" Source="conveyor.png" Margin="0,-80,0,0"/>
+                    <Image x:Name="ConveyorTemp" Source="conveyor.png" Margin="0,0,0,0"/>
 
 
                 </StackLayout>
 
-                <Grid x:Name="SecondScreen"
+                <Grid x:Name="SecondScreenMain"
                       IsVisible="false">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="10*"/>
@@ -117,11 +121,9 @@
                         Grid.Column="1"
                         HorizontalOptions="End"
                         VerticalOptions="Center">
-                        <Button
-                            Text="Animation place"
-                            BackgroundColor="#8dc73f"
-                            WidthRequest="450"
-                            HeightRequest="100"/>
+                        <Image WidthRequest="450"
+                               HeightRequest="100"
+                               Source="conveyor.png"/>
                         <StackLayout Orientation="Horizontal" 
                                      Spacing="0"
                                      Margin="20,0,20,0">
@@ -139,6 +141,28 @@
                     </StackLayout>
                 </Grid>
 
+                <Grid x:Name="SecondScreenTakeOut" IsVisible="true" VerticalOptions="Center">
+                    <StackLayout x:Name="EmptyOrdersList">
+                        <Label Text="Les commandes s'en viennent!"
+                               HorizontalOptions="Center"
+                               TextColor="Black"
+                               FontSize="40"
+                               Margin="0,0,150,0"/>
+                        <Image Source="SunCloud.png" 
+                               HorizontalOptions="Center"
+                               WidthRequest="300"
+                               Margin="150,0,0,0"/>
+                    </StackLayout>
+                    <Image Source="SmallKeyboard.png" 
+                               HorizontalOptions="End"
+                               VerticalOptions="End"                                           
+                               WidthRequest="150">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="SmallKeyboardClicked"/>
+                        </Image.GestureRecognizers>
+                    </Image>
+                </Grid>
+                
                 <Grid x:Name="ThirdScreen"
                       IsVisible="false">
                     <Grid.ColumnDefinitions>
@@ -432,11 +456,9 @@
                     <StackLayout
                         HorizontalOptions="End"
                         VerticalOptions="Center">
-                        <Button
-                            Text="Animation place"
-                            BackgroundColor="#8dc73f"
-                            WidthRequest="450"
-                            HeightRequest="100"/>
+                        <Image WidthRequest="450"
+                               HeightRequest="100"
+                               Source="conveyor.png"/>
                         <StackLayout Orientation="Horizontal" 
                                      Spacing="0"
                                      Margin="20,0,20,0">
@@ -517,7 +539,7 @@
                     HeightRequest="150"
                     Opacity="0"
                     Clicked="ButtonAT_Clicked"/>-->
-        <StackLayout Orientation="Horizontal" VerticalOptions="End" HorizontalOptions="End">
+        <StackLayout Orientation="Horizontal" VerticalOptions="End" HorizontalOptions="End" IsVisible="false">
             <Button x:Name="T1Report" BorderWidth="3" BorderColor="DarkRed" CornerRadius="15" Text="T1" WidthRequest="50"/>
             <Button x:Name="T2Report" BorderWidth="3" BorderColor="DarkRed" CornerRadius="15" Text="T2" WidthRequest="50"/>
             <Button x:Name="T3Report" BorderWidth="3" BorderColor="DarkRed" CornerRadius="15" Text="T3" WidthRequest="50"/>
@@ -525,16 +547,16 @@
         </StackLayout>
 
         <StackLayout Orientation="Horizontal" VerticalOptions="End">
-            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15" WidthRequest="50"
+            <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15" WidthRequest="50"
                     Text="T1" 
                     Clicked="ButtonT1_Clicked"/>
             <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15" WidthRequest="50"
                     Text="T2" 
-                    Clicked="ButtonT2_Clicked"/>
+                    Clicked="ButtonT2_Clicked"/>-->
             <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="T random" 
                     Clicked="ButtonT_Clicked"/>-->
-            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
+            <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="Key Ch"
                     Clicked="ButtonKC_Clicked"/>
             <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
@@ -543,7 +565,7 @@
             <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="Anim" 
                     x:Name="SashaButton"
-                    Clicked="ButtonSasha1_Clicked"/>
+                    Clicked="ButtonSasha1_Clicked"/>-->
             <!--<Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15"
                     Text="Sasha 2" 
                     Clicked="ButtonSasha2_Clicked"/>-->
@@ -551,6 +573,7 @@
                     WidthRequest="80"
                     Text="Impinj" 
                     Clicked="ButtonImpinj_Clicked"/>-->
+            <Button BorderWidth="3" BorderColor="DarkRed" CornerRadius="15" Text="Slide 2" Clicked="ButtonSlide2_Clicked"/>
         </StackLayout>
     </Grid>
 </ContentPage>
