@@ -2,7 +2,7 @@
 
 namespace Repac.Data.Models
 {
-    class UserDTO
+    public class UserDTO
     {
         public Guid UserId { get; set; }
         public Guid KeyChainId { get; set; }
